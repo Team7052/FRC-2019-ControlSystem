@@ -7,10 +7,14 @@
 
 package frc.robot;
 
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+//import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.Spark;
+import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -20,16 +24,46 @@ import edu.wpi.first.wpilibj.command.Scheduler;
  * project.
  */
 public class Robot extends TimedRobot {
-  WPI_TalonSRX motor1;
+  //WPI_TalonSRX motor1;
   public static OI m_oi;
+
+  int motor = 0;
+	int kevingay = 1;
+	int calebcewl = 2;
+	int kevingaymore = 3;
+	Spark sparkmotor;
+	Spark sparkkevingay;
+	Spark sparkcalebcewl;
+	Spark sparkkevingaymore;
+	SpeedControllerGroup left;
+	SpeedControllerGroup right;
 
   /**
    * This function is run when the robot is first started up and should be
    * used for any initialization code.
    */
+  Spark leftMotor;
+  Spark rightMotor;
+  DifferentialDrive drive;
+  Joystick joystick;
+
   @Override
   public void robotInit() {
-    m_oi = new OI();
+   // m_oi = new OI(0);
+    /*rightMotor = new Spark(0);
+    leftMotor = new Spark(3);
+    joystick = new Joystick(0);
+    drive = new DifferentialDrive(leftMotor, rightMotor);
+*/
+    
+      sparkmotor = new Spark(motor);
+		  sparkkevingay = new Spark(kevingay);
+		  sparkcalebcewl = new Spark(calebcewl);
+		sparkkevingaymore = new Spark(kevingaymore);
+		
+		right = new SpeedControllerGroup(sparkkevingay, sparkmotor);
+		left = new SpeedControllerGroup(sparkcalebcewl,sparkkevingaymore);
+    
   }
 
   /**
@@ -80,6 +114,7 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {
     Scheduler.getInstance().run();
+    
   }
 
   @Override
@@ -96,6 +131,24 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     Scheduler.getInstance().run();
+    double y = joystick.getRawAxis(1);
+    double x = joystick.getRawAxis(2);
+    drive.tankDrive(x, y);
+    /* 
+    Scheduler.getInstance().run();
+		if (joystick.getRawAxis(0) > 0.5) {
+			sparkmotor.set(0.8);
+		}
+		else if (joystick.getRawAxis(0) < -0.5) {
+			sparkmotor.set(-0.8);
+		}
+		else {
+			sparkmotor.set(0.0);
+		}
+		if (joystick.getRawAxis(1)) {
+			
+		}
+    */
   }
 
   /**
