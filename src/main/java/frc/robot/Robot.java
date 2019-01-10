@@ -27,6 +27,7 @@ public class Robot extends TimedRobot {
   //WPI_TalonSRX motor1;
   public static OI m_oi;
 
+<<<<<<< HEAD
   /*int motor = 0;
 	int kevingay = 1;
 	int calebcewl = 2;
@@ -38,6 +39,8 @@ public class Robot extends TimedRobot {
 	SpeedControllerGroup left;
 	SpeedControllerGroup right;*/
 
+=======
+>>>>>>> 5cf1c77cbe3291c63a7643ced3e6192b270d2398
   /**
    * This function is run when the robot is first started up and should be
    * used for any initialization code.
@@ -52,6 +55,7 @@ public class Robot extends TimedRobot {
     rightMotor = new Spark(0);
     leftMotor = new Spark(3);
     joystick = new Joystick(0);
+<<<<<<< HEAD
 
     
       /*sparkmotor = new Spark(motor);
@@ -62,6 +66,12 @@ public class Robot extends TimedRobot {
 		right = new SpeedControllerGroup(sparkkevingay, sparkmotor);
 		left = new SpeedControllerGroup(sparkcalebcewl,sparkkevingaymore);
     */
+=======
+    drive = new DifferentialDrive(leftMotor, rightMotor);
+
+    
+    
+>>>>>>> 5cf1c77cbe3291c63a7643ced3e6192b270d2398
   }
 
   /**
@@ -131,6 +141,7 @@ public class Robot extends TimedRobot {
     Scheduler.getInstance().run();
     double y = joystick.getRawAxis(1);
     double x = joystick.getRawAxis(2);
+<<<<<<< HEAD
     
     double leftSpeed = y * 0.7;
     double rightSpeed = y * 0.7;
@@ -169,6 +180,9 @@ public class Robot extends TimedRobot {
 			
 		}
     */
+=======
+    drive.tankDrive(x, y);
+>>>>>>> 5cf1c77cbe3291c63a7643ced3e6192b270d2398
   }
 
   /**
