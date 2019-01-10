@@ -27,51 +27,36 @@ public class Robot extends TimedRobot {
   //WPI_TalonSRX motor1;
   public static OI m_oi;
 
-<<<<<<< HEAD
-  /*int motor = 0;
-	int kevingay = 1;
-	int calebcewl = 2;
-	int kevingaymore = 3;
-	Spark sparkmotor;
-	Spark sparkkevingay;
-	Spark sparkcalebcewl;
-	Spark sparkkevingaymore;
-	SpeedControllerGroup left;
-	SpeedControllerGroup right;*/
 
-=======
->>>>>>> 5cf1c77cbe3291c63a7643ced3e6192b270d2398
   /**
    * This function is run when the robot is first started up and should be
    * used for any initialization code.
    */
-  Spark leftMotor;
-  Spark rightMotor;
+  Spark frontLeftMotor;
+  Spark backRightMotor;
+  Spark frontRightMotor;
+  Spark backLeftMotor;
   Joystick joystick;
+  SpeedControllerGroup leftMotorGroup;
+  SpeedControllerGroup rightMotorGroup;
+
+
 
   @Override
   public void robotInit() {
    // m_oi = new OI(0);
-    rightMotor = new Spark(0);
-    leftMotor = new Spark(3);
+    frontRightMotor = new Spark(0);
+    backRightMotor = new Spark(1);
+    frontLeftMotor = new Spark(3);
+    backLeftMotor = new Spark(2);
+
+    frontLeftMotor.setInverted(true);
+
+    rightMotorGroup = new SpeedControllerGroup(frontRightMotor, backRightMotor);
+    leftMotorGroup = new SpeedControllerGroup(frontLeftMotor, backLeftMotor);
     joystick = new Joystick(0);
-<<<<<<< HEAD
-
-    
-      /*sparkmotor = new Spark(motor);
-		  sparkkevingay = new Spark(kevingay);
-		  sparkcalebcewl = new Spark(calebcewl);
-		sparkkevingaymore = new Spark(kevingaymore);
-		
-		right = new SpeedControllerGroup(sparkkevingay, sparkmotor);
-		left = new SpeedControllerGroup(sparkcalebcewl,sparkkevingaymore);
-    */
-=======
-    drive = new DifferentialDrive(leftMotor, rightMotor);
-
     
     
->>>>>>> 5cf1c77cbe3291c63a7643ced3e6192b270d2398
   }
 
   /**
@@ -139,9 +124,61 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     Scheduler.getInstance().run();
+    //runTankDrive();
+    runTriggerDrive();
+    /* 
+    Scheduler.getInstance().run();
+		if (joystick.getRawAxis(0) > 0.5) {
+			sparkmotor.set(0.8);
+		}
+		else if (joystick.getRawAxis(0) < -0.5) {
+			sparkmotor.set(-0.8);
+		}
+		else {
+			sparkmotor.set(0.0);
+		}
+		if (joystick.getRawAxis(1)) {
+			
+		}
+    */
+  }
+
+  public void runTriggerDrive(){
+    double x = joystick.getRawAxis(0);
+    double r2 = joystick.getRawAxis(7);
+    double l2 = joystick.getRawAxis(6);
+    double forwardSpeed = Math.atan(r2);
+    double backwardSpeed = -Math.atan(l2);
+    double leftSpeed = forwardSpeed+backwardSpeed;
+    double rightSpeed = forwardSpeed+backwardSpeed;
+
+    if (x > 0.1) {
+        rightSpeed= rightSpeed*(1-x);
+    }
+    if(x<-0.1){
+        leftSpeed = leftSpeed*(1-x);
+    }
+
+    if ((Math.abs(l2)-Math.abs(r2))<0.1){
+      if(x>0.1){
+        rightSpeed = -0.5;
+        leftSpeed = 0.5;
+      }
+      if(x<-0.1){
+        rightSpeed = 0.5;
+        leftSpeed = -0.5;
+      }
+    }
+    
+
+    System.out.println("left: " + leftSpeed + ", right: " + rightSpeed);
+    leftMotorGroup.set(0);
+    rightMotorGroup.set(0);
+  }
+  public void runTankDrive(){
+    Scheduler.getInstance().run();
     double y = joystick.getRawAxis(1);
-    double x = joystick.getRawAxis(2);
-<<<<<<< HEAD
+    double x = joystick.getRawAxis(0);
     
     double leftSpeed = y * 0.7;
     double rightSpeed = y * 0.7;
@@ -162,27 +199,8 @@ public class Robot extends TimedRobot {
       }
     }
 
-    leftMotor.set(-leftSpeed);
-    rightMotor.set(rightSpeed);
-    
-    /* 
-    Scheduler.getInstance().run();
-		if (joystick.getRawAxis(0) > 0.5) {
-			sparkmotor.set(0.8);
-		}
-		else if (joystick.getRawAxis(0) < -0.5) {
-			sparkmotor.set(-0.8);
-		}
-		else {
-			sparkmotor.set(0.0);
-		}
-		if (joystick.getRawAxis(1)) {
-			
-		}
-    */
-=======
-    drive.tankDrive(x, y);
->>>>>>> 5cf1c77cbe3291c63a7643ced3e6192b270d2398
+    leftMotorGroup.set(leftSpeed);
+    rightMotorGroup.set(rightSpeed);
   }
 
   /**
