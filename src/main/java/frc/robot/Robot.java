@@ -156,7 +156,7 @@ public class Robot extends TimedRobot {
         rightSpeed= rightSpeed*(1-x);
     }
     if(x<-0.1){
-        leftSpeed = leftSpeed*(1-x);
+        leftSpeed = leftSpeed*(1+x);
     }
 
     if ((Math.abs(l2)-Math.abs(r2))<0.1){
@@ -169,11 +169,8 @@ public class Robot extends TimedRobot {
         leftSpeed = -0.5;
       }
     }
-    
-
-    System.out.println("left: " + leftSpeed + ", right: " + rightSpeed);
-    leftMotorGroup.set(0);
-    rightMotorGroup.set(0);
+    leftMotorGroup.set(leftSpeed);
+    rightMotorGroup.set(rightSpeed);
   }
   public void runTankDrive(){
     Scheduler.getInstance().run();
