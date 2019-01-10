@@ -27,7 +27,7 @@ public class Robot extends TimedRobot {
   //WPI_TalonSRX motor1;
   public static OI m_oi;
 
-  int motor = 0;
+  /*int motor = 0;
 	int kevingay = 1;
 	int calebcewl = 2;
 	int kevingaymore = 3;
@@ -36,7 +36,7 @@ public class Robot extends TimedRobot {
 	Spark sparkcalebcewl;
 	Spark sparkkevingaymore;
 	SpeedControllerGroup left;
-	SpeedControllerGroup right;
+	SpeedControllerGroup right;*/
 
   /**
    * This function is run when the robot is first started up and should be
@@ -44,26 +44,24 @@ public class Robot extends TimedRobot {
    */
   Spark leftMotor;
   Spark rightMotor;
-  DifferentialDrive drive;
   Joystick joystick;
 
   @Override
   public void robotInit() {
    // m_oi = new OI(0);
-    /*rightMotor = new Spark(0);
+    rightMotor = new Spark(0);
     leftMotor = new Spark(3);
     joystick = new Joystick(0);
-    drive = new DifferentialDrive(leftMotor, rightMotor);
-*/
+
     
-      sparkmotor = new Spark(motor);
+      /*sparkmotor = new Spark(motor);
 		  sparkkevingay = new Spark(kevingay);
 		  sparkcalebcewl = new Spark(calebcewl);
 		sparkkevingaymore = new Spark(kevingaymore);
 		
 		right = new SpeedControllerGroup(sparkkevingay, sparkmotor);
 		left = new SpeedControllerGroup(sparkcalebcewl,sparkkevingaymore);
-    
+    */
   }
 
   /**
@@ -133,7 +131,29 @@ public class Robot extends TimedRobot {
     Scheduler.getInstance().run();
     double y = joystick.getRawAxis(1);
     double x = joystick.getRawAxis(2);
-    drive.tankDrive(x, y);
+    
+    double leftSpeed = y * 0.7;
+    double rightSpeed = y * 0.7;
+    if (Math.abs(x) > 0.1) {
+      if (x > 0) {
+        rightSpeed = 0;
+        if (Math.abs(leftSpeed) < 0.1) {
+          rightSpeed = 0.5;
+          leftSpeed = -0.5;
+        }
+      }
+      else if (x < 0) {
+        leftSpeed = 0;
+        if (Math.abs(leftSpeed) < 0.1) {
+          rightSpeed = -0.5;
+          leftSpeed = 0.5;
+        }
+      }
+    }
+
+    leftMotor.set(-leftSpeed);
+    rightMotor.set(rightSpeed);
+    
     /* 
     Scheduler.getInstance().run();
 		if (joystick.getRawAxis(0) > 0.5) {
