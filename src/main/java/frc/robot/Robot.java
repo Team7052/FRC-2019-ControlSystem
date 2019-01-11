@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import frc.joysticks.Logitech;
+import frc.robot.commands.TankDriveCommand;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -41,11 +42,10 @@ public class Robot extends TimedRobot {
   SpeedControllerGroup leftMotorGroup;
   SpeedControllerGroup rightMotorGroup;
 
-
+  TankDriveCommand driveCommand;
 
   @Override
   public void robotInit() {
-   // m_oi = new OI(0);
     frontRightMotor = new Spark(0);
     backRightMotor = new Spark(1);
     frontLeftMotor = new Spark(3);
@@ -58,6 +58,8 @@ public class Robot extends TimedRobot {
 
       //change Logitech to newly extended class
     oi = new Logitech(0);
+
+    driveCommand = new TankDriveCommand();
     
   }
 
@@ -109,7 +111,6 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {
     Scheduler.getInstance().run();
-    
   }
 
   @Override
@@ -125,81 +126,9 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopPeriodic() {
+    Scheduler.getInstance().add(driveCommand);
     Scheduler.getInstance().run();
-    //runTankDrive();
-    runTriggerDrive();
-    /* 
-    Scheduler.getInstance().run();
-		if (joystick.getRawAxis(0) > 0.5) {
-			sparkmotor.set(0.8);
-		}
-		else if (joystick.getRawAxis(0) < -0.5) {
-			sparkmotor.set(-0.8);
-		}
-		else {
-			sparkmotor.set(0.0);
-		}
-		if (joystick.getRawAxis(1)) {
-			
-		}
-    */
-  }
-
-  public void runTriggerDrive(){
-    double x = joystick.getRawAxis(0);
-    double r2 = joystick.getRawAxis(7);
-    double l2 = joystick.getRawAxis(6);
-    double forwardSpeed = Math.atan(r2);
-    double backwardSpeed = -Math.atan(l2);
-    double leftSpeed = forwardSpeed+backwardSpeed;
-    double rightSpeed = forwardSpeed+backwardSpeed;
-
-    if (x > 0.1) {
-        rightSpeed= rightSpeed*(1-x);
-    }
-    if(x<-0.1){
-        leftSpeed = leftSpeed*(1+x);
-    }
-
-    if ((Math.abs(l2)-Math.abs(r2))<0.1){
-      if(x>0.1){
-        rightSpeed = -0.5;
-        leftSpeed = 0.5;
-      }
-      if(x<-0.1){
-        rightSpeed = 0.5;
-        leftSpeed = -0.5;
-      }
-    }
-    leftMotorGroup.set(leftSpeed);
-    rightMotorGroup.set(rightSpeed);
-  }
-  public void runTankDrive(){
-    Scheduler.getInstance().run();
-    double y = joystick.getRawAxis(1);
-    double x = joystick.getRawAxis(0);
     
-    double leftSpeed = y * 0.7;
-    double rightSpeed = y * 0.7;
-    if (Math.abs(x) > 0.1) {
-      if (x > 0) {
-        rightSpeed = 0;
-        if (Math.abs(leftSpeed) < 0.1) {
-          rightSpeed = 0.5;
-          leftSpeed = -0.5;
-        }
-      }
-      else if (x < 0) {
-        leftSpeed = 0;
-        if (Math.abs(leftSpeed) < 0.1) {
-          rightSpeed = -0.5;
-          leftSpeed = 0.5;
-        }
-      }
-    }
-
-    leftMotorGroup.set(leftSpeed);
-    rightMotorGroup.set(rightSpeed);
   }
 
   /**
