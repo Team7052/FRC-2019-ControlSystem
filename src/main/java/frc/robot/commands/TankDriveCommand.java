@@ -26,12 +26,33 @@ public class TankDriveCommand extends Command {
         super.execute();
 
         // your code goes here:
-        double value = Robot.oi.axisLeft_X();
-        if (value < 0.2) {
-            value = 0;
-        }
-        driveTrain.setLeftGroupSpeed(value * 0.7);
-        driveTrain.setRightGroupSpeed(value * 0.7);
+    double x = Robot.oi.axisLeft_X();
+    double r2 = Robot.oi.axisTrigger_R2();
+    double l2 = Robot.oi.axisTrigger_L2();
+    double forwardSpeed = Math.atan(r2);
+    double backwardSpeed = -Math.atan(l2);
+    double leftSpeed = forwardSpeed+backwardSpeed;
+    double rightSpeed = forwardSpeed+backwardSpeed;
+
+    if (x > 0.1) {
+        rightSpeed= rightSpeed*(1-x);
+    }
+    if(x<-0.1){
+        leftSpeed = leftSpeed*(1+x);
+    }
+
+    if ((Math.abs(l2)-Math.abs(r2))<0.1){
+      if(x>0.1){
+        rightSpeed = -0.5;
+        leftSpeed = 0.5;
+      }
+      if(x<-0.1){
+        rightSpeed = 0.5;
+        leftSpeed = -0.5;
+      }
+    }
+    driveTrain.setLeftGroupSpeed(leftSpeed);
+    driveTrain.setRightGroupSpeed(rightSpeed);
     }
 
     @Override
