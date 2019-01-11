@@ -22,10 +22,10 @@ public class DriveTrain extends Subsystem {
 
   // always get the current instance of the drive train
   public static DriveTrain getInstance() {
-    if (DriveTrain.instance == null) {
-      return new DriveTrain();
-    }
-    return DriveTrain.instance;
+    System.out.println(instance);
+    if (instance == null) {
+;    }
+    return instance;
   }
 
   private Spark frontLeftMotor;
@@ -42,6 +42,8 @@ public class DriveTrain extends Subsystem {
     backLeftMotor = new Spark(RobotMap.backLeftMotor);
     frontRightMotor = new Spark(RobotMap.frontRightMotor);
     backRightMotor = new Spark(RobotMap.backRightMotor);
+
+    frontLeftMotor.setInverted(true);
 
     leftSpeedGroup = new SpeedControllerGroup(frontLeftMotor, backLeftMotor);
     rightSpeedGroup = new SpeedControllerGroup(frontRightMotor, backRightMotor);

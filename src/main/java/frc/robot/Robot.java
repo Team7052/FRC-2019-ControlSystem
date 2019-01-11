@@ -8,10 +8,6 @@
 package frc.robot;
 
 //import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.Spark;
-import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import frc.joysticks.Logitech;
@@ -34,33 +30,12 @@ public class Robot extends TimedRobot {
    * This function is run when the robot is first started up and should be
    * used for any initialization code.
    */
-  Spark frontLeftMotor;
-  Spark backRightMotor;
-  Spark frontRightMotor;
-  Spark backLeftMotor;
-  Joystick joystick;
-  SpeedControllerGroup leftMotorGroup;
-  SpeedControllerGroup rightMotorGroup;
-
-  TankDriveCommand driveCommand;
+  TankDriveCommand driveCommand = new TankDriveCommand();
 
   @Override
   public void robotInit() {
-    frontRightMotor = new Spark(0);
-    backRightMotor = new Spark(1);
-    frontLeftMotor = new Spark(3);
-    backLeftMotor = new Spark(2);
-
-    frontLeftMotor.setInverted(true);
-
-    rightMotorGroup = new SpeedControllerGroup(frontRightMotor, backRightMotor);
-    leftMotorGroup = new SpeedControllerGroup(frontLeftMotor, backLeftMotor);
-
       //change Logitech to newly extended class
-    oi = new Logitech(0);
-
-    driveCommand = new TankDriveCommand();
-    
+    oi = new Logitech(0);    
   }
 
   /**

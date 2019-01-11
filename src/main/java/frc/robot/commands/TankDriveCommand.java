@@ -13,7 +13,7 @@ public class TankDriveCommand extends Command {
         driveTrain = DriveTrain.getInstance();
         
         //required for each command to know which subsystems it will be using
-        requires(driveTrain);
+        //requires(driveTrain);
     }
 
     @Override
