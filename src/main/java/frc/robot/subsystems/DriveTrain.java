@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import frc.robot.RobotMap;
+import frc.robot.commands.TankDriveCommand;
 
 /**
  * An example subsystem.  You can replace me with your own Subsystem.
@@ -27,13 +28,13 @@ public class DriveTrain extends Subsystem {
     return DriveTrain.instance;
   }
 
-  Spark frontLeftMotor;
-  Spark backLeftMotor;
-  Spark frontRightMotor;
-  Spark backRightMotor;
+  private Spark frontLeftMotor;
+  private Spark backLeftMotor;
+  private Spark frontRightMotor;
+  private Spark backRightMotor;
 
-  SpeedControllerGroup leftSpeedGroup;
-  SpeedControllerGroup rightSpeedGroup;
+  private SpeedControllerGroup leftSpeedGroup;
+  private SpeedControllerGroup rightSpeedGroup;
 
   // private initializer so you can't initialize more than 1 drive train
   private DriveTrain() {
@@ -46,11 +47,19 @@ public class DriveTrain extends Subsystem {
     rightSpeedGroup = new SpeedControllerGroup(frontRightMotor, backRightMotor);
   }
 
-  
-
   @Override
   public void initDefaultCommand() {
     // Set the default command for a subsystem here.
-    // setDefaultCommand(new MySpecialCommand());
+    TankDriveCommand driveCommand = new TankDriveCommand();
+    // define the Trigger drive here
+    setDefaultCommand(driveCommand);
+  }
+
+  /* public methods callable by commands */
+  public void setLeftGroupSpeed(double speed) {
+    leftSpeedGroup.set(speed);
+  }
+  public void setRightGroupSpeed(double speed) {
+    rightSpeedGroup.set(speed);
   }
 }

@@ -18,4 +18,11 @@ public class OI {
   public OI(int port) {
     joystick = new Joystick(port);
   }
+
+  public double getAxis(int pin) {
+    return joystick.getRawAxis(pin);
+  }
+  public boolean getButton(int pin) {
+    return joystick.getRawButton(pin);
+  }
 }
