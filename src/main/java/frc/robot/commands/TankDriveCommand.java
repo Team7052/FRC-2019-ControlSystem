@@ -26,7 +26,7 @@ public class TankDriveCommand extends Command {
         super.execute();
 
         // your code goes here:
-        double value = Robot.oi.getAxis(0);
+        double value = Robot.oi.axisLeft_X();
         if (value < 0.2) {
             value = 0;
         }

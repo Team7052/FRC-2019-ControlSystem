@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
+import frc.joysticks.Logitech;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -24,7 +25,9 @@ import edu.wpi.first.wpilibj.command.Scheduler;
  */
 public class Robot extends TimedRobot {
   //WPI_TalonSRX motor1;
-  public static OI oi;
+  
+  //change Logitech to newly extended class
+  public static Logitech oi;
 
 
   /**
