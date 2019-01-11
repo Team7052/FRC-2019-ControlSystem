@@ -11,8 +11,8 @@ public class PS4 extends OI {
     @Override public double axisLeft_Y() { return this.getAxis(1); }
     @Override public double axisRight_X() { return this.getAxis(2); }
     @Override public double axisRight_Y() { return -this.getAxis(3); }
-    @Override public double axisTrigger_L2() { return this.button_L2() ? 1 : 0; }
-    @Override public double axisTrigger_R2() { return this.button_R2() ? 1 : 0; }
+    @Override public double axisTrigger_L2() { return this.getAxis(2);}
+    @Override public double axisTrigger_R2() { return this.getAxis(4);}
     @Override public boolean button_X() { return this.getButton(0); }
     @Override public boolean button_Y() { return this.getButton(2); }
     @Override public boolean button_A() { return this.getButton(1); }
