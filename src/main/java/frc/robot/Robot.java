@@ -25,9 +25,8 @@ import frc.joysticks.Logitech;
  */
 public class Robot extends TimedRobot {
   //WPI_TalonSRX motor1;
-  
-  //change Logitech to newly extended class
-  public static Logitech oi;
+
+  public static OI oi;
 
 
   /**
@@ -56,8 +55,9 @@ public class Robot extends TimedRobot {
 
     rightMotorGroup = new SpeedControllerGroup(frontRightMotor, backRightMotor);
     leftMotorGroup = new SpeedControllerGroup(frontLeftMotor, backLeftMotor);
-    joystick = new Joystick(0);
-    
+
+      //change Logitech to newly extended class
+    oi = new Logitech(0);
     
   }
 
