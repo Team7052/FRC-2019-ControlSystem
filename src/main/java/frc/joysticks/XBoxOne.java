@@ -4,8 +4,8 @@ import frc.robot.OI;
 
 // TODO: Map out joystick
 
-public class PS4 extends OI {
-    public PS4(int port) { super(port); }
+public class XBoxOne extends OI {
+    public XBoxOne(int port) { super(port); }
 
     @Override public double axisLeft_X() { return this.getAxis(0); }
     @Override public double axisLeft_Y() { return this.getAxis(1); }
