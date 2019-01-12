@@ -24,7 +24,8 @@ public class DriveTrain extends Subsystem {
   public static DriveTrain getInstance() {
     System.out.println(instance);
     if (instance == null) {
-;    }
+      instance = new DriveTrain();
+    }
     return instance;
   }
 
@@ -52,9 +53,7 @@ public class DriveTrain extends Subsystem {
   @Override
   public void initDefaultCommand() {
     // Set the default command for a subsystem here.
-    TankDriveCommand driveCommand = new TankDriveCommand();
     // define the Trigger drive here
-    setDefaultCommand(driveCommand);
   }
 
   /* public methods callable by commands */
