@@ -9,6 +9,7 @@ public class TankDriveCommand extends Command {
 	double currentSpeedRight = 0;
     // declare subsystem variable
     DriveTrain driveTrain;
+    
     public TankDriveCommand() {
         super("Tank Drive Command");
         // get drive train subsystem instance

@@ -7,7 +7,6 @@
 
 package frc.robot;
 
-//import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import frc.joysticks.Logitech;
@@ -21,7 +20,6 @@ import frc.robot.commands.TankDriveCommand;
  * project.
  */
 public class Robot extends TimedRobot {
-  //WPI_TalonSRX motor1;
 
   public static OI oi;
 
@@ -94,6 +92,7 @@ public class Robot extends TimedRobot {
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
+    Scheduler.getInstance().add(driveCommand);
   }
 
   /**
@@ -101,7 +100,6 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopPeriodic() {
-    Scheduler.getInstance().add(driveCommand);
     Scheduler.getInstance().run();
     
   }
