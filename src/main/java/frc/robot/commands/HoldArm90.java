@@ -5,14 +5,17 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.ArmSubsystem.Motor;
 
-public class ArmCommand extends Command {
+public class HoldArm90 extends Command {
+
+    double targetPosition = 0;
+
     ArmSubsystem arm;
-    public ArmCommand(){
+    public HoldArm90() {
         arm = ArmSubsystem.getInstance();
         requires(arm);
     }
-
 
     @Override
     public boolean isFinished() {
@@ -24,8 +27,7 @@ public class ArmCommand extends Command {
     @Override
     protected void execute() {
         super.execute();
-        WPI_TalonSRX motor = arm.motor1;
-        motor.set(ControlMode.Current, motorSpeed);
-
+        arm.setDegrees(Motor.jointBaseMotor, 90);
+        
     }
 }

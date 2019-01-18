@@ -19,4 +19,8 @@ public class RobotMap {
   public static int backRightMotor = 1;
   public static int frontLeftMotor = 3;
   public static int backLeftMotor = 2;
+
+  public static int ARM_JOINT_BASE_MOTOR = 5;
+  public static int ARM_JOINT_BASE_ENCODER = 0; // TODO: Fill this out
+  public static int ARM_JOINT_BASE_SLOT_IDX = 0; // TODO: Fill this out
 }
