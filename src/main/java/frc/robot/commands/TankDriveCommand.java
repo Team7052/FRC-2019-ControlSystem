@@ -7,13 +7,13 @@ import frc.robot.subsystems.DriveTrain;
 public class TankDriveCommand extends Command {
     // declare subsystem variable
     DriveTrain driveTrain;
+    
     public TankDriveCommand() {
         super("Tank Drive Command");
         // get drive train subsystem instance
         driveTrain = DriveTrain.getInstance();
         
         //required for each command to know which subsystems it will be using
-        //requires(driveTrain);
     }
 
     @Override
