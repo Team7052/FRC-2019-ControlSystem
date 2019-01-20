@@ -1,9 +1,8 @@
 package frc.robot.commands;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj.command.Command;
+import frc.robot.Robot;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ArmSubsystem.Motor;
 
@@ -19,7 +18,7 @@ public class HoldArm90 extends Command {
 
     @Override
     public boolean isFinished() {
-        return true;
+        return false;
     }
 
     double motorSpeed = 0;
@@ -27,7 +26,8 @@ public class HoldArm90 extends Command {
     @Override
     protected void execute() {
         super.execute();
-        arm.setDegrees(Motor.jointBaseMotor, 90);
+        System.out.println("Execute");
+        
         
     }
 }
