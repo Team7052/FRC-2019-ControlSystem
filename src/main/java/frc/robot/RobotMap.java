@@ -25,5 +25,5 @@ public class RobotMap {
   public static int ARM_SHOULDER_JOINT_SLOT_IDX = 0;
 
   public static int kPIDIdx = 0;
-  public static int kPIDTimeoutMillis = 1000;
+  public static int kPIDTimeoutMillis = 30;
 }
