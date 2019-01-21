@@ -11,15 +11,15 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 public class ArmSubsystem extends Subsystem {
     // static variable that represents the drive train
   public enum Motor {
-    jointBaseMotor
+    SHOULDER_JOINT
   }
   private static ArmSubsystem instance;
-  private WPI_TalonSRX jointBaseMotor;
-  private TalonSRXPIDSetConfiguration jointBasePIDConfig;
-  private final double jointBaseMotor_kP = 1.0;
-  private final double jointBaseMotor_kI = 0.0;
-  private final double jointBaseMotor_kD = 0.0;
-  private final double jointBaseMotor_kF = 0.0;
+  private WPI_TalonSRX shoulderJointMotor;
+  private TalonSRXPIDSetConfiguration shoulderJointPIDConfig;
+  private final double shoulderJointMotor_kP = 1.0;
+  private final double shoulderJointMotor_kI = 0.0;
+  private final double shoulderJointMotor_kD = 0.0;
+  private final double shoulderJointMotor_kF = 0.0;
 
   // always get the current instance of the drive train
   public static ArmSubsystem getInstance() {
@@ -32,17 +32,16 @@ public class ArmSubsystem extends Subsystem {
   // private initializer so you can't initialize more than 1 drive train
   private ArmSubsystem() {
     // set up the new arm motor
-    jointBaseMotor = new WPI_TalonSRX(RobotMap.ARM_JOINT_BASE_MOTOR);
+    shoulderJointMotor = new WPI_TalonSRX(RobotMap.ARM_SHOULDER_JOINT_MOTOR);
 
-    jointBasePIDConfig = new TalonSRXPIDSetConfiguration();
-    jointBasePIDConfig.selectedFeedbackSensor = FeedbackDevice.CTRE_MagEncoder_Relative;
-    jointBasePIDConfig.selectedFeedbackCoefficient = RobotMap.ARM_JOINT_BASE_ENCODER;
+    shoulderJointMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, RobotMap.kPIDIdx, RobotMap.kPIDTimeoutMillis);
+    
+    shoulderJointMotor.config_kP(RobotMap.kPIDIdx, this.shoulderJointMotor_kP);
+    shoulderJointMotor.config_kI(RobotMap.kPIDIdx, this.shoulderJointMotor_kI);
+    shoulderJointMotor.config_kD(RobotMap.kPIDIdx, this.shoulderJointMotor_kD);
+    shoulderJointMotor.config_kF(RobotMap.kPIDIdx, this.shoulderJointMotor_kF);
 
-    jointBaseMotor.configurePID(jointBasePIDConfig);
-    jointBaseMotor.config_kP(RobotMap.ARM_JOINT_BASE_SLOT_IDX, this.jointBaseMotor_kP);
-    jointBaseMotor.config_kI(RobotMap.ARM_JOINT_BASE_SLOT_IDX, this.jointBaseMotor_kI);
-    jointBaseMotor.config_kD(RobotMap.ARM_JOINT_BASE_SLOT_IDX, this.jointBaseMotor_kD);
-    jointBaseMotor.config_kF(RobotMap.ARM_JOINT_BASE_SLOT_IDX, this.jointBaseMotor_kF);
+    shoulderJointMotor.configAllowableClosedloopError(0, RobotMap.kPIDIdx, RobotMap.kPIDTimeoutMillis);
   }
 
   @Override
@@ -52,27 +51,24 @@ public class ArmSubsystem extends Subsystem {
   }
 
   public void setDegrees(Motor motor, double degrees) {
-    WPI_TalonSRX selectedMotor;
-    switch(motor) {
-      case jointBaseMotor:
-        selectedMotor = this.jointBaseMotor;
-        break;
-      default:
-        return;
-    }
+    WPI_TalonSRX selectedMotor = getMotor(motor);
     
+    // convert to quadrature postition
     selectedMotor.setSelectedSensorPosition((int) degrees / 360 * 4096);
   }
 
   public void setSpeed(Motor motor, double speed) {
-    WPI_TalonSRX selectedMotor;
-    switch(motor) {
-      case jointBaseMotor:
-        selectedMotor = this.jointBaseMotor;
-        break;
-      default:
-        return;
-    }
+    WPI_TalonSRX selectedMotor = getMotor(motor);
     selectedMotor.set(ControlMode.PercentOutput, speed);
+  }
+
+  private WPI_TalonSRX getMotor(Motor motor) {
+    WPI_TalonSRX selected = this.shoulderJointMotor;
+    switch(motor) {
+      case SHOULDER_JOINT:
+        selected = this.shoulderJointMotor;
+        break;
+    }
+    return selected;
   }
 }

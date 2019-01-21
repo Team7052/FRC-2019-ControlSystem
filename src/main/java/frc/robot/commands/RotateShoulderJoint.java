@@ -2,16 +2,14 @@ package frc.robot.commands;
 
 
 import edu.wpi.first.wpilibj.command.Command;
-import frc.robot.Robot;
 import frc.robot.subsystems.ArmSubsystem;
-import frc.robot.subsystems.ArmSubsystem.Motor;
 
-public class HoldArm90 extends Command {
+public class RotateShoulderJoint extends Command {
 
     double targetPosition = 0;
 
     ArmSubsystem arm;
-    public HoldArm90() {
+    public RotateShoulderJoint() {
         arm = ArmSubsystem.getInstance();
         requires(arm);
     }
@@ -26,8 +24,7 @@ public class HoldArm90 extends Command {
     @Override
     protected void execute() {
         super.execute();
-        System.out.println("Execute");
-        
+                
         
     }
 }

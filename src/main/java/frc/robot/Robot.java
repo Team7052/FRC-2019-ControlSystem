@@ -9,9 +9,8 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
-import frc.joysticks.Logitech;
-import frc.joysticks.XBoxOne;
-import frc.robot.commands.HoldArm90;
+import frc.joysticks.*;
+import frc.robot.commands.RotateShoulderJoint;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -29,7 +28,7 @@ public class Robot extends TimedRobot {
    * This function is run when the robot is first started up and should be
    * used for any initialization code.
    */
-  HoldArm90 armCommand = new HoldArm90();
+  RotateShoulderJoint armCommand = new RotateShoulderJoint();
 
   @Override
   public void robotInit() {
