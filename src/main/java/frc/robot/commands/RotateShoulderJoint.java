@@ -28,6 +28,7 @@ public class RotateShoulderJoint extends Command {
         super.execute();
         if (Robot.oi.button_A()) {
             arm.setDegrees(Motor.SHOULDER_JOINT, 45);
+            
         }
         else {
             arm.stop(Motor.SHOULDER_JOINT);
