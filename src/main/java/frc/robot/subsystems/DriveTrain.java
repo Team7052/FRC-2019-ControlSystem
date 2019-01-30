@@ -7,6 +7,8 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+
 import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.command.Subsystem;
@@ -21,37 +23,31 @@ public class DriveTrain extends Subsystem {
 
   // always get the current instance of the drive train
   public static DriveTrain getInstance() {
-<<<<<<< HEAD
-    if (DriveTrain.instance == null) {
-      return new DriveTrain();
-    }
-    return DriveTrain.instance;
-=======
     System.out.println(instance);
     if (instance == null) {
       instance = new DriveTrain();
     }
     return instance;
->>>>>>> 97b02f44b0d61e046fa9e24abfcb58b8aaf4b748
   }
 
-  private Spark frontLeftMotor;
-  private Spark backLeftMotor;
-  private Spark frontRightMotor;
-  private Spark backRightMotor;
+  private WPI_VictorSPX frontLeftMotor;
+  private WPI_VictorSPX backLeftMotor;
+  private WPI_VictorSPX frontRightMotor;
+  private WPI_VictorSPX backRightMotor;
 
   private SpeedControllerGroup leftSpeedGroup;
   private SpeedControllerGroup rightSpeedGroup;
 
   // private initializer so you can't initialize more than 1 drive train
   private DriveTrain() {
-    frontLeftMotor = new Spark(RobotMap.frontLeftMotor);
-    backLeftMotor = new Spark(RobotMap.backLeftMotor);
-    frontRightMotor = new Spark(RobotMap.frontRightMotor);
-    backRightMotor = new Spark(RobotMap.backRightMotor);
+    frontLeftMotor = new WPI_VictorSPX(RobotMap.frontLeftMotor);
+    backLeftMotor = new WPI_VictorSPX(RobotMap.backLeftMotor);
+    frontRightMotor = new WPI_VictorSPX(RobotMap.frontRightMotor);
+    backRightMotor = new WPI_VictorSPX(RobotMap.backRightMotor);
 
     leftSpeedGroup = new SpeedControllerGroup(frontLeftMotor, backLeftMotor);
     rightSpeedGroup = new SpeedControllerGroup(frontRightMotor, backRightMotor);
+    rightSpeedGroup.setInverted(true);
   }
 
   @Override
