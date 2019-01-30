@@ -9,8 +9,8 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
-import frc.joysticks.Logitech;
-import frc.robot.commands.TankDriveCommand;
+import frc.joysticks.*;
+import frc.robot.commands.RotateShoulderJoint;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -28,12 +28,12 @@ public class Robot extends TimedRobot {
    * This function is run when the robot is first started up and should be
    * used for any initialization code.
    */
-  TankDriveCommand driveCommand = new TankDriveCommand();
+  RotateShoulderJoint armCommand = new RotateShoulderJoint();
 
   @Override
   public void robotInit() {
       //change Logitech to newly extended class
-    oi = new Logitech(0);    
+    oi = new Logitech(0);  
   }
 
   /**
@@ -92,7 +92,7 @@ public class Robot extends TimedRobot {
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
-    Scheduler.getInstance().add(driveCommand);
+    Scheduler.getInstance().add(armCommand);
   }
 
   /**

@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import frc.robot.RobotMap;
-import frc.robot.commands.TankDriveCommand;
 
 /**
  * An example subsystem.  You can replace me with your own Subsystem.
@@ -22,10 +21,18 @@ public class DriveTrain extends Subsystem {
 
   // always get the current instance of the drive train
   public static DriveTrain getInstance() {
+<<<<<<< HEAD
     if (DriveTrain.instance == null) {
       return new DriveTrain();
     }
     return DriveTrain.instance;
+=======
+    System.out.println(instance);
+    if (instance == null) {
+      instance = new DriveTrain();
+    }
+    return instance;
+>>>>>>> 97b02f44b0d61e046fa9e24abfcb58b8aaf4b748
   }
 
   private Spark frontLeftMotor;
