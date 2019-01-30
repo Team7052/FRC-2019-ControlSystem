@@ -13,34 +13,41 @@ public class MotionProfiler {
     public MotionProfiler() {
         
     }
-    private boolean running = false;
+    public boolean running = false;
     public double startTime = 0;
     public double index = 0;
     public MotionTriplet updateMotionProfile(double totalRunningTime) {
         if (running) {
             double currentTime = Timer.getFPGATimestamp();
+            
             double percentage = (currentTime - startTime) / totalRunningTime;
-            System.out.println(percentage);
             if (percentage > 1.0) {
                 running = false;
                 return null;
             }
-            int index = (int) Math.round(percentage * (double) velocityFunction.size());
-
-            
+            int index = (int) Math.round(percentage * ((double) velocityFunction.size() - 1)) ;
             
             // get velocity
             double velocityMeasurement = velocityFunction.get(index).y;
             double accelerationMeasurement = accelerationFunction.get(index).y;
             double positionMeasurement = positionFunction.get(index).y;
+
+            
             return new MotionTriplet(velocityMeasurement, positionMeasurement, accelerationMeasurement);
         }
-        // set
         else {
-            startTime = Timer.getFPGATimestamp();
-            running = true;
+            this.stopMotionProfile();
             return null;
         }
+    }
+
+    public void stopMotionProfile() {
+        this.running = false;
+    }
+
+    public void startMotionProfile() {
+        this.running = true;
+        this.startTime = Timer.getFPGATimestamp();
     }
 
     public void setVelocityPoints(ArrayList<Point> points) {

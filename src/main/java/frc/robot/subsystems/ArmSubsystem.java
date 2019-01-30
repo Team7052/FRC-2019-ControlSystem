@@ -19,9 +19,9 @@ public class ArmSubsystem extends Subsystem {
   }
   private static ArmSubsystem instance;
   private WPI_TalonSRX shoulderJointMotor;
-  private final double shoulderJointMotor_kP = 0.2;
+  private final double shoulderJointMotor_kP = 0.4;
   private final double shoulderJointMotor_kI = 0;//0.0015;
-  private final double shoulderJointMotor_kD = 0;
+  private final double shoulderJointMotor_kD = 0.2;
   private final double shoulderJointMotor_kF = 0.0;
 
   MotionProfiler motionProfiler;
@@ -35,7 +35,7 @@ public class ArmSubsystem extends Subsystem {
   }
 
   // home position is motor as of prototype one of the arm
-  public final int homePosition = 2850;
+  public final int homePosition = -1248;
   // going positive degrees is negative for quadrature
   int spinDirection = -1;
 
@@ -64,13 +64,6 @@ public class ArmSubsystem extends Subsystem {
     shoulderJointMotor.setSelectedSensorPosition(absolutePosition, RobotMap.kPIDIdx, RobotMap.kPIDTimeoutMillis);
 
     shoulderJointMotor.configAllowableClosedloopError(10, RobotMap.kPIDIdx, RobotMap.kPIDTimeoutMillis);
-
-    motionProfiler = new MotionProfiler();
-    FunctionSet rise = new FunctionSet((x) -> x, 0, Math.PI / 6, 0.01);
-    FunctionSet straight = new FunctionSet((x) -> x * 0 + Math.PI / 6, Math.PI / 6 + 0.01, 10, 0.01);
-    FunctionSet fall = new FunctionSet((x) -> -x + 10 + Math.PI / 6, 10 + 0.01, 13, 0.01);
-
-    motionProfiler.setVelocityPoints(FunctionGenerator.generate(rise, straight, fall));
   }
 
   @Override
@@ -79,20 +72,20 @@ public class ArmSubsystem extends Subsystem {
     // define the Trigger drive here
   }
 
-  double armLength = 0.5207; // in inches
-    double centerOfMass = 1360; // pounds at l / 2;
-    double gravity = 9.806;
+  double armLength = 0.5207; // in meters
+  double centerOfMass = 1.360; // pounds at l / 2;
+  double gravity = 9.806;
 
-    public double getInertia() {
-        return 1/3 * centerOfMass * armLength * armLength;
-    }
+  public double getInertia() {
+      return 1/3 * centerOfMass * armLength * armLength;
+  }
 
-    public double getTorque(double alpha, double theta) {
-        return getInertia() * alpha + 0.5 * centerOfMass * gravity * armLength * Math.cos(theta);
-    }
+  public double getTorque(double alpha, double theta) {
+      return getInertia() * alpha - 0.5 * centerOfMass * gravity * armLength * Math.cos(theta);
+  }
 
-    public double getCurrent(double torque) {
-        return 140 / 86 * (torque * 86/140);
+  public double getCurrent(double torque) {
+      return 86.0 / 140.0 * (torque - 420.0/86.0) / 89.0;
   }
 
   int loop = 0;
@@ -103,19 +96,12 @@ public class ArmSubsystem extends Subsystem {
     int quadratureDegrees = (int) Math.round(degrees / 360.0 * 4096.0) * spinDirection; // convert to a quadrature
     if (this.targetPosition != homePosition + quadratureDegrees) {
       this.targetPosition = homePosition + quadratureDegrees;
-      
     }
+  }
 
-    MotionTriplet triplet = motionProfiler.updateMotionProfile(2000);
-    if (triplet == null) return;
-    double target = triplet.velocity;
-    double torque = this.getTorque(triplet.acceleration, triplet.position);
-    double current = this.getCurrent(torque);
-
+  public void setCurrent(Motor motor, double current) {
+    WPI_TalonSRX selectedMotor = getMotor(motor);
     selectedMotor.set(ControlMode.Current, current);
-    if (loop++ % 10 == 0) {
-      System.out.println(target);
-    }
   }
 
   public void stop(Motor motor) {
@@ -128,11 +114,21 @@ public class ArmSubsystem extends Subsystem {
     selectedMotor.set(ControlMode.PercentOutput, speed);
   }
 
+  public void setPosition(Motor motor, int targetPosition) {
+    WPI_TalonSRX selectedMotor = getMotor(motor);
+    selectedMotor.set(ControlMode.Position, targetPosition);
+  }
+
   private void setTarget(int newPosition) {
     if (this.targetPosition != newPosition) {
       this.targetPosition = newPosition;
       
     }
+  }
+
+  public int getPosition(Motor motor) {
+    WPI_TalonSRX selected = this.shoulderJointMotor;
+    return selected.getSelectedSensorPosition();
   }
 
   private WPI_TalonSRX getMotor(Motor motor) {
