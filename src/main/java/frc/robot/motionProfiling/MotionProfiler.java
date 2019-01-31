@@ -53,8 +53,10 @@ public class MotionProfiler {
     }
 
     public void startMotionProfile() {
-        this.state = MotionProfileState.RUNNING;
-        this.startTime = Timer.getFPGATimestamp();
+        if (this.state == MotionProfileState.IDLE) {
+            this.state = MotionProfileState.RUNNING;
+            this.startTime = Timer.getFPGATimestamp();
+        }
     }
 
     public ArrayList<Point> getLinearInterpolation(ArrayList<Point> points, double delta) {
@@ -75,7 +77,7 @@ public class MotionProfiler {
             }
         }
         interpolatedPoints.add(points.get(points.size() - 1));
-        return points;
+        return interpolatedPoints;
     }
 
     
