@@ -28,7 +28,14 @@ public class RotateShoulderJoint extends Command {
         FunctionSet f1 = new FunctionSet((x) -> Math.PI * x, 0, 0.5, 0.01);
         FunctionSet f2 = new FunctionSet((x) -> -Math.PI * x + Math.PI, 0.51, 1.0, 0.01);
 
-        motionProfiler.setVelocityPoints(FunctionGenerator.generate(f1, f2));
+        ArrayList<Point> points = new ArrayList<>();
+
+        points.add(new Point(0,0));
+
+        ArrayList<Point> interpolatedPoints = motionProfiler.getLinearInterpolation(points);
+
+
+        motionProfiler.setVelocityPoints(interpolatedPoints);
     }
 
     @Override
@@ -47,17 +54,10 @@ public class RotateShoulderJoint extends Command {
     protected void execute() {
         super.execute();
         MotionTriplet triplet = motionProfiler.updateMotionProfile(1.0);
-        int quadratureRawTarget, position;
-
-        if (motionProfiler.getState() == MotionProfileState.RUNNING) {
-            
+        if (motionProfiler.getState() == MotionProfileState.RUNNING && triplet != null) {
         }
         
         
-        int target = initialPosition + quadratureRawTarget;
-        
-        
-
         /*if (Robot.oi.button_A()) {
             if (!motionProfiler.running && !prevPressed) {
                 motionProfiler.startMotionProfile();

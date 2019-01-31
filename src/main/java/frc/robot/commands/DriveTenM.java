@@ -66,7 +66,7 @@ public class DriveTenM extends Command {
     }
     if(timePassed>=point3x && timePassed<=point4x){
         velocity = getSlope(point3x, point3y, point4x, point4y)*timePassed +getyIntercept(point3x, point3y, point4x, point4y);
-    } 
+    }
 
     double speed = velocity/constant;
 

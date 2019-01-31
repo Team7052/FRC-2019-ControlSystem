@@ -27,6 +27,7 @@ public class MotionProfiler {
                 this.stopMotionProfile();
                 return null;
             }
+            
             int index = (int) Math.round(percentage * ((double) velocityFunction.size() - 1));
             
             // get velocity
@@ -56,6 +57,11 @@ public class MotionProfiler {
         this.startTime = Timer.getFPGATimestamp();
     }
 
+    public ArrayList<Point> getLinearInterpolation(ArrayList<Point> points, double delta) {
+        return points;
+    }
+
+    
     
     // setters and getters for functions
     public void setVelocityPoints(ArrayList<Point> points) {
