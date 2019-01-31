@@ -25,15 +25,15 @@ public class RotateShoulderJoint extends Command {
         requires(arm);
         
         motionProfiler = new MotionProfiler();
-        FunctionSet f1 = new FunctionSet((x) -> Math.PI * x, 0, 0.5, 0.01);
-        FunctionSet f2 = new FunctionSet((x) -> -Math.PI * x + Math.PI, 0.51, 1.0, 0.01);
 
         ArrayList<Point> points = new ArrayList<>();
 
         points.add(new Point(0,0));
+        points.add(new Point(0.2, 1));
+        points.add(new Point(0.5, 1));
+        points.add(new Point(0.8, 0));
 
-        ArrayList<Point> interpolatedPoints = motionProfiler.getLinearInterpolation(points);
-
+        ArrayList<Point> interpolatedPoints = motionProfiler.getLinearInterpolation(points, 0.001);
 
         motionProfiler.setVelocityPoints(interpolatedPoints);
     }
@@ -53,8 +53,15 @@ public class RotateShoulderJoint extends Command {
     @Override
     protected void execute() {
         super.execute();
-        MotionTriplet triplet = motionProfiler.updateMotionProfile(1.0);
+        MotionTriplet triplet = motionProfiler.updateMotionProfile(0.8);
         if (motionProfiler.getState() == MotionProfileState.RUNNING && triplet != null) {
+           arm.setPosition(Motor.SHOULDER_JOINT, (int) (arm.homePosition + triplet.position / (2 * Math.PI) * 4096));
+        }
+        else if (motionProfiler.getState() == MotionProfileState.FINISHED) {
+            if (motionProfiler.getPositionFunction().size() > 0) {
+                double position = motionProfiler.getPositionFunction().get(motionProfiler.getPositionFunction().size() - 1).y;
+                arm.setPosition(Motor.SHOULDER_JOINT, (int) (arm.homePosition + position / (2 * Math.PI) * 4096));
+            }
         }
         
         

@@ -35,7 +35,7 @@ public class ArmSubsystem extends Subsystem {
   }
 
   // home position is motor as of prototype one of the arm
-  public final int homePosition = -1248;
+  public final int homePosition = 3883;
   // going positive degrees is negative for quadrature
   int spinDirection = -1;
 
