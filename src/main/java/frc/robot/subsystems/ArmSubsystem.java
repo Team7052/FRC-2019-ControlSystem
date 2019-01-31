@@ -72,26 +72,8 @@ public class ArmSubsystem extends Subsystem {
     // define the Trigger drive here
   }
 
-  double armLength = 0.5207; // in meters
-  double centerOfMass = 1.360; // pounds at l / 2;
-  double gravity = 9.806;
-
-  public double getInertia() {
-      return 1/3 * centerOfMass * armLength * armLength;
-  }
-
-  public double getTorque(double alpha, double theta) {
-      return getInertia() * alpha - 0.5 * centerOfMass * gravity * armLength * Math.cos(theta);
-  }
-
-  public double getCurrent(double torque) {
-      return 86.0 / 140.0 * (torque - 420.0/86.0) / 89.0;
-  }
-
   int loop = 0;
-  public void setDegrees(Motor motor, double degrees) {
-    WPI_TalonSRX selectedMotor = getMotor(motor);
-    
+  public void setDegrees(Motor motor, double degrees) {    
     // convert to quadrature postition
     int quadratureDegrees = (int) Math.round(degrees / 360.0 * 4096.0) * spinDirection; // convert to a quadrature
     if (this.targetPosition != homePosition + quadratureDegrees) {

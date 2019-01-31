@@ -9,61 +9,81 @@ public class MotionProfiler {
     private ArrayList<Point> accelerationFunction = new ArrayList<>();
     private ArrayList<Point> positionFunction = new ArrayList<>();
 
+    private Point endPositionPoint;
+
+    private MotionProfileState state = MotionProfileState.IDLE;
 
     public MotionProfiler() {
         
     }
-    public boolean running = false;
     public double startTime = 0;
     public double index = 0;
     public MotionTriplet updateMotionProfile(double totalRunningTime) {
-        if (running) {
+        if (state == MotionProfileState.RUNNING) {
             double currentTime = Timer.getFPGATimestamp();
             
             double percentage = (currentTime - startTime) / totalRunningTime;
             if (percentage > 1.0) {
-                running = false;
+                this.stopMotionProfile();
                 return null;
             }
-            int index = (int) Math.round(percentage * ((double) velocityFunction.size() - 1)) ;
+            int index = (int) Math.round(percentage * ((double) velocityFunction.size() - 1));
             
             // get velocity
             double velocityMeasurement = velocityFunction.get(index).y;
             double accelerationMeasurement = accelerationFunction.get(index).y;
             double positionMeasurement = positionFunction.get(index).y;
 
-            
             return new MotionTriplet(velocityMeasurement, positionMeasurement, accelerationMeasurement);
         }
         else {
-            this.stopMotionProfile();
             return null;
         }
     }
 
+    // setters and getters for motion profile
+
+    public MotionProfileState getState() {
+        return this.state;
+    }
+
     public void stopMotionProfile() {
-        this.running = false;
+        this.state = MotionProfileState.FINISHED;
     }
 
     public void startMotionProfile() {
-        this.running = true;
+        this.state = MotionProfileState.RUNNING;
         this.startTime = Timer.getFPGATimestamp();
     }
 
+    
+    // setters and getters for functions
     public void setVelocityPoints(ArrayList<Point> points) {
         velocityFunction = points;
         accelerationFunction = FunctionGenerator.getDerivative(points);
         positionFunction = FunctionGenerator.getIntegral(points);
+
+        if (positionFunction.size() > 0) {
+            endPositionPoint = positionFunction.get(positionFunction.size() - 1);
+        }
     }
     public void setPositionPoints(ArrayList<Point> points) {
         positionFunction = points;
         velocityFunction = FunctionGenerator.getDerivative(points);
         accelerationFunction = FunctionGenerator.getDerivative(velocityFunction);
+
+        if (positionFunction.size() > 0) {
+            endPositionPoint = positionFunction.get(positionFunction.size() - 1);
+        }
     }
     public void setAccelerationFunctionPoints(ArrayList<Point> points) {
         accelerationFunction = points;
         velocityFunction = FunctionGenerator.getIntegral(points);
         positionFunction = FunctionGenerator.getIntegral(velocityFunction);
+
+        if (positionFunction.size() > 0) {
+            endPositionPoint = positionFunction.get(positionFunction.size() - 1);
+        }
     }
 
 

@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.Robot;
 import frc.robot.motionProfiling.FunctionGenerator;
 import frc.robot.motionProfiling.FunctionSet;
+import frc.robot.motionProfiling.MotionProfileState;
 import frc.robot.motionProfiling.MotionProfiler;
 import frc.robot.motionProfiling.MotionTriplet;
 import frc.robot.motionProfiling.Point;
@@ -15,7 +16,7 @@ import frc.robot.subsystems.ArmSubsystem.Motor;
 
 public class RotateShoulderJoint extends Command {
 
-    int targetPosition = 0;
+    public int targetDegrees = 90;
     MotionProfiler motionProfiler;
 
     ArmSubsystem arm;
@@ -38,8 +39,6 @@ public class RotateShoulderJoint extends Command {
     double motorSpeed = 0;
 
     boolean prevPressed = false;
-
-
     int initialPosition = 0;
 
     ArrayList<Point> errorFunction = new ArrayList<>();
@@ -49,18 +48,17 @@ public class RotateShoulderJoint extends Command {
         super.execute();
         MotionTriplet triplet = motionProfiler.updateMotionProfile(1.0);
         int quadratureRawTarget, position;
-        if (triplet == null) {
-            quadratureRawTarget = 0;
-            position = 0;
-        }
-        else {
-            quadratureRawTarget = (int) (triplet.position / (2 * Math.PI) * 4096);
-            position = arm.getPosition(Motor.SHOULDER_JOINT);
+
+        if (motionProfiler.getState() == MotionProfileState.RUNNING) {
+            
         }
         
+        
         int target = initialPosition + quadratureRawTarget;
+        
+        
 
-        if (Robot.oi.button_A()) {
+        /*if (Robot.oi.button_A()) {
             if (!motionProfiler.running && !prevPressed) {
                 motionProfiler.startMotionProfile();
                 this.initialPosition = arm.getPosition(Motor.SHOULDER_JOINT);
@@ -80,6 +78,6 @@ public class RotateShoulderJoint extends Command {
             prevPressed = false;
             motionProfiler.stopMotionProfile();
             arm.stop(Motor.SHOULDER_JOINT);
-        }
+        }*/
     }
 }
