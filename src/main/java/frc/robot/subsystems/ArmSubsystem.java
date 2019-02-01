@@ -16,13 +16,13 @@ public class ArmSubsystem extends Subsystem {
     SHOULDER_JOINT, ELBOW_JOINT
   }
   private static ArmSubsystem instance;
-  private WPI_TalonSRX shoulderJointMotor;
+  private RotationMotor shoulderJointMotor;
   private final double shoulderJointMotor_kP = 1.6;
   private final double shoulderJointMotor_kI = 0;//0.0015;
   private final double shoulderJointMotor_kD = 0;
   private final double shoulderJointMotor_kF = 0.0;
 
-  private WPI_TalonSRX elbowJointMotor;
+  private RotationMotor elbowJointMotor;
   private final double elbowJointMotor_kP = 1.6;
   private final double elbowJointMotor_kI = 0;//0.0015;
   private final double elbowJointMotor_kD = 0;
@@ -38,44 +38,29 @@ public class ArmSubsystem extends Subsystem {
     return instance;
   }
 
-  // home position is motor as of prototype one of the arm
-  public final int shoulderHomePosition = 3764;
-  public final int elbowHomePosition = 1238;
   // going positive degrees is negative for quadrature
 
   // private initializer so you can't initialize more than 1 drive train
   private ArmSubsystem() {
     // set up the new arm motor
-<<<<<<< HEAD
-    this.targetPosition = homePosition;
-
-    shoulderJointMotor = new RotationMotor(RobotMap.ARM_SHOULDER_JOINT_MOTOR, 30, 300, 0, 0, 50);
+    shoulderJointMotor = new RotationMotor(RobotMap.ARM_SHOULDER_JOINT_MOTOR, 30, 300, 0, 3764, 3775);
     shoulderJointMotor.setInverted(true);
-=======
-    shoulderJointMotor = new WPI_TalonSRX(RobotMap.ARM_SHOULDER_JOINT_MOTOR);
->>>>>>> 2863017da8bb99bcae850de91968e10600021cab
-
-    shoulderJointMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, RobotMap.kPIDIdx, RobotMap.kPIDTimeoutMillis);
     shoulderJointMotor.setSensorPhase(true);
+
     shoulderJointMotor.configNominalOutputForward(0, RobotMap.kPIDTimeoutMillis);
 		shoulderJointMotor.configNominalOutputReverse(0, RobotMap.kPIDTimeoutMillis);
 		shoulderJointMotor.configPeakOutputForward(0.8, RobotMap.kPIDTimeoutMillis);
     shoulderJointMotor.configPeakOutputReverse(-0.8, RobotMap.kPIDTimeoutMillis);
     
-    shoulderJointMotor.config_kP(RobotMap.kPIDIdx, this.shoulderJointMotor_kP);
-    shoulderJointMotor.config_kI(RobotMap.kPIDIdx, this.shoulderJointMotor_kI);
-    shoulderJointMotor.config_kD(RobotMap.kPIDIdx, this.shoulderJointMotor_kD);
-    shoulderJointMotor.config_kF(RobotMap.kPIDIdx, this.shoulderJointMotor_kF);
+    shoulderJointMotor.setk_P(this.shoulderJointMotor_kP);
+    shoulderJointMotor.setk_I(this.shoulderJointMotor_kI);
+    shoulderJointMotor.setk_D(this.shoulderJointMotor_kD);
 
-    int shoulderAbsolutePosition = shoulderJointMotor.getSensorCollection().getPulseWidthPosition();
-    shoulderJointMotor.setSelectedSensorPosition(shoulderAbsolutePosition, RobotMap.kPIDIdx, RobotMap.kPIDTimeoutMillis);
     shoulderJointMotor.configAllowableClosedloopError(10, RobotMap.kPIDIdx, RobotMap.kPIDTimeoutMillis);
 
 
-    elbowJointMotor = new WPI_TalonSRX(RobotMap.ARM_ELBOW_JOINT_MOTOR);
+    elbowJointMotor = new RotationMotor(RobotMap.ARM_ELBOW_JOINT_MOTOR, 20, 1230, 1250);
 
-    elbowJointMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, RobotMap.kPIDIdx, RobotMap.kPIDTimeoutMillis);
-    //elbowJointMotor.setSensorPhase(true);
     elbowJointMotor.configNominalOutputForward(0, RobotMap.kPIDTimeoutMillis);
 		elbowJointMotor.configNominalOutputReverse(0, RobotMap.kPIDTimeoutMillis);
 		elbowJointMotor.configPeakOutputForward(0.8, RobotMap.kPIDTimeoutMillis);
@@ -86,8 +71,6 @@ public class ArmSubsystem extends Subsystem {
     elbowJointMotor.config_kD(RobotMap.kPIDIdx, this.elbowJointMotor_kD);
     elbowJointMotor.config_kF(RobotMap.kPIDIdx, this.elbowJointMotor_kF);
 
-    int elbowAbsolutePosition = elbowJointMotor.getSensorCollection().getPulseWidthPosition();
-    elbowJointMotor.setSelectedSensorPosition(elbowAbsolutePosition, RobotMap.kPIDIdx, RobotMap.kPIDTimeoutMillis);
     elbowJointMotor.configAllowableClosedloopError(10, RobotMap.kPIDIdx, RobotMap.kPIDTimeoutMillis);
   }
 

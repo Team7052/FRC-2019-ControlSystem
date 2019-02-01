@@ -29,6 +29,15 @@ public class RotationMotor extends WPI_TalonSRX {
 
     public RotationMotor(int canID, double configHomeDegrees, double configMaxDegrees, double configMinDegrees, int configExpectedHomePositionMin, int configExpectedHomePositionMax) {
         super(canID);
+        initialize(configHomeDegrees, configMaxDegrees, configMinDegrees, configExpectedHomePositionMin, configExpectedHomePositionMax);
+    }
+
+    public RotationMotor(int canID, double configHomeDegrees, int configExpectedHomePositionMin, int configExpectedHomePositionMax) {
+        super(canID);
+        initialize(configHomeDegrees, -1, -1, configExpectedHomePositionMin, configExpectedHomePositionMax);
+    }
+
+    public void initialize(double configHomeDegrees, double configMaxDegrees, double configMinDegrees, int configExpectedHomePositionMin, int configExpectedHomePositionMax) {
         this.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, this.slotIdx, this.timeoutMs);
 
         this.homeDegrees = configHomeDegrees;
@@ -38,10 +47,15 @@ public class RotationMotor extends WPI_TalonSRX {
         this.expectedHomePositionMin = configExpectedHomePositionMin;
 
         homeQuadraturePosition = this.getSensorCollection().getPulseWidthPosition();
-        this.configForwardSoftLimitEnable(true);
-        this.configReverseSoftLimitEnable(true);
-        this.configForwardSoftLimitThreshold(homeQuadraturePosition + (int) ((maxDegrees - homeDegrees) / 360.0 * 4096.0));
-        this.configReverseSoftLimitThreshold(homeQuadraturePosition + (int) ((minDegrees - homeDegrees) / 360.0 * 4096.0));
+        this.setSelectedSensorPosition(homeQuadraturePosition, slotIdx, timeoutMs);
+
+        if (minDegrees != maxDegrees && minDegrees != -1) {
+            this.configForwardSoftLimitEnable(true);
+            this.configReverseSoftLimitEnable(true);
+            this.configForwardSoftLimitThreshold(homeQuadraturePosition + (int) ((maxDegrees - homeDegrees) / 360.0 * 4096.0));
+            this.configReverseSoftLimitThreshold(homeQuadraturePosition + (int) ((minDegrees - homeDegrees) / 360.0 * 4096.0));
+        }
+        
         if (homeQuadraturePosition < expectedHomePositionMin || homeQuadraturePosition > expectedHomePositionMax) {
             positioningError = true;
         }
@@ -62,6 +76,12 @@ public class RotationMotor extends WPI_TalonSRX {
     }
 
     public boolean isPositioningError() {
+        if (homeQuadraturePosition < expectedHomePositionMin || homeQuadraturePosition > expectedHomePositionMax) {
+            positioningError = true;
+        }
+        else {
+            positioningError = false;
+        }
         return this.positioningError;
     }
 
