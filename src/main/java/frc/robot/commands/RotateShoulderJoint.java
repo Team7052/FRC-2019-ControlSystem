@@ -54,7 +54,7 @@ public class RotateShoulderJoint extends Command {
         }
         
         
-        int target = initialPosition + quadratureRawTarget;
+        //int target = initialPosition + quadratureRawTarget;
         
         
 
