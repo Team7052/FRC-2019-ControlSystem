@@ -17,18 +17,39 @@ import frc.robot.subsystems.ArmSubsystem.Motor;
 public class RotateShoulderJoint extends Command {
 
     public int targetDegrees = 90;
-    MotionProfiler motionProfiler;
+    MotionProfiler shoulderMotionProfiler;
+    MotionProfiler elbowMotionProfiler;
 
     ArmSubsystem arm;
     public RotateShoulderJoint() {
         arm = ArmSubsystem.getInstance();
         requires(arm);
         
-        motionProfiler = new MotionProfiler();
-        FunctionSet f1 = new FunctionSet((x) -> Math.PI * x, 0, 0.5, 0.01);
-        FunctionSet f2 = new FunctionSet((x) -> -Math.PI * x + Math.PI, 0.51, 1.0, 0.01);
+        shoulderMotionProfiler = new MotionProfiler();
+        elbowMotionProfiler = new MotionProfiler();
 
-        motionProfiler.setVelocityPoints(FunctionGenerator.generate(f1, f2));
+        ArrayList<Point> points = new ArrayList<>();
+        double t1 = 0.4;
+        double t2 = 2.0;
+        double maxVelocity = Math.PI / 3;
+        
+        points.add(new Point(0,0));
+        points.add(new Point(t1, maxVelocity));
+        points.add(new Point(t2, maxVelocity));
+        points.add(new Point(t1 + t2, 0));
+
+        ArrayList<Point> interpolatedShoulderPoints = shoulderMotionProfiler.getLinearInterpolation(points, 0.01);
+
+        shoulderMotionProfiler.setVelocityPoints(interpolatedShoulderPoints);
+
+        ArrayList<Point> elbowPoints = new ArrayList<>();
+        elbowPoints.add(new Point(0,0));
+        elbowPoints.add(new Point(0.4, Math.PI / 2));
+        elbowPoints.add(new Point(1.0, Math.PI / 2));
+        elbowPoints.add(new Point(1.4, 0));
+
+        ArrayList<Point> interpolatedElbowPoints = elbowMotionProfiler.getLinearInterpolation(elbowPoints, 0.01);
+        elbowMotionProfiler.setVelocityPoints(interpolatedElbowPoints);
     }
 
     @Override
@@ -46,18 +67,41 @@ public class RotateShoulderJoint extends Command {
     @Override
     protected void execute() {
         super.execute();
-        MotionTriplet triplet = motionProfiler.updateMotionProfile(1.0);
-        int quadratureRawTarget, position;
-
-        if (motionProfiler.getState() == MotionProfileState.RUNNING) {
-            
+        shoulderMotionProfiler.startMotionProfile();
+        double realElbowTarget = 0;
+        MotionTriplet shoulderTriplet = shoulderMotionProfiler.updateMotionProfile(2.0);
+        if (shoulderMotionProfiler.getState() == MotionProfileState.RUNNING && shoulderTriplet != null) {
+            int targetPosition = (int) (arm.shoulderHomePosition + shoulderTriplet.position / (2 * Math.PI) * 4096);
+            //arm.setPosition(Motor.SHOULDER_JOINT, targetPosition);
+            realElbowTarget = targetPosition;
         }
-        
-        
-        //int target = initialPosition + quadratureRawTarget;
-        
-        
+        else if (shoulderMotionProfiler.getState() == MotionProfileState.FINISHED) {
+            if (shoulderMotionProfiler.getPositionFunction().size() > 0) {
+                double position = shoulderMotionProfiler.getPositionFunction().get(shoulderMotionProfiler.getPositionFunction().size() - 1).y;
+                //arm.setPosition(Motor.SHOULDER_JOINT, (int) (arm.shoulderHomePosition + position / (2 * Math.PI) * 4096));
+                realElbowTarget =  (int) (arm.shoulderHomePosition + position / (2 * Math.PI) * 4096);
+            }
+        }
 
+        System.out.println("target: " + realElbowTarget + ", current: " + arm.getPosition(Motor.SHOULDER_JOINT));
+
+        elbowMotionProfiler.startMotionProfile();
+        MotionTriplet elbowTriplet = elbowMotionProfiler.updateMotionProfile(1.4);
+        if (elbowMotionProfiler.getState() == MotionProfileState.RUNNING && elbowTriplet != null) {
+            int targetPosition = (int) (arm.elbowHomePosition + elbowTriplet.position / (2 * Math.PI) * 4096);
+            arm.setPosition(Motor.ELBOW_JOINT, targetPosition);
+            realElbowTarget = targetPosition;
+        }
+        else if (elbowMotionProfiler.getState() == MotionProfileState.FINISHED) {
+            if (elbowMotionProfiler.getPositionFunction().size() > 0) {
+                double position = elbowMotionProfiler.getPositionFunction().get(elbowMotionProfiler.getPositionFunction().size() - 1).y;
+                arm.setPosition(Motor.ELBOW_JOINT, (int) (arm.elbowHomePosition + position / (2 * Math.PI) * 4096));
+                realElbowTarget =  (int) (arm.elbowHomePosition + position / (2 * Math.PI) * 4096);
+            }
+        }
+
+        
+        
         /*if (Robot.oi.button_A()) {
             if (!motionProfiler.running && !prevPressed) {
                 motionProfiler.startMotionProfile();

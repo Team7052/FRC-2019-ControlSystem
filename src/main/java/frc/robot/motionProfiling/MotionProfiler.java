@@ -27,6 +27,7 @@ public class MotionProfiler {
                 this.stopMotionProfile();
                 return null;
             }
+            
             int index = (int) Math.round(percentage * ((double) velocityFunction.size() - 1));
             
             // get velocity
@@ -52,10 +53,34 @@ public class MotionProfiler {
     }
 
     public void startMotionProfile() {
-        this.state = MotionProfileState.RUNNING;
-        this.startTime = Timer.getFPGATimestamp();
+        if (this.state == MotionProfileState.IDLE) {
+            this.state = MotionProfileState.RUNNING;
+            this.startTime = Timer.getFPGATimestamp();
+        }
     }
 
+    public ArrayList<Point> getLinearInterpolation(ArrayList<Point> points, double delta) {
+        ArrayList<Point> interpolatedPoints = new ArrayList<>();
+        if (points.size() < 2) {
+            return points;
+        }
+        for (int i = 0, n = points.size() - 1; i < n; i++) {
+            double deltaX = points.get(i+1).x - points.get(i).x;
+            interpolatedPoints.add(points.get(i));
+            double slope = (points.get(i+1).y - points.get(i).y) / (points.get(i+1).x - points.get(i).x);
+            double b = points.get(i).y - slope * points.get(i).x;
+
+            interpolatedPoints.add(points.get(i));
+            for (double j = delta; j < deltaX; j += delta) {
+                double x = j + points.get(i).x;
+                interpolatedPoints.add(new Point(x, slope * x + b));
+            }
+        }
+        interpolatedPoints.add(points.get(points.size() - 1));
+        return interpolatedPoints;
+    }
+
+    
     
     // setters and getters for functions
     public void setVelocityPoints(ArrayList<Point> points) {

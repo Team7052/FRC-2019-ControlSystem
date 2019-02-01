@@ -1,9 +1,10 @@
 package frc.robot.helpers;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
-public class ArmMotor extends WPI_TalonSRX {
+public class RotationMotor extends WPI_TalonSRX {
 
     private double k_P = 0.0;
     private double k_I = 0.0;
@@ -19,12 +20,14 @@ public class ArmMotor extends WPI_TalonSRX {
     // quadrature positions - this is initialized when the robot first turns on
     int homeQuadraturePosition = 0;
 
-    // degree positions
+    // degree positions all relative to ground (pointing straight downwards = 0˚)
     public double homeDegrees = 0;
     public double maxDegrees = -1;
     public double minDegrees = -1;
 
-    public ArmMotor(int canID, double configHomeDegrees, double configMaxDegrees, double configMinDegrees, int configExpectedHomePositionMin, int configExpectedHomePositionMax) {
+    private boolean positioningError = false;
+
+    public RotationMotor(int canID, double configHomeDegrees, double configMaxDegrees, double configMinDegrees, int configExpectedHomePositionMin, int configExpectedHomePositionMax) {
         super(canID);
         this.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, this.slotIdx, this.timeoutMs);
 
@@ -35,9 +38,32 @@ public class ArmMotor extends WPI_TalonSRX {
         this.expectedHomePositionMin = configExpectedHomePositionMin;
 
         homeQuadraturePosition = this.getSensorCollection().getPulseWidthPosition();
+        this.configForwardSoftLimitEnable(true);
+        this.configReverseSoftLimitEnable(true);
+        this.configForwardSoftLimitThreshold(homeQuadraturePosition + (int) ((maxDegrees - homeDegrees) / 360.0 * 4096.0));
+        this.configReverseSoftLimitThreshold(homeQuadraturePosition + (int) ((minDegrees - homeDegrees) / 360.0 * 4096.0));
+        if (homeQuadraturePosition < expectedHomePositionMin || homeQuadraturePosition > expectedHomePositionMax) {
+            positioningError = true;
+        }
     }
 
-    
+    public double getCurrentDegrees() {
+        return (double) (this.getSelectedSensorPosition(0) - homeQuadraturePosition) / 4096.0 * 360.0;
+    }
+
+    @Override
+    public void set(ControlMode mode, double value) {
+        // don't allow the motor to be changed/set if it's home position doesn't match the actual position
+        if (this.isPositioningError()) {
+            System.out.println("Positioning Error! Home position is expected to be between " + this.expectedHomePositionMin + " and " + this.expectedHomePositionMax + " but the home position is " + this.homeQuadraturePosition);
+            return;
+        }
+        super.set(mode, value);
+    }
+
+    public boolean isPositioningError() {
+        return this.positioningError;
+    }
 
     public double getk_P() { return this.k_P; }
     public double getk_I() { return this.k_I; }
