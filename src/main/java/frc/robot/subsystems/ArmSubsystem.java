@@ -2,10 +2,8 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.command.Subsystem;
 import frc.robot.RobotMap;
-import frc.robot.motionProfiling.FunctionGenerator;
-import frc.robot.motionProfiling.FunctionSet;
+import frc.robot.helpers.RotationMotor;
 import frc.robot.motionProfiling.MotionProfiler;
-import frc.robot.motionProfiling.MotionTriplet;
 
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -46,7 +44,8 @@ public class ArmSubsystem extends Subsystem {
     // set up the new arm motor
     this.targetPosition = homePosition;
 
-    shoulderJointMotor = new WPI_TalonSRX(RobotMap.ARM_SHOULDER_JOINT_MOTOR);
+    shoulderJointMotor = new RotationMotor(RobotMap.ARM_SHOULDER_JOINT_MOTOR, 30, 300, 0, 0, 50);
+    shoulderJointMotor.setInverted(true);
 
     shoulderJointMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, RobotMap.kPIDIdx, RobotMap.kPIDTimeoutMillis);
     
