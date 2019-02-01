@@ -94,7 +94,7 @@ public class Robot extends TimedRobot {
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
-    Scheduler.getInstance().add(driveTenCommand);
+    Scheduler.getInstance().add(armCommand);
   }
 
   /**
@@ -102,8 +102,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopPeriodic() {
-    Scheduler.getInstance().run();
-    
+    Scheduler.getInstance().run();    
   }
 
   /**
