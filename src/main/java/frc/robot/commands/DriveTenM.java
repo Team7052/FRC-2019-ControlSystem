@@ -1,15 +1,28 @@
 package frc.robot.commands;
 
+import java.util.ArrayList;
+
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.Robot;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.motionProfiling.FunctionGenerator;
+import edu.wpi.first.wpilibj.command.Command;
+import frc.robot.Robot;
+import frc.robot.motionProfiling.FunctionGenerator;
+import frc.robot.motionProfiling.FunctionSet;
+import frc.robot.motionProfiling.MotionProfileState;
+import frc.robot.motionProfiling.MotionProfiler;
+import frc.robot.motionProfiling.MotionTriplet;
+import frc.robot.motionProfiling.Point;
+import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.ArmSubsystem.Motor;
 
 public class DriveTenM extends Command {
     double time = 0;
     // declare subsystem variable
     DriveTrain driveTrain;
+    MotionProfiler motionProfiler;
     
     public DriveTenM() {
         super("Drive Ten M");
@@ -17,7 +30,24 @@ public class DriveTenM extends Command {
         driveTrain = DriveTrain.getInstance();
         
         //required for each command to know which subsystems it will be using
-		requires(driveTrain);
+        requires(driveTrain);
+        
+
+        //ArrayList<Point> points = new ArrayList<>();
+
+        //points.add(new Point(0, 0));
+        //points.add(new Point(2, 2.5));
+        //points.add(new Point(3, 2.5));
+        //points.add(new Point(5, 0));
+
+        //ArrayList<Point> interpolatedPoints = motionProfiler.getLinearInterpolation(points,0.001);
+
+
+
+
+
+
+
     }
 
     @Override
@@ -48,15 +78,15 @@ public class DriveTenM extends Command {
     //line3: y=-1.25x +6.25
     double point1x = 0;
     double point1y = 0;
-    double point2x = 2;
+    double point2x = 4;
     double point2y = 2.5;
-    double point3x = 3;
+    double point3x = 6;
     double point3y = 2.5;
-    double point4x = 5;
+    double point4x = 10;
     double point4y = 0;
 
     double velocity = 0;
-    double constant = 3.19486;
+    double constant = 2.55;
 
     if(timePassed>=point1x && timePassed<point2x){
         velocity = getSlope(point1x, point1y, point2x, point2y)*timePassed +getyIntercept(point1x, point1y, point2x, point2y);
@@ -70,8 +100,8 @@ public class DriveTenM extends Command {
 
     double speed = velocity/constant;
 
-  driveTrain.setLeftGroupSpeed(speed*1.05);
-  driveTrain.setRightGroupSpeed(speed);
+  driveTrain.setLeftGroupSpeed(speed);
+  driveTrain.setRightGroupSpeed(speed/(1.045));
 
     }
 
