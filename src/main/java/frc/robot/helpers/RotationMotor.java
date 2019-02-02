@@ -25,19 +25,23 @@ public class RotationMotor extends WPI_TalonSRX {
     public double maxDegrees = -1;
     public double minDegrees = -1;
 
+    int currentTargetQuadraturePositoin = 0;
+
     private boolean positioningError = false;
+    public boolean positionInverted = false;
 
-    public RotationMotor(int canID, double configHomeDegrees, double configMaxDegrees, double configMinDegrees, int configExpectedHomePositionMin, int configExpectedHomePositionMax) {
+    public RotationMotor(int canID, double configHomeDegrees, double configMaxDegrees, double configMinDegrees, int configExpectedHomePositionMin, int configExpectedHomePositionMax, boolean positionInverted, boolean sensorPhase) {
         super(canID);
-        initialize(configHomeDegrees, configMaxDegrees, configMinDegrees, configExpectedHomePositionMin, configExpectedHomePositionMax);
+        this.setSensorPhase(sensorPhase);
+        initialize(configHomeDegrees, configMaxDegrees, configMinDegrees, configExpectedHomePositionMin, configExpectedHomePositionMax, positionInverted);
     }
 
-    public RotationMotor(int canID, double configHomeDegrees, int configExpectedHomePositionMin, int configExpectedHomePositionMax) {
+    public RotationMotor(int canID, double configHomeDegrees, int configExpectedHomePositionMin, int configExpectedHomePositionMax, boolean positionInverted) {
         super(canID);
-        initialize(configHomeDegrees, -1, -1, configExpectedHomePositionMin, configExpectedHomePositionMax);
+        initialize(configHomeDegrees, -1, -1, configExpectedHomePositionMin, configExpectedHomePositionMax, positionInverted);
     }
 
-    public void initialize(double configHomeDegrees, double configMaxDegrees, double configMinDegrees, int configExpectedHomePositionMin, int configExpectedHomePositionMax) {
+    public void initialize(double configHomeDegrees, double configMaxDegrees, double configMinDegrees, int configExpectedHomePositionMin, int configExpectedHomePositionMax, boolean positionInverted) {
         this.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, this.slotIdx, this.timeoutMs);
 
         this.homeDegrees = configHomeDegrees;
@@ -48,12 +52,12 @@ public class RotationMotor extends WPI_TalonSRX {
 
         homeQuadraturePosition = this.getSensorCollection().getPulseWidthPosition();
         this.setSelectedSensorPosition(homeQuadraturePosition, slotIdx, timeoutMs);
-
+        System.out.println("AFDFDSF: " + this.getSelectedSensorPosition(slotIdx));
         if (minDegrees != maxDegrees && minDegrees != -1) {
-            this.configForwardSoftLimitEnable(true);
+           /* this.configForwardSoftLimitEnable(true);
             this.configReverseSoftLimitEnable(true);
             this.configForwardSoftLimitThreshold(homeQuadraturePosition + (int) ((maxDegrees - homeDegrees) / 360.0 * 4096.0));
-            this.configReverseSoftLimitThreshold(homeQuadraturePosition + (int) ((minDegrees - homeDegrees) / 360.0 * 4096.0));
+            this.configReverseSoftLimitThreshold(homeQuadraturePosition + (int) ((minDegrees - homeDegrees) / 360.0 * 4096.0));*/
         }
         
         if (homeQuadraturePosition < expectedHomePositionMin || homeQuadraturePosition > expectedHomePositionMax) {
@@ -62,7 +66,7 @@ public class RotationMotor extends WPI_TalonSRX {
     }
 
     public double getCurrentDegrees() {
-        return (double) (this.getSelectedSensorPosition(0) - homeQuadraturePosition) / 4096.0 * 360.0;
+        return (double) (this.getSelectedSensorPosition(slotIdx) - homeQuadraturePosition) / 4096.0 * 360.0;
     }
 
     @Override
@@ -73,6 +77,17 @@ public class RotationMotor extends WPI_TalonSRX {
             return;
         }
         super.set(mode, value);
+    }
+    int realElbowSpeed;
+
+    public int getTarget() {
+        return this.currentTargetQuadraturePositoin;
+    }
+
+    public void setDegrees(double degrees) {
+        int targetPosition = (int) ((double) homeQuadraturePosition + degrees / 360 * 4096 * (positionInverted ? -1 : 1));
+        this.currentTargetQuadraturePositoin = targetPosition;
+        this.set(ControlMode.Position, targetPosition);
     }
 
     public boolean isPositioningError() {
