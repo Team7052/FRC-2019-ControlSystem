@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.PIDSource;
 import edu.wpi.first.wpilibj.PIDSourceType;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.Robot;
 import frc.robot.motionProfiling.FunctionGenerator;
@@ -18,7 +19,7 @@ import frc.robot.motionProfiling.Point;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ArmSubsystem.Motor;
 
-public class RotateShoulderJoint extends Command implements PIDSource, PIDOutput {
+public class RotateShoulderJoint extends Command implements PIDOutput, PIDSource {
 
     public int targetDegrees = 90;
     MotionProfiler shoulderMotionProfiler;
@@ -36,7 +37,7 @@ public class RotateShoulderJoint extends Command implements PIDSource, PIDOutput
 
         ArrayList<Point> points = new ArrayList<>();
         double t1 = 0.4;
-        double t2 = 1.0;
+        double t2 = 2.0;
         double maxVelocity = Math.PI / 3;
         
         points.add(new Point(0,0));
@@ -57,7 +58,8 @@ public class RotateShoulderJoint extends Command implements PIDSource, PIDOutput
         ArrayList<Point> interpolatedElbowPoints = elbowMotionProfiler.getLinearInterpolation(elbowPoints, 0.01);
         elbowMotionProfiler.setVelocityPoints(interpolatedElbowPoints);
 
-        pidController = new PIDController(0.8, 0, 0, this, this);
+        pidController = new PIDController(0.007, 0.0001, 0.004, this, this);
+        pidController.enable();
     }
 
     @Override
@@ -69,12 +71,15 @@ public class RotateShoulderJoint extends Command implements PIDSource, PIDOutput
 
     boolean prevPressed = false;
     int initialPosition = 0;
+    double wristMotorOutput = 0;
+    double prevPitchError = 0;
 
     ArrayList<Point> errorFunction = new ArrayList<>();
-
+    double time = 0;
     @Override
     protected void execute() {
         super.execute();
+        
         shoulderMotionProfiler.startMotionProfile();
         MotionTriplet shoulderTriplet = shoulderMotionProfiler.updateMotionProfile(2.0);
         if (shoulderMotionProfiler.getState() == MotionProfileState.RUNNING && shoulderTriplet != null) {
@@ -98,27 +103,36 @@ public class RotateShoulderJoint extends Command implements PIDSource, PIDOutput
                 arm.setDegrees(Motor.ELBOW_JOINT, position / (2 * Math.PI) * 360);
             }
         }
+        pidController.setSetpoint(0f);
+
+        //arm.wristMotor.set(this.wristMotorOutput);
     }
 
     @Override
     public void pidWrite(double output) {
-
+        if (time == 0) {
+            time = Timer.getFPGATimestamp();
+        }
+            System.out.println(this.arm.getIMUSensor().getPitch());
+            
+        double max = 0.3;
+        if (output > max) output = max;
+        else if (output < -max) output = -max;
+        this.wristMotorOutput = output;
     }
 
     @Override
     public void setPIDSourceType(PIDSourceType pidSource) {
-        
+        pidSource = PIDSourceType.kDisplacement;
     }
 
     @Override
     public PIDSourceType getPIDSourceType() {
-        return null;
+        return PIDSourceType.kDisplacement;
     }
 
     @Override
     public double pidGet() {
-        float pitch = this.arm.getIMUSensor().getPitch();
-        System.out.println("YAxis: " + pitch);
-        return pitch;
-	}
+        return arm.getIMUSensor().getPitch();
+    }
 }

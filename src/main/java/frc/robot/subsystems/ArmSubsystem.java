@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.I2C;
+import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import frc.robot.RobotMap;
@@ -30,6 +31,8 @@ public class ArmSubsystem extends Subsystem {
   private final double elbowJointMotor_kD = 0;
   private final double elbowJointMotor_kF = 0.0;
 
+  public Spark wristMotor;
+
   private AHRS imuSensor;
 
   MotionProfiler motionProfiler;
@@ -47,12 +50,12 @@ public class ArmSubsystem extends Subsystem {
   // private initializer so you can't initialize more than 1 drive train
   private ArmSubsystem() {
     // set up the new arm motor
-    shoulderJointMotor = new RotationMotor(RobotMap.ARM_SHOULDER_JOINT_MOTOR, 30, 300, 0, 0, 500, true, true);
+    shoulderJointMotor = new RotationMotor(RobotMap.ARM_SHOULDER_JOINT_MOTOR, 30, 300, 0, -10000, 10000, true, true);
 
     shoulderJointMotor.configNominalOutputForward(0, RobotMap.kPIDTimeoutMillis);
 		shoulderJointMotor.configNominalOutputReverse(0, RobotMap.kPIDTimeoutMillis);
-		shoulderJointMotor.configPeakOutputForward(0.3, RobotMap.kPIDTimeoutMillis);
-    shoulderJointMotor.configPeakOutputReverse(-0.3, RobotMap.kPIDTimeoutMillis);
+		shoulderJointMotor.configPeakOutputForward(0.6, RobotMap.kPIDTimeoutMillis);
+    shoulderJointMotor.configPeakOutputReverse(-0.6, RobotMap.kPIDTimeoutMillis);
     
     shoulderJointMotor.setk_P(this.shoulderJointMotor_kP);
     shoulderJointMotor.setk_I(this.shoulderJointMotor_kI);
@@ -60,12 +63,12 @@ public class ArmSubsystem extends Subsystem {
 
     shoulderJointMotor.configAllowableClosedloopError(10, RobotMap.kPIDIdx, RobotMap.kPIDTimeoutMillis);
 
-    elbowJointMotor = new RotationMotor(RobotMap.ARM_ELBOW_JOINT_MOTOR, 20, 1000, 1500, true);
+    elbowJointMotor = new RotationMotor(RobotMap.ARM_ELBOW_JOINT_MOTOR, 20, 500, 1500, true);
 
     elbowJointMotor.configNominalOutputForward(0, RobotMap.kPIDTimeoutMillis);
 		elbowJointMotor.configNominalOutputReverse(0, RobotMap.kPIDTimeoutMillis);
-		elbowJointMotor.configPeakOutputForward(0.4, RobotMap.kPIDTimeoutMillis);
-    elbowJointMotor.configPeakOutputReverse(-0.4, RobotMap.kPIDTimeoutMillis);
+		elbowJointMotor.configPeakOutputForward(0.5, RobotMap.kPIDTimeoutMillis);
+    elbowJointMotor.configPeakOutputReverse(-0.5, RobotMap.kPIDTimeoutMillis);
     
     elbowJointMotor.config_kP(RobotMap.kPIDIdx, this.elbowJointMotor_kP);
     elbowJointMotor.config_kI(RobotMap.kPIDIdx, this.elbowJointMotor_kI);
@@ -73,7 +76,10 @@ public class ArmSubsystem extends Subsystem {
     elbowJointMotor.config_kF(RobotMap.kPIDIdx, this.elbowJointMotor_kF);
 
     elbowJointMotor.configAllowableClosedloopError(10, RobotMap.kPIDIdx, RobotMap.kPIDTimeoutMillis);
+    
+    wristMotor = new Spark(0);
     imuSensor = new AHRS(I2C.Port.kOnboard);
+    wristMotor.setInverted(true);
   }
 
   @Override
