@@ -18,7 +18,7 @@ import frc.robot.motionProfiling.MotionTriplet;
 import frc.robot.motionProfiling.Point;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ArmSubsystem.Motor;
-
+/*
 public class RotateShoulderJoint extends Command implements PIDOutput, PIDSource {
 
     public int targetDegrees = 90;
@@ -113,7 +113,7 @@ public class RotateShoulderJoint extends Command implements PIDOutput, PIDSource
         if (time == 0) {
             time = Timer.getFPGATimestamp();
         }
-            System.out.println(this.arm.getIMUSensor().getPitch());
+     //       System.out.println(this.arm.getIMUSensor().getPitch());
             
         double max = 0.3;
         if (output > max) output = max;
@@ -131,8 +131,9 @@ public class RotateShoulderJoint extends Command implements PIDOutput, PIDSource
         return PIDSourceType.kDisplacement;
     }
 
-    @Override
-    public double pidGet() {
-        return arm.getIMUSensor().getPitch();
-    }
+  //  @Override
+   // public double pidGet() {
+  //      return arm.getIMUSensor().getPitch();
+   // }
 }
+*/
