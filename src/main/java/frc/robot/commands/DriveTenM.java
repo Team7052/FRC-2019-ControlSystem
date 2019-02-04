@@ -33,15 +33,17 @@ public class DriveTenM extends Command {
         requires(driveTrain);
         
 
-        //ArrayList<Point> points = new ArrayList<>();
+        ArrayList<Point> points = new ArrayList<>();
 
-        //points.add(new Point(0, 0));
-        //points.add(new Point(2, 2.5));
-        //points.add(new Point(3, 2.5));
-        //points.add(new Point(5, 0));
+        points.add(new Point(0, 0));
+        points.add(new Point(2, 2.5));
+        points.add(new Point(3, 2.5));
+        points.add(new Point(5, 0));
 
-        //ArrayList<Point> interpolatedPoints = motionProfiler.getLinearInterpolation(points,0.001);
+        ArrayList<Point> interpolatedPoints = motionProfiler.getLinearInterpolation(points,0.01);
+        motionProfiler = new MotionProfiler();
 
+        motionProfiler.setVelocityPoints(interpolatedPoints);
 
 
 
@@ -76,7 +78,7 @@ public class DriveTenM extends Command {
     //line1: y=1.25x
     //line2: y=2.5
     //line3: y=-1.25x +6.25
-    double point1x = 0;
+    /*double point1x = 0;
     double point1y = 0;
     double point2x = 4;
     double point2y = 2.5;
@@ -101,7 +103,23 @@ public class DriveTenM extends Command {
     double speed = velocity/constant;
 
   driveTrain.setLeftGroupSpeed(speed);
+  driveTrain.setRightGroupSpeed(speed/(1.045)); */
+
+  double constant = 2.55;
+  double totalTime = 5;
+
+  double timePercentage = timePassed/totalTime;
+
+  int index = (int) timePercentage;
+
+  double velocity = motionProfiler.getVelocityFunction().get(index).y;
+
+  double speed = velocity / constant;
+
+  driveTrain.setLeftGroupSpeed(speed);
   driveTrain.setRightGroupSpeed(speed/(1.045));
+
+
 
     }
 
