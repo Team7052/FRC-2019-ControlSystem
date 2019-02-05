@@ -108,7 +108,7 @@ public class RotateShoulderJoint extends Command implements PIDOutput, PIDSource
         pidController.setSetpoint(0f);
 
 
-        arm.wristMotor.set(this.wristMotorOutput);
+       // arm.wristMotor.set(this.wristMotorOutput);
     }
 
     @Override
