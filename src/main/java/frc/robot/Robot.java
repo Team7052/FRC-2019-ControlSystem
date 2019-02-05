@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import frc.joysticks.*;
 import frc.robot.commands.DriveTenM;
-import frc.robot.commands.RotateShoulderJoint;
+//import frc.robot.commands.RotateShoulderJoint;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -29,7 +29,7 @@ public class Robot extends TimedRobot {
    * This function is run when the robot is first started up and should be
    * used for any initialization code.
    */
-  RotateShoulderJoint armCommand = new RotateShoulderJoint();
+  //RotateShoulderJoint armCommand = new RotateShoulderJoint();
   DriveTenM driveTenCommand = new DriveTenM();
 
   @Override
@@ -94,7 +94,7 @@ public class Robot extends TimedRobot {
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
-    Scheduler.getInstance().add(armCommand);
+    Scheduler.getInstance().add(driveTenCommand);
   }
 
   /**

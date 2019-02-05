@@ -11,7 +11,7 @@ import frc.robot.motionProfiling.MotionProfiler;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import com.kauailabs.navx.frc.AHRS;
+//import com.kauailabs.navx.frc.AHRS;
 
 public class ArmSubsystem extends Subsystem {
     // static variable that represents the drive train
@@ -33,7 +33,7 @@ public class ArmSubsystem extends Subsystem {
 
   public Spark wristMotor;
 
-  private AHRS imuSensor;
+ // private AHRS imuSensor;
 
   MotionProfiler motionProfiler;
 
@@ -81,7 +81,6 @@ public class ArmSubsystem extends Subsystem {
     imuSensor = new AHRS(I2C.Port.kOnboard);
     wristMotor.setInverted(true);
   }
-
   @Override
   public void initDefaultCommand() {
     // Set the default command for a subsystem here.

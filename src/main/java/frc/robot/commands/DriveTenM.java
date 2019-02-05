@@ -2,7 +2,11 @@ package frc.robot.commands;
 
 import java.util.ArrayList;
 
+import javax.swing.plaf.ColorUIResource;
+
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.Robot;
 import frc.robot.subsystems.DriveTrain;
@@ -23,6 +27,8 @@ public class DriveTenM extends Command {
     // declare subsystem variable
     DriveTrain driveTrain;
     MotionProfiler motionProfiler;
+    Encoder leftEncoder;
+    Encoder rightEncoder;
     
     public DriveTenM() {
         super("Drive Ten M");
@@ -33,16 +39,20 @@ public class DriveTenM extends Command {
         requires(driveTrain);
         
 
-        //ArrayList<Point> points = new ArrayList<>();
+        ArrayList<Point> points = new ArrayList<>();
 
-        //points.add(new Point(0, 0));
-        //points.add(new Point(2, 2.5));
-        //points.add(new Point(3, 2.5));
-        //points.add(new Point(5, 0));
+        points.add(new Point(0, 0));
+        points.add(new Point(2, 2.5));
+        points.add(new Point(3, 2.5));
+        points.add(new Point(5, 0));
 
-        //ArrayList<Point> interpolatedPoints = motionProfiler.getLinearInterpolation(points,0.001);
+        motionProfiler = new MotionProfiler();
+        ArrayList<Point> interpolatedPoints = motionProfiler.getLinearInterpolation(points,0.01);
 
+        motionProfiler.setVelocityPoints(interpolatedPoints);
 
+        rightEncoder = new Encoder(0, 1, false, EncodingType.k4X);
+        leftEncoder = new Encoder(3, 4, false, EncodingType.k4X);
 
 
 
@@ -76,7 +86,7 @@ public class DriveTenM extends Command {
     //line1: y=1.25x
     //line2: y=2.5
     //line3: y=-1.25x +6.25
-    double point1x = 0;
+    /*double point1x = 0;
     double point1y = 0;
     double point2x = 4;
     double point2y = 2.5;
@@ -101,7 +111,24 @@ public class DriveTenM extends Command {
     double speed = velocity/constant;
 
   driveTrain.setLeftGroupSpeed(speed);
-  driveTrain.setRightGroupSpeed(speed/(1.045));
+  driveTrain.setRightGroupSpeed(speed/(1.045)); */
+  System.out.println("Left Encoder Count: " +leftEncoder.get());
+  System.out.println("Right Encoder Count: " +rightEncoder.get());
+
+
+  double constant = 2.55;
+  double speed = 0;
+  motionProfiler.startMotionProfile();
+  MotionTriplet triplet = motionProfiler.updateMotionProfile(5.0);
+  if (motionProfiler.getState() == MotionProfileState.RUNNING && triplet != null) {
+    double velocity = triplet.velocity;
+    speed = velocity / constant;
+  }
+  
+  //driveTrain.setLeftGroupSpeed(speed);
+  //driveTrain.setRightGroupSpeed(speed/(1.04));
+
+
 
     }
 
