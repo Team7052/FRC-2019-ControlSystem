@@ -30,14 +30,15 @@ public class RotationMotor extends WPI_TalonSRX {
     private boolean positioningError = false;
     public boolean positionInverted = false;
 
-    public RotationMotor(int canID, double configHomeDegrees, double configMaxDegrees, double configMinDegrees, int configExpectedHomePositionMin, int configExpectedHomePositionMax, boolean positionInverted, boolean sensorPhase) {
+    public RotationMotor(int canID, double configHomeDegrees, double configMaxDegrees, double configMinDegrees, int configExpectedHomePositionMin, int configExpectedHomePositionMax, boolean positionInverted, boolean sensorPhase, boolean isInverted) {
         super(canID);
         this.setSensorPhase(sensorPhase);
         initialize(configHomeDegrees, configMaxDegrees, configMinDegrees, configExpectedHomePositionMin, configExpectedHomePositionMax, positionInverted);
     }
 
-    public RotationMotor(int canID, double configHomeDegrees, int configExpectedHomePositionMin, int configExpectedHomePositionMax, boolean positionInverted) {
+    public RotationMotor(int canID, double configHomeDegrees, int configExpectedHomePositionMin, int configExpectedHomePositionMax, boolean positionInverted, boolean sensorPhase) {
         super(canID);
+        this.setSensorPhase(sensorPhase);
         initialize(configHomeDegrees, -1, -1, configExpectedHomePositionMin, configExpectedHomePositionMax, positionInverted);
     }
 
@@ -52,7 +53,7 @@ public class RotationMotor extends WPI_TalonSRX {
 
         homeQuadraturePosition = this.getSensorCollection().getPulseWidthPosition();
         this.setSelectedSensorPosition(homeQuadraturePosition, slotIdx, timeoutMs);
-        System.out.println("AFDFDSF: " + this.getSelectedSensorPosition(slotIdx));
+        System.out.println("AFDFDSF: " + this.getSelectedSensorPosition(slotIdx) + ", " + homeQuadraturePosition);
         if (minDegrees != maxDegrees && minDegrees != -1) {
            /* this.configForwardSoftLimitEnable(true);
             this.configReverseSoftLimitEnable(true);

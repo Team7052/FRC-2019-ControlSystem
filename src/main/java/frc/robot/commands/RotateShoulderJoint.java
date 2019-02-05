@@ -58,7 +58,7 @@ public class RotateShoulderJoint extends Command implements PIDOutput, PIDSource
         ArrayList<Point> interpolatedElbowPoints = elbowMotionProfiler.getLinearInterpolation(elbowPoints, 0.01);
         elbowMotionProfiler.setVelocityPoints(interpolatedElbowPoints);
 
-        pidController = new PIDController(0.007, 0.0001, 0.004, this, this);
+        pidController = new PIDController(0.005, 0.0001, 0.004, this, this);
         pidController.enable();
     }
 
@@ -83,39 +83,40 @@ public class RotateShoulderJoint extends Command implements PIDOutput, PIDSource
         shoulderMotionProfiler.startMotionProfile();
         MotionTriplet shoulderTriplet = shoulderMotionProfiler.updateMotionProfile(2.0);
         if (shoulderMotionProfiler.getState() == MotionProfileState.RUNNING && shoulderTriplet != null) {
-            arm.setDegrees(Motor.SHOULDER_JOINT, shoulderTriplet.position / (2*Math.PI) * 360);
+            //arm.setDegrees(Motor.SHOULDER_JOINT, shoulderTriplet.position / (2*Math.PI) * 360);
         }
         else if (shoulderMotionProfiler.getState() == MotionProfileState.FINISHED) {
             if (shoulderMotionProfiler.getPositionFunction().size() > 0) {
                 double position = shoulderMotionProfiler.getPositionFunction().get(shoulderMotionProfiler.getPositionFunction().size() - 1).y;
-                arm.setDegrees(Motor.SHOULDER_JOINT, position / (2*Math.PI) * 360);
+                //arm.setDegrees(Motor.SHOULDER_JOINT, position / (2*Math.PI) * 360);
             }
         }
+
 
         elbowMotionProfiler.startMotionProfile();
         MotionTriplet elbowTriplet = elbowMotionProfiler.updateMotionProfile(1.4);
         if (elbowMotionProfiler.getState() == MotionProfileState.RUNNING && elbowTriplet != null) {
-            arm.setDegrees(Motor.ELBOW_JOINT, elbowTriplet.position / (2*Math.PI) * 360);
+            //arm.setDegrees(Motor.ELBOW_JOINT, elbowTriplet.position / (2*Math.PI) * 360);
         }
         else if (elbowMotionProfiler.getState() == MotionProfileState.FINISHED) {
             if (elbowMotionProfiler.getPositionFunction().size() > 0) {
                 double position = elbowMotionProfiler.getPositionFunction().get(elbowMotionProfiler.getPositionFunction().size() - 1).y;
-                arm.setDegrees(Motor.ELBOW_JOINT, position / (2 * Math.PI) * 360);
+                //System.out.println("setpoint: " + position / (2*Math.PI) * 360 + ", current: " + arm.getDegrees(Motor.ELBOW_JOINT));
+               // arm.setDegrees(Motor.ELBOW_JOINT, position / (2 * Math.PI) * 360);
             }
         }
         pidController.setSetpoint(0f);
 
-        //arm.wristMotor.set(this.wristMotorOutput);
+
+        arm.wristMotor.set(this.wristMotorOutput);
     }
 
     @Override
     public void pidWrite(double output) {
         if (time == 0) {
             time = Timer.getFPGATimestamp();
-        }
-            System.out.println(this.arm.getIMUSensor().getPitch());
-            
-        double max = 0.3;
+        }            
+        double max = 0.5;
         if (output > max) output = max;
         else if (output < -max) output = -max;
         this.wristMotorOutput = output;
@@ -133,6 +134,7 @@ public class RotateShoulderJoint extends Command implements PIDOutput, PIDSource
 
     @Override
     public double pidGet() {
+        System.out.println(arm.getIMUSensor().getPitch());
         return arm.getIMUSensor().getPitch();
     }
 }
