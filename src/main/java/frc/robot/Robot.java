@@ -7,6 +7,9 @@
 
 package frc.robot;
 
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import frc.joysticks.*;
@@ -23,6 +26,7 @@ import frc.robot.commands.DriveTenM;
 public class Robot extends TimedRobot {
 
   public static OI oi;
+  NetworkTableInstance networkTableInstance;
 
 
   /**
@@ -35,7 +39,14 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
       //change Logitech to newly extended class
-    oi = new Logitech(0);  
+    oi = new Logitech(0);
+    networkTableInstance = NetworkTableInstance.getDefault();
+    NetworkTable sensorTable = networkTableInstance.getTable("imuSensorData");
+    NetworkTableEntry entry = sensorTable.getEntry("pitch");
+    System.out.println("Entry: " + entry.getValue());
+    entry.setDouble(50);
+    System.out.println("new entry: " + entry.getValue().getDouble());
+    System.out.println("Sensor table: " + sensorTable);   
   }
 
   /**
@@ -94,7 +105,7 @@ public class Robot extends TimedRobot {
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
-    Scheduler.getInstance().add(driveTenCommand);
+    //Scheduler.getInstance().add(driveTenCommand);
   }
 
   /**

@@ -11,7 +11,7 @@ import frc.robot.motionProfiling.MotionProfiler;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-//import com.kauailabs.navx.frc.AHRS;
+import com.kauailabs.navx.frc.AHRS;
 
 public class ArmSubsystem extends Subsystem {
     // static variable that represents the drive train
@@ -33,7 +33,7 @@ public class ArmSubsystem extends Subsystem {
 
   public Spark wristMotor;
 
- // private AHRS imuSensor;
+  private AHRS imuSensor;
 
   MotionProfiler motionProfiler;
 
@@ -50,7 +50,7 @@ public class ArmSubsystem extends Subsystem {
   // private initializer so you can't initialize more than 1 drive train
   private ArmSubsystem() {
     // set up the new arm motor
-    shoulderJointMotor = new RotationMotor(RobotMap.ARM_SHOULDER_JOINT_MOTOR, 30, 300, 0, -10000, 10000, true, true);
+    shoulderJointMotor = new RotationMotor(RobotMap.ARM_SHOULDER_JOINT_MOTOR, 30, 300, 0, -10000, 10000, true, true, false);
 
     shoulderJointMotor.configNominalOutputForward(0, RobotMap.kPIDTimeoutMillis);
 		shoulderJointMotor.configNominalOutputReverse(0, RobotMap.kPIDTimeoutMillis);
@@ -63,12 +63,12 @@ public class ArmSubsystem extends Subsystem {
 
     shoulderJointMotor.configAllowableClosedloopError(10, RobotMap.kPIDIdx, RobotMap.kPIDTimeoutMillis);
 
-    elbowJointMotor = new RotationMotor(RobotMap.ARM_ELBOW_JOINT_MOTOR, 20, 500, 1500, true);
-
+    elbowJointMotor = new RotationMotor(RobotMap.ARM_ELBOW_JOINT_MOTOR, 20, 500, 10000, false, true);
+    elbowJointMotor.setInverted(true);
     elbowJointMotor.configNominalOutputForward(0, RobotMap.kPIDTimeoutMillis);
 		elbowJointMotor.configNominalOutputReverse(0, RobotMap.kPIDTimeoutMillis);
-		elbowJointMotor.configPeakOutputForward(0.5, RobotMap.kPIDTimeoutMillis);
-    elbowJointMotor.configPeakOutputReverse(-0.5, RobotMap.kPIDTimeoutMillis);
+		elbowJointMotor.configPeakOutputForward(0.3, RobotMap.kPIDTimeoutMillis);
+    elbowJointMotor.configPeakOutputReverse(-0.3, RobotMap.kPIDTimeoutMillis);
     
     elbowJointMotor.config_kP(RobotMap.kPIDIdx, this.elbowJointMotor_kP);
     elbowJointMotor.config_kI(RobotMap.kPIDIdx, this.elbowJointMotor_kI);
