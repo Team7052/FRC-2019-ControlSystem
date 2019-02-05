@@ -78,7 +78,7 @@ public class ArmSubsystem extends Subsystem {
     elbowJointMotor.configAllowableClosedloopError(10, RobotMap.kPIDIdx, RobotMap.kPIDTimeoutMillis);
     
     wristMotor = new Spark(0);
-    imuSensor = new AHRS(I2C.Port.kOnboard);
+  //  imuSensor = new AHRS(I2C.Port.kOnboard);
     wristMotor.setInverted(true);
   }
   @Override
@@ -87,9 +87,9 @@ public class ArmSubsystem extends Subsystem {
     // define the Trigger drive here
   }
 
-  public AHRS getIMUSensor() {
-    return this.imuSensor;
-  }
+  //public AHRS getIMUSensor() {
+  //  return this.imuSensor;
+ // }
 
   public void setCurrent(Motor motor, double current) {
     WPI_TalonSRX selectedMotor = getMotor(motor);
