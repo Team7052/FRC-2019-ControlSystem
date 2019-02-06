@@ -41,12 +41,12 @@ public class Robot extends TimedRobot {
       //change Logitech to newly extended class
     oi = new Logitech(0);
     networkTableInstance = NetworkTableInstance.getDefault();
-    NetworkTable sensorTable = networkTableInstance.getTable("imuSensorData");
-    NetworkTableEntry entry = sensorTable.getEntry("pitch");
+    NetworkTable sensorTable = networkTableInstance.getTable("motorData");
+    NetworkTableEntry entry = sensorTable.getEntry("frontLeftMotor");
     System.out.println("Entry: " + entry.getValue());
-    entry.setDouble(50);
+    entry.setDouble(0.5);
     System.out.println("new entry: " + entry.getValue().getDouble());
-    System.out.println("Sensor table: " + sensorTable);   
+    System.out.println("Sensor table: " + sensorTable);
   }
 
   /**
