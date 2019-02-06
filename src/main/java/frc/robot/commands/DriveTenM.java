@@ -43,8 +43,8 @@ public class DriveTenM extends Command {
 
         points.add(new Point(0, 0));
         points.add(new Point(2, 2.5));
-        points.add(new Point(3, 2.5));
-        points.add(new Point(5, 0));
+        points.add(new Point(6, 2.5));
+        points.add(new Point(8, 0));
 
         motionProfiler = new MotionProfiler();
         ArrayList<Point> interpolatedPoints = motionProfiler.getLinearInterpolation(points,0.01);
@@ -68,6 +68,12 @@ public class DriveTenM extends Command {
     @Override
     protected void execute() {
         super.execute();
+        
+  if(motionProfiler.getState() == MotionProfileState.IDLE){
+    leftEncoder.reset();
+    rightEncoder.reset();
+    
+}
         if (time == 0) {
             time = Timer.getFPGATimestamp();
         }
@@ -112,22 +118,48 @@ public class DriveTenM extends Command {
 
   driveTrain.setLeftGroupSpeed(speed);
   driveTrain.setRightGroupSpeed(speed/(1.045)); */
-  System.out.println("Left Encoder Count: " +leftEncoder.get());
-  System.out.println("Right Encoder Count: " +rightEncoder.get());
+  double leftAngularDistance = -leftEncoder.get();
+  double rightAngularDistance = rightEncoder.get();
+
+  double currentLeftDisplacement = leftAngularDistance/4277;
+  double currentRightDisplacement = rightAngularDistance/4277;
 
 
-  double constant = 2.55;
-  double speed = 0;
+  System.out.println("Left Encoder Velocity: " +leftEncoder.getRate());
+  System.out.println("Right Encoder Velocity: " +rightEncoder.getRate());
+  
+
+
+
+  double kv = 0.5;
+  double kp = 4.5;
+  double velocity = 0;
+  double displacement = 0;
+  double leftDifference = 0;
+  double rightDifference = 0;
   motionProfiler.startMotionProfile();
-  MotionTriplet triplet = motionProfiler.updateMotionProfile(5.0);
+
+  MotionTriplet triplet = motionProfiler.updateMotionProfile(8.0);
   if (motionProfiler.getState() == MotionProfileState.RUNNING && triplet != null) {
-    double velocity = triplet.velocity;
-    speed = velocity / constant;
+    velocity = triplet.velocity;
+    displacement = triplet.position;
+    leftDifference = displacement - currentLeftDisplacement;
+    rightDifference = displacement - currentRightDisplacement;
+  }
+  double leftSpeed = (velocity * kv) + (leftDifference* kp);
+  double rightSpeed = (velocity * kv) + (rightDifference* kp);
+
+  if(timePassed<0.1){
+    driveTrain.setLeftGroupSpeed(velocity*kv);
+    driveTrain.setRightGroupSpeed(velocity*kv);
+  }
+  else{
+    driveTrain.setLeftGroupSpeed(leftSpeed);
+    driveTrain.setRightGroupSpeed(rightSpeed);
   }
   
-  //driveTrain.setLeftGroupSpeed(speed);
-  //driveTrain.setRightGroupSpeed(speed/(1.04));
-
+  System.out.println("Left current " +leftSpeed);
+  System.out.println("Right current "+rightSpeed);
 
 
     }
