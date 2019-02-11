@@ -80,44 +80,7 @@ public class DriveTenM extends Command {
         double currentTime = Timer.getFPGATimestamp();
 
         double timePassed = currentTime - time;
-        // your code goes here:
-    /*double x = Robot.oi.axisLeft_X();
-    double v = Robot.oi.axisTrigger_R2();
-    double w = Robot.oi.axisTrigger_L2();
-    double forwardSpeed = v;
-    double backwardSpeed = -w;
-    double leftSpeed = forwardSpeed+backwardSpeed;
-    double rightSpeed = forwardSpeed+backwardSpeed;
-    */
-    //line1: y=1.25x
-    //line2: y=2.5
-    //line3: y=-1.25x +6.25
-    /*double point1x = 0;
-    double point1y = 0;
-    double point2x = 4;
-    double point2y = 2.5;
-    double point3x = 6;
-    double point3y = 2.5;
-    double point4x = 10;
-    double point4y = 0;
 
-    double velocity = 0;
-    double constant = 2.55;
-
-    if(timePassed>=point1x && timePassed<point2x){
-        velocity = getSlope(point1x, point1y, point2x, point2y)*timePassed +getyIntercept(point1x, point1y, point2x, point2y);
-    }
-    if(timePassed>= point2x && timePassed<point3x){
-        velocity = getSlope(point2x, point2y, point3x, point3y)*timePassed + getyIntercept(point2x, point2y, point3x, point3y);
-    }
-    if(timePassed>=point3x && timePassed<=point4x){
-        velocity = getSlope(point3x, point3y, point4x, point4y)*timePassed +getyIntercept(point3x, point3y, point4x, point4y);
-    }
-
-    double speed = velocity/constant;
-
-  driveTrain.setLeftGroupSpeed(speed);
-  driveTrain.setRightGroupSpeed(speed/(1.045)); */
   double leftAngularDistance = -leftEncoder.get();
   double rightAngularDistance = rightEncoder.get();
 
@@ -131,8 +94,8 @@ public class DriveTenM extends Command {
 
 
 
-  double kv = 0.5;
-  double kp = 4.5;
+  double kv = 0.5; //needs to be tuned
+  double kp = 4.5; //needs to be tuned
   double velocity = 0;
   double displacement = 0;
   double leftDifference = 0;
@@ -141,6 +104,7 @@ public class DriveTenM extends Command {
 
   MotionTriplet triplet = motionProfiler.updateMotionProfile(8.0);
   if (motionProfiler.getState() == MotionProfileState.RUNNING && triplet != null) {
+    
     velocity = triplet.velocity;
     displacement = triplet.position;
     leftDifference = displacement - currentLeftDisplacement;
@@ -158,8 +122,6 @@ public class DriveTenM extends Command {
     driveTrain.setRightGroupSpeed(rightSpeed);
   }
   
-  System.out.println("Left current " +leftSpeed);
-  System.out.println("Right current "+rightSpeed);
 
 
     }
@@ -181,5 +143,7 @@ public class DriveTenM extends Command {
     protected boolean isFinished() {
         return false;
     }
+
+
 
 }
