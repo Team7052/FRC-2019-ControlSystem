@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.command.Scheduler;
 import frc.joysticks.*;
 import frc.robot.commands.DriveTenM;
 import frc.robot.commands.RotateShoulderJoint;
+import frc.robot.commands.TankDriveCommand;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -35,6 +36,7 @@ public class Robot extends TimedRobot {
    * used for any initialization code.
    */
   RotateShoulderJoint armCommand = new RotateShoulderJoint();
+  TankDriveCommand driveCommand = new TankDriveCommand();
   //DriveTenM driveTenCommand = new DriveTenM();
   //TankDriveCommand tankDriveCommand = new TankDriveCommand();
 
@@ -108,7 +110,7 @@ public class Robot extends TimedRobot {
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
-    Scheduler.getInstance().add(armCommand);
+    Scheduler.getInstance().add(driveCommand);
   }
 
   /**

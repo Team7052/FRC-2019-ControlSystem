@@ -59,7 +59,7 @@ public class TankDriveCommand extends Command {
 	double leftSpeed= forwardSpeed+backwardSpeed;
 	double arc = 0;
 	double constant=1;
-
+	double deadband = 0.1;
 	if(x!=0){
 		arc = Math.atan(Math.abs(rightSpeed)/Math.abs(x));
 	} else{
@@ -70,10 +70,9 @@ public class TankDriveCommand extends Command {
 	}
 	else if (x < -0.1) {
 		constant = -x*0.5*(1-x);
-
 	}
 
-	if(0.2> Math.abs(v+w)){
+	if(Math.abs(v+w) < 0.2){
 
 		if(x<-0.3){
 			leftSpeed = -0.5*x;
@@ -85,8 +84,12 @@ public class TankDriveCommand extends Command {
 			leftSpeed = -0.5*x;
 		}
 	}
-	if(leftSpeed == forwardSpeed+backwardSpeed){
-		leftSpeed = (rightEncoder.getRate() +leftEncoder.getRate())*constant/4277;
+	if (leftSpeed < deadband) {
+		constant = 1; 
+		rightSpeed = 0;
+	}
+	if(leftSpeed == forwardSpeed+backwardSpeed) {
+		leftSpeed = (rightEncoder.getRate() * constant / 4277; //4277 = ticks per meter
 	}
 
 		driveTrain.setLeftGroupSpeed(leftSpeed);

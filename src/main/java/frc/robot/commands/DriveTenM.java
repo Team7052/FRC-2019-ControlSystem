@@ -58,7 +58,6 @@ public class DriveTenM extends Command {
     @Override
     protected void execute() {
         super.execute();
-        
   if(motionProfiler.getState() == MotionProfileState.IDLE){
     leftEncoder.reset();
     rightEncoder.reset();
