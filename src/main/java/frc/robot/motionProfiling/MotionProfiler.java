@@ -80,6 +80,10 @@ public class MotionProfiler {
         return interpolatedPoints;
     }
 
+    public ArrayList<Point> getCubicInterpolation(ArrayList<Point> points, double delta){
+        
+    }
+
     
     
     // setters and getters for functions
