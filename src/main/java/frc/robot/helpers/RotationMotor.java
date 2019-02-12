@@ -16,6 +16,8 @@ public class RotationMotor extends WPI_TalonSRX {
     // expected home position
     int expectedHomePositionMin = 0;
     int expectedHomePositionMax = 4096;
+    private boolean sensorPhase = false;
+    public boolean positionInverted = true;
 
     // quadrature positions - this is initialized when the robot first turns on
     int homeQuadraturePosition = 0;
@@ -27,9 +29,6 @@ public class RotationMotor extends WPI_TalonSRX {
 
     int currentTargetQuadraturePositoin = 0;
 
-    private boolean positioningError = false;
-    public boolean positionInverted = false;
-
     public RotationMotor(int canID) {
         super(canID);
         this.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, this.slotIdx, this.timeoutMs);
@@ -40,18 +39,32 @@ public class RotationMotor extends WPI_TalonSRX {
         this.setSelectedSensorPosition(homeQuadraturePosition, slotIdx, timeoutMs);
     }
 
-
     public double getCurrentDegrees() {
-        return (double) (this.getSelectedSensorPosition(slotIdx) - homeQuadraturePosition) / 4096.0 * 360.0;
+        return (double) (this.positionInverted ? -1 : 1) * (this.getSelectedSensorPosition(slotIdx) - homeQuadraturePosition) / 4096.0 * 360.0 + this.homeDegrees;
     }
 
     public int getTarget() {
         return this.currentTargetQuadraturePositoin;
     }
 
+    public boolean getInvertedPosition() {
+        return this.getInverted();
+    }
+
+    @Override
+    public void setSensorPhase(boolean PhaseSensor) {
+        super.setSensorPhase(PhaseSensor);
+        this.sensorPhase = PhaseSensor;
+    }
+
+    public boolean getPhase() {
+        return this.sensorPhase;
+    }
+
     public void setDegrees(double degrees) {
-        int targetPosition = (int) ((double) homeQuadraturePosition + degrees / 360 * 4096 * (positionInverted ? -1 : 1));
+        int targetPosition = (int) ((double) homeQuadraturePosition + (degrees - this.homeDegrees) / 360 * 4096 * (this.positionInverted ? -1 : 1));
         this.currentTargetQuadraturePositoin = targetPosition;
+        System.out.println("target: " + targetPosition + ", current: " + this.getSelectedSensorPosition());
         this.set(ControlMode.Position, targetPosition);
     }
 

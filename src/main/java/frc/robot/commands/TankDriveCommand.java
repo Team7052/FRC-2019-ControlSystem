@@ -59,8 +59,8 @@ public class TankDriveCommand extends Command {
 		}
 		double finalLeftSpeed = bufferSpeedLeft(this.currentSpeedLeft, leftSpeed);
 		double finalRightSpeed = bufferSpeedLeft(this.currentSpeedRight, rightSpeed);
-		driveTrain.setLeftGroupSpeed(finalLeftSpeed);
-        driveTrain.setRightGroupSpeed(finalRightSpeed);
+		driveTrain.setLeftGroupSpeed(finalLeftSpeed * 0.6);
+        driveTrain.setRightGroupSpeed(finalRightSpeed * 0.6);
 		this.currentSpeedLeft = finalLeftSpeed;
 		this.currentSpeedRight = finalRightSpeed;
 	

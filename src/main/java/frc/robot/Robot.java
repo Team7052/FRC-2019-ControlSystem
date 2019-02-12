@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import frc.joysticks.*;
 import frc.robot.commands.DriveTenM;
-//import frc.robot.commands.RotateShoulderJoint;
+import frc.robot.commands.RotateShoulderJoint;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -27,20 +27,23 @@ public class Robot extends TimedRobot {
 
   public static OI oi;
   NetworkTableInstance networkTableInstance;
+  NetworkTableInstance motionProfileInstance;
 
 
   /**
    * This function is run when the robot is first started up and should be
    * used for any initialization code.
    */
-  //RotateShoulderJoint armCommand = new RotateShoulderJoint();
-  DriveTenM driveTenCommand = new DriveTenM();
+  RotateShoulderJoint armCommand = new RotateShoulderJoint();
+  //DriveTenM driveTenCommand = new DriveTenM();
+  //TankDriveCommand tankDriveCommand = new TankDriveCommand();
 
   @Override
   public void robotInit() {
       //change Logitech to newly extended class
     oi = new Logitech(0);
     networkTableInstance = NetworkTableInstance.getDefault();
+    motionProfileInstance = NetworkTableInstance.create();
     NetworkTable sensorTable = networkTableInstance.getTable("motorData");
     NetworkTableEntry entry = sensorTable.getEntry("frontLeftMotor");
     System.out.println("Entry: " + entry.getValue());
@@ -105,7 +108,7 @@ public class Robot extends TimedRobot {
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
-    //Scheduler.getInstance().add(driveTenCommand);
+    Scheduler.getInstance().add(armCommand);
   }
 
   /**

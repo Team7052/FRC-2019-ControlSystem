@@ -2,25 +2,15 @@ package frc.robot.commands;
 
 import java.util.ArrayList;
 
-import javax.swing.plaf.ColorUIResource;
-
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.command.Command;
-import frc.robot.Robot;
 import frc.robot.subsystems.DriveTrain;
-import frc.robot.motionProfiling.FunctionGenerator;
-import edu.wpi.first.wpilibj.command.Command;
-import frc.robot.Robot;
-import frc.robot.motionProfiling.FunctionGenerator;
-import frc.robot.motionProfiling.FunctionSet;
 import frc.robot.motionProfiling.MotionProfileState;
 import frc.robot.motionProfiling.MotionProfiler;
 import frc.robot.motionProfiling.MotionTriplet;
 import frc.robot.motionProfiling.Point;
-import frc.robot.subsystems.ArmSubsystem;
-import frc.robot.subsystems.ArmSubsystem.Motor;
 
 public class DriveTenM extends Command {
     double time = 0;
