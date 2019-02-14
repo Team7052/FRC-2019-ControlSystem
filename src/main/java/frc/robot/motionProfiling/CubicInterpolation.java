@@ -3,7 +3,7 @@ package frc.robot.motionProfiling;
 import java.util.ArrayList;
 
 public class CubicInterpolation{
-
+/*
     public static ArrayList<Point> generateSpline(ArrayList<Point> xs, ArrayList<Point> ys){
         var i, length = xs.length;
 	
@@ -79,4 +79,5 @@ public class CubicInterpolation{
 
 
     }
+    */
 }

@@ -49,53 +49,49 @@ public class TankDriveCommand extends Command {
         super.execute();
 
         // your code goes here:
-    double x = Robot.oi.axisLeft_X();
-    double v = Robot.oi.axisTrigger_R2();
-    double w = Robot.oi.axisTrigger_L2();
-    double forwardSpeed = v;
-    double backwardSpeed = -w;
-	double rightSpeed = forwardSpeed+backwardSpeed;
-	boolean leftSpeedPositive = true;
-	double leftSpeed= forwardSpeed+backwardSpeed;
-	double arc = 0;
-	double constant=1;
-	double deadband = 0.1;
-	if(x!=0){
-		arc = Math.atan(Math.abs(rightSpeed)/Math.abs(x));
-	} else{
-		arc = 0;
-	}
-	if (x > 0.1) {
-		rightSpeed = rightSpeed*arc;
-	}
-	else if (x < -0.1) {
-		constant = -x*0.5*(1-x);
-	}
-
-	if(Math.abs(v+w) < 0.2){
-
-		if(x<-0.3){
-			leftSpeed = -0.5*x;
-			rightSpeed = 0.5*x;
+		double x = Robot.oi.axisLeft_X();
+		double v = Robot.oi.axisTrigger_R2();
+		double w = Robot.oi.axisTrigger_L2();
+		double forwardSpeed = v;
+		double backwardSpeed = -w;
+		double rightSpeed = forwardSpeed+backwardSpeed;
+		boolean leftSpeedPositive = true;
+		double leftSpeed = forwardSpeed+backwardSpeed;
+		double arc = 0;
+		double constant = 1;
+		double deadband = 0.1;
+		if(x!=0){
+			arc = Math.atan(Math.abs(rightSpeed)/Math.abs(x));
+		} else{
+			arc = 0;
 		}
-		else if(x>0.3){
-
-			rightSpeed = 0.5*x;
-			leftSpeed = -0.5*x;
+		if (x > 0.1) {
+			rightSpeed = rightSpeed*arc;
 		}
-	}
-	if (leftSpeed < deadband) {
-		constant = 1; 
-		rightSpeed = 0;
-	}
-	if(leftSpeed == forwardSpeed+backwardSpeed) {
-		leftSpeed = (rightEncoder.getRate() * constant / 4277; //4277 = ticks per meter
-	}
+		else if (x < -0.1) {
+			constant = -x*0.5*(1-x);
+		}
+
+		if(Math.abs(v+w) < 1){
+
+			if(x<-0.3){
+				leftSpeed = -0.5*x;
+				rightSpeed = 0.5*x;
+			}
+			else if(x>0.3){
+
+				rightSpeed = 0.5*x;
+				leftSpeed = -0.5*x;
+			}
+		}
+		if (leftSpeed < deadband) {
+			constant = 1; 
+			rightSpeed = 0;
+		}
 
 		driveTrain.setLeftGroupSpeed(leftSpeed);
-        driveTrain.setRightGroupSpeed(rightSpeed);
-	
-    }
+		driveTrain.setRightGroupSpeed(rightSpeed);	
+	}
 
     public double bufferSpeedLeft(double currentSpeedLeft, double desiredSpeedLeft){
 		double speedIncrement=desiredSpeedLeft;
