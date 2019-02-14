@@ -82,7 +82,7 @@ public class RotateShoulderJoint extends Command implements PIDOutput, PIDSource
             pidController.enable();
         }
         if (Robot.oi.button_A()) {
-            shoulderMotionProfiler.startMotionProfile();
+            //shoulderMotionProfiler.startMotionProfile();
             MotionTriplet shoulderTriplet = shoulderMotionProfiler.updateMotionProfile(1);
             if (shoulderMotionProfiler.getState() == MotionProfileState.RUNNING && shoulderTriplet != null) {
                // System.out.println("setpoint: " + shoulderTriplet.position / (2*Math.PI) * 360 + ", current: " + arm.getDegrees(Motor.SHOULDER_JOINT));
@@ -149,7 +149,7 @@ public class RotateShoulderJoint extends Command implements PIDOutput, PIDSource
         }
         else {
             arm.wristMotor.set(ControlMode.PercentOutput, 0);
-            System.out.println("Not connected!");
+            //System.out.println("Not connected!");
         }
         
         //System.out.println("e: " + arm.getDegrees(Motor.ELBOW_JOINT) + "deg");

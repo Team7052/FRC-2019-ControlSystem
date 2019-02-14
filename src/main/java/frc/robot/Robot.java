@@ -11,6 +11,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.command.CommandGroup;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import frc.joysticks.*;
 import frc.robot.commands.DriveTenM;
@@ -27,10 +28,6 @@ import frc.robot.commands.TankDriveCommand;
 public class Robot extends TimedRobot {
 
   public static OI oi;
-  NetworkTableInstance networkTableInstance;
-  NetworkTableInstance motionProfileInstance;
-
-
   /**
    * This function is run when the robot is first started up and should be
    * used for any initialization code.
@@ -39,11 +36,12 @@ public class Robot extends TimedRobot {
   TankDriveCommand driveCommand = new TankDriveCommand();
   //DriveTenM driveTenCommand = new DriveTenM();
   //TankDriveCommand tankDriveCommand = new TankDriveCommand();
-
+  CommandGroup newGroup;
   @Override
   public void robotInit() {
       //change Logitech to newly extended class
-    oi = new Logitech(0);
+<<<<<<< HEAD
+    oi = new XBoxOne(0);
     networkTableInstance = NetworkTableInstance.getDefault();
     motionProfileInstance = NetworkTableInstance.create();
     NetworkTable sensorTable = networkTableInstance.getTable("motorData");
@@ -52,6 +50,13 @@ public class Robot extends TimedRobot {
     entry.setDouble(0.5);
     System.out.println("new entry: " + entry.getValue().getDouble());
     System.out.println("Sensor table: " + sensorTable);
+
+    newGroup = new CommandGroup();
+    newGroup.addParallel(driveCommand);
+    newGroup.addParallel(armCommand);
+=======
+    oi = new Logitech(0);
+>>>>>>> 7e9bca7f69acc7f0b9a1bd04e5b1b4ffde3f6b94
   }
 
   /**
@@ -110,7 +115,12 @@ public class Robot extends TimedRobot {
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
+<<<<<<< HEAD
     //Scheduler.getInstance().add(driveCommand);
+=======
+    
+    Scheduler.getInstance().add(newGroup);
+>>>>>>> b6a961a84a3d785b1949e9af3e2e997524c2884a
   }
 
   /**

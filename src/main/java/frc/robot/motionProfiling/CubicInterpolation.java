@@ -1,5 +1,5 @@
 package frc.robot.motionProfiling;
-
+/*
 import java.util.ArrayList;
 
 public class CubicInterpolation{
@@ -79,5 +79,10 @@ public class CubicInterpolation{
 
 
     }
+<<<<<<< HEAD
     */
 }
+=======
+}
+*/
+>>>>>>> b6a961a84a3d785b1949e9af3e2e997524c2884a

@@ -79,6 +79,11 @@ public class MotionProfiler {
         interpolatedPoints.add(points.get(points.size() - 1));
         return interpolatedPoints;
     }
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> b6a961a84a3d785b1949e9af3e2e997524c2884a
     
     
     // setters and getters for functions
