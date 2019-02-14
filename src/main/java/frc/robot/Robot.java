@@ -26,9 +26,6 @@ import frc.robot.commands.DriveTenM;
 public class Robot extends TimedRobot {
 
   public static OI oi;
-  NetworkTableInstance networkTableInstance;
-
-
   /**
    * This function is run when the robot is first started up and should be
    * used for any initialization code.
@@ -40,13 +37,6 @@ public class Robot extends TimedRobot {
   public void robotInit() {
       //change Logitech to newly extended class
     oi = new Logitech(0);
-    networkTableInstance = NetworkTableInstance.getDefault();
-    NetworkTable sensorTable = networkTableInstance.getTable("imuSensorData");
-    NetworkTableEntry entry = sensorTable.getEntry("pitch");
-    System.out.println("Entry: " + entry.getValue());
-    entry.setDouble(50);
-    System.out.println("new entry: " + entry.getValue().getDouble());
-    System.out.println("Sensor table: " + sensorTable);   
   }
 
   /**
