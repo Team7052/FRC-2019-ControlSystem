@@ -1,6 +1,7 @@
 package frc.robot.networking;
 
 import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 
 public class Network {
@@ -29,7 +30,12 @@ public class Network {
             case ARM_KINEMATICS:
                 return networkInstance.getTable(this.kArmKinematicsTable);
             case DRIVE_BASE_MOTION_PROFILING:
-                return networkInstance.getTable(this.kDriveBaseMotionProfilingTable)
+                return networkInstance.getTable(this.kDriveBaseMotionProfilingTable);
         }
+    }
+
+    public NetworkTableEntry getTableEntry(TableType type, String key) {
+        return this.getTable(type).getEntry(key);
+
     }
 }

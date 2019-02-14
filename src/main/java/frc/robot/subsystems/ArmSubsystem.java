@@ -157,6 +157,11 @@ public class ArmSubsystem extends Subsystem {
     selected.set(ControlMode.Position, position);
   }
 
+  public double getMotorOutputPercent(Motor motor) {
+    WPI_TalonSRX selected = this.getMotor(motor);
+    return selected.getMotorOutputPercent();
+  }
+
   private WPI_TalonSRX getMotor(Motor motor) {
     WPI_TalonSRX selected = this.shoulderJointMotor;
     switch(motor) {

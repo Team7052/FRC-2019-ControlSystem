@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class CubicInterpolation{
 
-    public static ArrayList<Point> generateSpline(ArrayList<Point> xs, ArrayList<Point> ys){
+    /*public static ArrayList<Point> generateSpline(ArrayList<Point> xs, ArrayList<Point> ys){
         var i, length = xs.length;
 	
         // Deal with length issues
@@ -78,5 +78,5 @@ public class CubicInterpolation{
 
 
 
-    }
+    }*/
 }

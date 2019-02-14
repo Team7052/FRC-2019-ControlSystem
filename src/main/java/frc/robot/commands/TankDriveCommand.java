@@ -89,7 +89,7 @@ public class TankDriveCommand extends Command {
 		rightSpeed = 0;
 	}
 	if(leftSpeed == forwardSpeed+backwardSpeed) {
-		leftSpeed = (rightEncoder.getRate() * constant / 4277; //4277 = ticks per meter
+		leftSpeed = (rightEncoder.getRate() * constant / 4277); //4277 = ticks per meter
 	}
 
 		driveTrain.setLeftGroupSpeed(leftSpeed);
