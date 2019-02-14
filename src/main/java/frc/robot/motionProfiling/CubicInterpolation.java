@@ -1,10 +1,15 @@
 package frc.robot.motionProfiling;
-
+/*
 import java.util.ArrayList;
 
 public class CubicInterpolation{
+<<<<<<< HEAD
 
     /*public static ArrayList<Point> generateSpline(ArrayList<Point> xs, ArrayList<Point> ys){
+=======
+/*
+    public static ArrayList<Point> generateSpline(ArrayList<Point> xs, ArrayList<Point> ys){
+>>>>>>> cc730c79837e54bae878c33bb42beda3ed6f8495
         var i, length = xs.length;
 	
         // Deal with length issues
@@ -78,5 +83,16 @@ public class CubicInterpolation{
 
 
 
+<<<<<<< HEAD
     }*/
 }
+=======
+    }
+<<<<<<< HEAD
+    */
+}
+=======
+}
+*/
+>>>>>>> b6a961a84a3d785b1949e9af3e2e997524c2884a
+>>>>>>> cc730c79837e54bae878c33bb42beda3ed6f8495

@@ -9,6 +9,7 @@ package frc.robot;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.command.CommandGroup;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import frc.joysticks.*;
 import frc.robot.commands.RotateShoulderJoint;
@@ -36,7 +37,7 @@ public class Robot extends TimedRobot {
   TankDriveCommand driveCommand = new TankDriveCommand();
   //DriveTenM driveTenCommand = new DriveTenM();
   //TankDriveCommand tankDriveCommand = new TankDriveCommand();
-
+  CommandGroup newGroup;
   @Override
   public void robotInit() {
       //change Logitech to newly extended class
@@ -114,7 +115,8 @@ public class Robot extends TimedRobot {
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
-    Scheduler.getInstance().add(driveCommand);
+    
+    Scheduler.getInstance().add(newGroup);
   }
 
   /**

@@ -56,8 +56,8 @@ public class ArmSubsystem extends Subsystem {
     shoulderJointMotor.positionInverted = false;
     shoulderJointMotor.configNominalOutputForward(0, RobotMap.kPIDTimeoutMillis);
 		shoulderJointMotor.configNominalOutputReverse(0, RobotMap.kPIDTimeoutMillis);
-		shoulderJointMotor.configPeakOutputForward(0.5, RobotMap.kPIDTimeoutMillis);
-    shoulderJointMotor.configPeakOutputReverse(-0.5, RobotMap.kPIDTimeoutMillis);
+		shoulderJointMotor.configPeakOutputForward(0.2, RobotMap.kPIDTimeoutMillis);
+    shoulderJointMotor.configPeakOutputReverse(-0.2, RobotMap.kPIDTimeoutMillis);
     
     shoulderJointMotor.setk_P(this.shoulderJointMotor_kP);
     shoulderJointMotor.setk_I(this.shoulderJointMotor_kI);
@@ -69,13 +69,13 @@ public class ArmSubsystem extends Subsystem {
     shoulderJointMotor.initializeHome();
 
     elbowJointMotor = new RotationMotor(RobotMap.ARM_ELBOW_JOINT_MOTOR);
-    elbowJointMotor.setInverted(false);
+    elbowJointMotor.setInverted(true);
     elbowJointMotor.setSensorPhase(true);
     elbowJointMotor.positionInverted = false;
     elbowJointMotor.configNominalOutputForward(0, RobotMap.kPIDTimeoutMillis);
 		elbowJointMotor.configNominalOutputReverse(0, RobotMap.kPIDTimeoutMillis);
-		elbowJointMotor.configPeakOutputForward(0.4, RobotMap.kPIDTimeoutMillis);
-    elbowJointMotor.configPeakOutputReverse(-0.4, RobotMap.kPIDTimeoutMillis);
+		elbowJointMotor.configPeakOutputForward(0.2, RobotMap.kPIDTimeoutMillis);
+    elbowJointMotor.configPeakOutputReverse(-0.2, RobotMap.kPIDTimeoutMillis);
     
     elbowJointMotor.config_kP(RobotMap.kPIDIdx, this.elbowJointMotor_kP);
     elbowJointMotor.config_kI(RobotMap.kPIDIdx, this.elbowJointMotor_kI);
