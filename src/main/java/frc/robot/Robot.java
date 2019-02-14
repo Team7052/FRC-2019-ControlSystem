@@ -28,10 +28,6 @@ import frc.robot.commands.TankDriveCommand;
 public class Robot extends TimedRobot {
 
   public static OI oi;
-  NetworkTableInstance networkTableInstance;
-  NetworkTableInstance motionProfileInstance;
-
-
   /**
    * This function is run when the robot is first started up and should be
    * used for any initialization code.
@@ -44,6 +40,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
       //change Logitech to newly extended class
+<<<<<<< HEAD
     oi = new XBoxOne(0);
     networkTableInstance = NetworkTableInstance.getDefault();
     motionProfileInstance = NetworkTableInstance.create();
@@ -57,6 +54,9 @@ public class Robot extends TimedRobot {
     newGroup = new CommandGroup();
     newGroup.addParallel(driveCommand);
     newGroup.addParallel(armCommand);
+=======
+    oi = new Logitech(0);
+>>>>>>> 7e9bca7f69acc7f0b9a1bd04e5b1b4ffde3f6b94
   }
 
   /**
