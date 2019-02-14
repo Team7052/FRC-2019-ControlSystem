@@ -1,22 +1,42 @@
 package frc.robot.commands;
 
+
+import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.Robot;
 import frc.robot.subsystems.DriveTrain;
+import frc.robot.motionProfiling.FunctionGenerator;
+import edu.wpi.first.wpilibj.command.Command;
+import frc.robot.Robot;
+import frc.robot.motionProfiling.FunctionGenerator;
+import frc.robot.motionProfiling.FunctionSet;
+import frc.robot.motionProfiling.MotionProfileState;
+import frc.robot.motionProfiling.MotionProfiler;
+import frc.robot.motionProfiling.MotionTriplet;
+import frc.robot.motionProfiling.Point;
+import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.ArmSubsystem.Motor;
 
 public class TankDriveCommand extends Command {
     double currentSpeedLeft = 0;
 	double currentSpeedRight = 0;
     // declare subsystem variable
-    DriveTrain driveTrain;
+	DriveTrain driveTrain;
+	Encoder leftEncoder;
+    Encoder rightEncoder;
     
     public TankDriveCommand() {
         super("Tank Drive Command");
         // get drive train subsystem instance
-        driveTrain = DriveTrain.getInstance();
+		driveTrain = DriveTrain.getInstance();
+		
         
         //required for each command to know which subsystems it will be using
 		requires(driveTrain);
+		rightEncoder = new Encoder(0, 1, false, EncodingType.k4X);
+        leftEncoder = new Encoder(3, 4, false, EncodingType.k4X);
     }
 
     @Override
@@ -34,35 +54,46 @@ public class TankDriveCommand extends Command {
     double w = Robot.oi.axisTrigger_L2();
     double forwardSpeed = v;
     double backwardSpeed = -w;
-    double leftSpeed = forwardSpeed+backwardSpeed;
-    double rightSpeed = forwardSpeed+backwardSpeed;
+	double rightSpeed = forwardSpeed+backwardSpeed;
+	boolean leftSpeedPositive = true;
+	double leftSpeed= forwardSpeed+backwardSpeed;
+	double arc = 0;
+	double constant=1;
+	double deadband = 0.1;
+	if(x!=0){
+		arc = Math.atan(Math.abs(rightSpeed)/Math.abs(x));
+	} else{
+		arc = 0;
+	}
+	if (x > 0.1) {
+		rightSpeed = rightSpeed*arc;
+	}
+	else if (x < -0.1) {
+		constant = -x*0.5*(1-x);
+	}
 
-    if (x > 0.1) {
-			rightSpeed = (rightSpeed*(1+x));
-		}
-		else if (x < -0.1) {
-			leftSpeed = (leftSpeed *(1-x));
-		}
+	if(Math.abs(v+w) < 0.2){
 
-		if(0.2> Math.abs(v+w)){
-			//System.out.println("y is between -0.3 and 0.3");
-			if(x<-0.3){
-				//System.out.println("turn left");
-				rightSpeed = 0.5*x;
-				leftSpeed = 0.5*-x;
-			}
-			else if(x>0.3){
-				//System.out.println("turn right");
-				leftSpeed = 0.5*-x;
-				rightSpeed = 0.5*x;
-			}
+		if(x<-0.3){
+			leftSpeed = -0.5*x;
+			rightSpeed = 0.5*x;
 		}
-		double finalLeftSpeed = bufferSpeedLeft(this.currentSpeedLeft, leftSpeed);
-		double finalRightSpeed = bufferSpeedLeft(this.currentSpeedRight, rightSpeed);
-		driveTrain.setLeftGroupSpeed(finalLeftSpeed);
-        driveTrain.setRightGroupSpeed(finalRightSpeed);
-		this.currentSpeedLeft = finalLeftSpeed;
-		this.currentSpeedRight = finalRightSpeed;
+		else if(x>0.3){
+
+			rightSpeed = 0.5*x;
+			leftSpeed = -0.5*x;
+		}
+	}
+	if (leftSpeed < deadband) {
+		constant = 1; 
+		rightSpeed = 0;
+	}
+	if(leftSpeed == forwardSpeed+backwardSpeed) {
+		leftSpeed = (rightEncoder.getRate() * constant / 4277; //4277 = ticks per meter
+	}
+
+		driveTrain.setLeftGroupSpeed(leftSpeed);
+        driveTrain.setRightGroupSpeed(rightSpeed);
 	
     }
 

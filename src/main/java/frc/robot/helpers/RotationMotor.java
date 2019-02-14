@@ -16,6 +16,8 @@ public class RotationMotor extends WPI_TalonSRX {
     // expected home position
     int expectedHomePositionMin = 0;
     int expectedHomePositionMax = 4096;
+    private boolean sensorPhase = false;
+    public boolean positionInverted = true;
 
     // quadrature positions - this is initialized when the robot first turns on
     int homeQuadraturePosition = 0;
@@ -27,78 +29,43 @@ public class RotationMotor extends WPI_TalonSRX {
 
     int currentTargetQuadraturePositoin = 0;
 
-    private boolean positioningError = false;
-    public boolean positionInverted = false;
-
-    public RotationMotor(int canID, double configHomeDegrees, double configMaxDegrees, double configMinDegrees, int configExpectedHomePositionMin, int configExpectedHomePositionMax, boolean positionInverted, boolean sensorPhase, boolean isInverted) {
+    public RotationMotor(int canID) {
         super(canID);
-        this.setSensorPhase(sensorPhase);
-        initialize(configHomeDegrees, configMaxDegrees, configMinDegrees, configExpectedHomePositionMin, configExpectedHomePositionMax, positionInverted);
-    }
-
-    public RotationMotor(int canID, double configHomeDegrees, int configExpectedHomePositionMin, int configExpectedHomePositionMax, boolean positionInverted, boolean sensorPhase) {
-        super(canID);
-        this.setSensorPhase(sensorPhase);
-        initialize(configHomeDegrees, -1, -1, configExpectedHomePositionMin, configExpectedHomePositionMax, positionInverted);
-    }
-
-    public void initialize(double configHomeDegrees, double configMaxDegrees, double configMinDegrees, int configExpectedHomePositionMin, int configExpectedHomePositionMax, boolean positionInverted) {
         this.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, this.slotIdx, this.timeoutMs);
+    }
 
-        this.homeDegrees = configHomeDegrees;
-        this.maxDegrees = configMaxDegrees;
-        this.minDegrees = configMinDegrees;
-        this.expectedHomePositionMax = configExpectedHomePositionMax;
-        this.expectedHomePositionMin = configExpectedHomePositionMin;
-
+    public void initializeHome() {
         homeQuadraturePosition = this.getSensorCollection().getPulseWidthPosition();
         this.setSelectedSensorPosition(homeQuadraturePosition, slotIdx, timeoutMs);
-        System.out.println("AFDFDSF: " + this.getSelectedSensorPosition(slotIdx) + ", " + homeQuadraturePosition);
-        if (minDegrees != maxDegrees && minDegrees != -1) {
-           /* this.configForwardSoftLimitEnable(true);
-            this.configReverseSoftLimitEnable(true);
-            this.configForwardSoftLimitThreshold(homeQuadraturePosition + (int) ((maxDegrees - homeDegrees) / 360.0 * 4096.0));
-            this.configReverseSoftLimitThreshold(homeQuadraturePosition + (int) ((minDegrees - homeDegrees) / 360.0 * 4096.0));*/
-        }
-        
-        if (homeQuadraturePosition < expectedHomePositionMin || homeQuadraturePosition > expectedHomePositionMax) {
-            positioningError = true;
-        }
     }
 
     public double getCurrentDegrees() {
-        return (double) (this.getSelectedSensorPosition(slotIdx) - homeQuadraturePosition) / 4096.0 * 360.0;
+        return (double) (this.positionInverted ? -1 : 1) * (this.getSelectedSensorPosition(slotIdx) - homeQuadraturePosition) / 4096.0 * 360.0 + this.homeDegrees;
     }
-
-    @Override
-    public void set(ControlMode mode, double value) {
-        // don't allow the motor to be changed/set if it's home position doesn't match the actual position
-        if (this.isPositioningError()) {
-            System.out.println("Positioning Error! Home position is expected to be between " + this.expectedHomePositionMin + " and " + this.expectedHomePositionMax + " but the home position is " + this.homeQuadraturePosition);
-            return;
-        }
-        super.set(mode, value);
-    }
-    int realElbowSpeed;
 
     public int getTarget() {
         return this.currentTargetQuadraturePositoin;
     }
 
-    public void setDegrees(double degrees) {
-        int targetPosition = (int) ((double) homeQuadraturePosition + degrees / 360 * 4096 * (positionInverted ? -1 : 1));
-        this.currentTargetQuadraturePositoin = targetPosition;
-        this.set(ControlMode.Position, targetPosition);
+    public boolean getInvertedPosition() {
+        return this.getInverted();
     }
 
-    public boolean isPositioningError() {
-        if (homeQuadraturePosition < expectedHomePositionMin || homeQuadraturePosition > expectedHomePositionMax) {
-            positioningError = true;
-        }
-        else {
-            positioningError = false;
-        }
-        return this.positioningError;
+    @Override
+    public void setSensorPhase(boolean PhaseSensor) {
+        super.setSensorPhase(PhaseSensor);
+        this.sensorPhase = PhaseSensor;
+    }
+
+    public boolean getPhase() {
+        return this.sensorPhase;
+    }
+
+    public void setDegrees(double degrees) {
+        int targetPosition = (int) ((double) homeQuadraturePosition + (degrees - this.homeDegrees) / 360 * 4096 * (this.positionInverted ? -1 : 1));
+        this.currentTargetQuadraturePositoin = targetPosition;
+        System.out.println("target: " + targetPosition + ", current: " + this.getSelectedSensorPosition());
+        this.set(ControlMode.Position, targetPosition);
     }
 
     public double getk_P() { return this.k_P; }

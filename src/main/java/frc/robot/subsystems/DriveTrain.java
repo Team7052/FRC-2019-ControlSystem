@@ -7,8 +7,6 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
-
 import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.command.Subsystem;
@@ -30,20 +28,20 @@ public class DriveTrain extends Subsystem {
     return instance;
   }
 
-  private WPI_VictorSPX frontLeftMotor;
-  private WPI_VictorSPX backLeftMotor;
-  private WPI_VictorSPX frontRightMotor;
-  private WPI_VictorSPX backRightMotor;
+  private Spark frontLeftMotor;
+  private Spark backLeftMotor;
+  private Spark frontRightMotor;
+  private Spark backRightMotor;
 
   private SpeedControllerGroup leftSpeedGroup;
   private SpeedControllerGroup rightSpeedGroup;
 
   // private initializer so you can't initialize more than 1 drive train
   private DriveTrain() {
-    frontLeftMotor = new WPI_VictorSPX(RobotMap.frontLeftMotor);
-    backLeftMotor = new WPI_VictorSPX(RobotMap.backLeftMotor);
-    frontRightMotor = new WPI_VictorSPX(RobotMap.frontRightMotor);
-    backRightMotor = new WPI_VictorSPX(RobotMap.backRightMotor);
+    frontLeftMotor = new Spark(RobotMap.frontLeftMotor);
+    backLeftMotor = new Spark(RobotMap.backLeftMotor);
+    frontRightMotor = new Spark(RobotMap.frontRightMotor);
+    backRightMotor = new Spark(RobotMap.backRightMotor);
 
     leftSpeedGroup = new SpeedControllerGroup(frontLeftMotor, backLeftMotor);
     rightSpeedGroup = new SpeedControllerGroup(frontRightMotor, backRightMotor);
