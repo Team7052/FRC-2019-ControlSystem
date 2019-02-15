@@ -32,6 +32,7 @@ public class Network {
             case DRIVE_BASE_MOTION_PROFILING:
                 return networkInstance.getTable(this.kDriveBaseMotionProfilingTable);
         }
+        return null;
     }
 
     public NetworkTableEntry getTableEntry(TableType type, String key) {

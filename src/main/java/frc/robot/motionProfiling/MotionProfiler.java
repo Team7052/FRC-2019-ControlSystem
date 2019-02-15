@@ -79,18 +79,6 @@ public class MotionProfiler {
         interpolatedPoints.add(points.get(points.size() - 1));
         return interpolatedPoints;
     }
-<<<<<<< HEAD
-=======
-
-<<<<<<< HEAD
-    //public ArrayList<Point> getCubicInterpolation(ArrayList<Point> points, double delta){
-        
-    //}
-=======
->>>>>>> cc730c79837e54bae878c33bb42beda3ed6f8495
-
->>>>>>> b6a961a84a3d785b1949e9af3e2e997524c2884a
-    
     
     // setters and getters for functions
     public void setVelocityPoints(ArrayList<Point> points) {

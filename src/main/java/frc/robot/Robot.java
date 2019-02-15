@@ -42,6 +42,7 @@ public class Robot extends TimedRobot {
   public void robotInit() {
       //change Logitech to newly extended class
     oi = new Logitech(0);
+    newGroup = new CommandGroup();
   }
 
   /**
@@ -115,6 +116,9 @@ public class Robot extends TimedRobot {
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
+
+    newGroup.addParallel(armCommand);
+    newGroup.addParallel(driveCommand);
     
     Scheduler.getInstance().add(newGroup);
   }
