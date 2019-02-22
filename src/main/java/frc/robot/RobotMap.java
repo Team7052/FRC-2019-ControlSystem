@@ -30,4 +30,9 @@ public class RobotMap {
 
   public static int kPIDIdx = 0;
   public static int kPIDTimeoutMillis = 30;
+
+  // names for 
+  public static final String kArmShoulderMotorName = "armShoulderMotor";
+  public static final String kArmElbowMotorName = "armElbowMotor";
+  public static final String kArmWristMotorName = "armWristMotor";
 }

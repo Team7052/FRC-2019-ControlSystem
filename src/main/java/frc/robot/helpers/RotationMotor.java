@@ -14,41 +14,73 @@ public class RotationMotor extends WPI_TalonSRX {
     public final int timeoutMs = 20;
 
     // expected home position
-    int expectedHomePositionMin = 0;
-    int expectedHomePositionMax = 4096;
     private boolean sensorPhase = false;
     public boolean positionInverted = true;
 
     // quadrature positions - this is initialized when the robot first turns on
-    int homeQuadraturePosition = 0;
+    public int homeQuadraturePosition = 0;
 
     // degree positions all relative to ground (pointing straight downwards = 0˚)
     public double homeDegrees = 0;
     public double maxDegrees = -1;
     public double minDegrees = -1;
 
-    int currentTargetQuadraturePositoin = 0;
+    public double gearRatio = 1.0;
 
+    int currentTargetQuadraturePosition = 0;
     public RotationMotor(int canID) {
         super(canID);
+        gearRatio = 1.0;
         this.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, this.slotIdx, this.timeoutMs);
     }
 
-    public void initializeHome() {
-        homeQuadraturePosition = this.getSensorCollection().getPulseWidthPosition();
-        this.setSelectedSensorPosition(homeQuadraturePosition, slotIdx, timeoutMs);
+    public RotationMotor(int canID, double gearRatio) {
+        super(canID);
+        this.gearRatio = gearRatio;
+        this.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, this.slotIdx, this.timeoutMs);
+    }
+
+    public void initializeHome(double homeDegrees) {
+        this.homeQuadraturePosition = (positionInverted ? -1 : 1) * (int) ((homeDegrees / 360.0) * 4096 * gearRatio);
+        this.setSelectedSensorPosition(this.homeQuadraturePosition, slotIdx, timeoutMs);
+    }
+
+    public double getSpeed() {
+        return this.getMotorOutputPercent();
+    }
+
+    public void setSpeed(double speed) {
+        this.set(ControlMode.PercentOutput, speed);
+    }
+
+    public double getCurrent() {
+        return this.getOutputCurrent();
+    }
+
+    public int getPosition() {
+        return this.getSelectedSensorPosition(this.slotIdx);
     }
 
     public double getCurrentDegrees() {
-        return (double) (this.positionInverted ? -1 : 1) * (this.getSelectedSensorPosition(slotIdx) - homeQuadraturePosition) / 4096.0 * 360.0 + this.homeDegrees;
+        return ((double) this.getSelectedSensorPosition(this.slotIdx) / (4096.0 * gearRatio)) * 360.0;
+    }
+
+    public double getVelocity() {
+        return this.getSelectedSensorVelocity(this.slotIdx);
     }
 
     public int getTarget() {
-        return this.currentTargetQuadraturePositoin;
+        return this.currentTargetQuadraturePosition;
     }
 
     public boolean getInvertedPosition() {
         return this.getInverted();
+    }
+    public void setInvertedPosition(boolean inverted) {
+        this.positionInverted = inverted;
+        if (Math.abs(this.homeQuadraturePosition - this.getPosition()) < 100) {
+            this.initializeHome(this.homeDegrees);
+        }
     }
 
     @Override
@@ -62,9 +94,9 @@ public class RotationMotor extends WPI_TalonSRX {
     }
 
     public void setDegrees(double degrees) {
-        int targetPosition = (int) ((double) homeQuadraturePosition + (degrees - this.homeDegrees) / 360 * 4096 * (this.positionInverted ? -1 : 1));
-        this.currentTargetQuadraturePositoin = targetPosition;
-        //System.out.println("target: " + targetPosition + ", current: " + this.getSelectedSensorPosition());
+        int targetPosition = (positionInverted ? -1 : 1) * (int) ((degrees / 360.0) * 4096 * gearRatio);
+        this.currentTargetQuadraturePosition = targetPosition;
+        System.out.println("current: " + this.getPosition() + ", target: " + targetPosition);
         this.set(ControlMode.Position, targetPosition);
     }
 

@@ -30,7 +30,7 @@ public class ArmSubsystem extends Subsystem {
   private final double elbowJointMotor_kD = 0;
   private final double elbowJointMotor_kF = 0.0;
 
-  public VictorSPX wristMotor;
+  private VictorSPX wristMotor;
 
   private AHRS imuSensor;
 
@@ -49,14 +49,14 @@ public class ArmSubsystem extends Subsystem {
   // private initializer so you can't initialize more than 1 drive train
   private ArmSubsystem() {
     // set up the new arm motor
-    shoulderJointMotor = new RotationMotor(RobotMap.ARM_SHOULDER_JOINT_MOTOR);
+    shoulderJointMotor = new RotationMotor(RobotMap.ARM_SHOULDER_JOINT_MOTOR, 48.0 / 15.0);
     shoulderJointMotor.setSensorPhase(true);
     shoulderJointMotor.setInverted(true);
-    shoulderJointMotor.positionInverted = false;
+    shoulderJointMotor.positionInverted = true;
     shoulderJointMotor.configNominalOutputForward(0, RobotMap.kPIDTimeoutMillis);
 		shoulderJointMotor.configNominalOutputReverse(0, RobotMap.kPIDTimeoutMillis);
-		shoulderJointMotor.configPeakOutputForward(0.2, RobotMap.kPIDTimeoutMillis);
-    shoulderJointMotor.configPeakOutputReverse(-0.2, RobotMap.kPIDTimeoutMillis);
+		shoulderJointMotor.configPeakOutputForward(0.8, RobotMap.kPIDTimeoutMillis);
+    shoulderJointMotor.configPeakOutputReverse(-0.8, RobotMap.kPIDTimeoutMillis);
     
     shoulderJointMotor.setk_P(this.shoulderJointMotor_kP);
     shoulderJointMotor.setk_I(this.shoulderJointMotor_kI);
@@ -65,16 +65,16 @@ public class ArmSubsystem extends Subsystem {
     shoulderJointMotor.configAllowableClosedloopError(10, RobotMap.kPIDIdx, RobotMap.kPIDTimeoutMillis);
     //System.out.println("Shoulder joint motor: " + this.shoulderJointMotor.getInvertedPosition());
     shoulderJointMotor.homeDegrees = 335;
-    shoulderJointMotor.initializeHome();
+    shoulderJointMotor.initializeHome(335);
 
     elbowJointMotor = new RotationMotor(RobotMap.ARM_ELBOW_JOINT_MOTOR);
-    elbowJointMotor.setInverted(true);
+    elbowJointMotor.setInverted(false);
     elbowJointMotor.setSensorPhase(true);
     elbowJointMotor.positionInverted = false;
     elbowJointMotor.configNominalOutputForward(0, RobotMap.kPIDTimeoutMillis);
 		elbowJointMotor.configNominalOutputReverse(0, RobotMap.kPIDTimeoutMillis);
-		elbowJointMotor.configPeakOutputForward(0.2, RobotMap.kPIDTimeoutMillis);
-    elbowJointMotor.configPeakOutputReverse(-0.2, RobotMap.kPIDTimeoutMillis);
+		elbowJointMotor.configPeakOutputForward(0.5, RobotMap.kPIDTimeoutMillis);
+    elbowJointMotor.configPeakOutputReverse(-0.5, RobotMap.kPIDTimeoutMillis);
     
     elbowJointMotor.config_kP(RobotMap.kPIDIdx, this.elbowJointMotor_kP);
     elbowJointMotor.config_kI(RobotMap.kPIDIdx, this.elbowJointMotor_kI);
@@ -84,11 +84,11 @@ public class ArmSubsystem extends Subsystem {
     elbowJointMotor.configAllowableClosedloopError(10, RobotMap.kPIDIdx, RobotMap.kPIDTimeoutMillis);
     
     elbowJointMotor.homeDegrees = 180;
-    elbowJointMotor.initializeHome();
+    elbowJointMotor.initializeHome(180);
 
-    wristMotor = new VictorSPX(1);
-    wristMotor.configPeakOutputForward(0.6);
-    wristMotor.configPeakOutputReverse(-0.6);
+    wristMotor = new VictorSPX(7);
+    wristMotor.configPeakOutputForward(0.3);
+    wristMotor.configPeakOutputReverse(-0.3);
     wristMotor.configNominalOutputForward(0);
     wristMotor.configNominalOutputReverse(0);
     imuSensor = new AHRS(I2C.Port.kOnboard);
@@ -104,35 +104,33 @@ public class ArmSubsystem extends Subsystem {
     return this.imuSensor;
   }
 
-  public void setCurrent(Motor motor, double current) {
-    WPI_TalonSRX selectedMotor = getMotor(motor);
-    selectedMotor.set(ControlMode.Current, current);
+  public RotationMotor getRotationMotor(Motor motorType) {
+    return this.getRotationMotor(motorType);
+  }
+
+  public VictorSPX getWristMotor() {
+    return this.wristMotor;
   }
 
   public double getCurrent(Motor motor) {
-    WPI_TalonSRX selectedMotor = getMotor(motor);
-    return selectedMotor.getOutputCurrent();
+    RotationMotor selectedMotor = rotationMotor(motor);
+    return selectedMotor.getCurrent();
 
-  }
-
-  public void stop(Motor motor) {
-    WPI_TalonSRX selectedMotor = getMotor(motor);
-    selectedMotor.set(ControlMode.Current, 0);
   }
 
   public void setSpeed(Motor motor, double speed) {
-    WPI_TalonSRX selectedMotor = getMotor(motor);
-    selectedMotor.set(ControlMode.PercentOutput, speed);
+    RotationMotor selectedMotor = rotationMotor(motor);
+    selectedMotor.setSpeed(speed);
   }
 
   public double getSpeed(Motor motor) {
-    WPI_TalonSRX selectedMotor = getMotor(motor);
-    return selectedMotor.getMotorOutputPercent();
+    RotationMotor selectedMotor = rotationMotor(motor);
+    return selectedMotor.getSpeed();
   }
 
   public int getPosition(Motor motor) {
-    WPI_TalonSRX selected = this.getMotor(motor);
-    return selected.getSelectedSensorPosition();
+    RotationMotor selected = this.rotationMotor(motor);
+    return selected.getPosition();
   }
   public double getHomeDegrees(Motor motor) {
     RotationMotor selected = this.rotationMotor(motor);

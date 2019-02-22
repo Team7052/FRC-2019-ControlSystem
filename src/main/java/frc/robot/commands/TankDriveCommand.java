@@ -24,10 +24,10 @@ public class TankDriveCommand extends Command {
 	double currentSpeedRight = 0;
     // declare subsystem variable
 	DriveTrain driveTrain;
+	double deadBand = 0.01;
+	double kp = 0;
 	Encoder leftEncoder;
 	Encoder rightEncoder;
-	double deadBand = 0.1;
-	double kp = 0.000000;
     
     public TankDriveCommand() {
         super("Tank Drive Command");
@@ -37,8 +37,6 @@ public class TankDriveCommand extends Command {
         
         //required for each command to know which subsystems it will be using
 		requires(driveTrain);
-		leftEncoder = new Encoder(3, 2, false, EncodingType.k4X);
-        rightEncoder = new Encoder(0, 1, false, EncodingType.k4X);
     }
 
     @Override
@@ -53,7 +51,7 @@ public class TankDriveCommand extends Command {
 		// your code goes here:
 		double v = Robot.oi.axisTrigger_R2();
 		double w = Robot.oi.axisTrigger_L2();
-		double x = Robot.oi.axisLeft_X();
+		double x = Robot.oi.axisRight_X();
 		double y = Robot.oi.axisLeft_Y();
 		double rightSpeed = 0;
 		double leftSpeed = 0;
@@ -61,6 +59,8 @@ public class TankDriveCommand extends Command {
 		double rightTarget = 0;
 		double difference = 0;
 		double theta = 0;
+		Encoder leftEncoder = driveTrain.getLeftEncoder();
+		Encoder rightEncoder = driveTrain.getRightEncoder();
 		System.out.println("Left: "+leftEncoder.get());
 		System.out.println("Right: "+rightEncoder.get());
 
@@ -91,8 +91,8 @@ public class TankDriveCommand extends Command {
 		rightTarget = leftTarget*ratio;
 		//System.out.println(leftSpeed);
 		difference = rightTarget - rightEncoder.getRate();
-		driveTrain.setLeftGroupSpeed(leftSpeed*0.5);
-		driveTrain.setRightGroupSpeed((rightSpeed +difference*kp)*0.5);
+		//driveTrain.setLeftGroupSpeed(leftSpeed*0.3);
+		//driveTrain.setRightGroupSpeed((rightSpeed +difference*kp)*0.3);
 		
     }
 
