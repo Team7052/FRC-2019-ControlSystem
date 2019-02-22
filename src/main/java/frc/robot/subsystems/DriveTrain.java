@@ -7,8 +7,10 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
+import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import frc.robot.RobotMap;
 
@@ -36,6 +38,9 @@ public class DriveTrain extends Subsystem {
   private SpeedControllerGroup leftSpeedGroup;
   private SpeedControllerGroup rightSpeedGroup;
 
+  Encoder leftEncoder;
+  Encoder rightEncoder;
+
   // private initializer so you can't initialize more than 1 drive train
   private DriveTrain() {
     frontLeftMotor = new Spark(RobotMap.frontLeftMotor);
@@ -46,6 +51,10 @@ public class DriveTrain extends Subsystem {
     leftSpeedGroup = new SpeedControllerGroup(frontLeftMotor, backLeftMotor);
     rightSpeedGroup = new SpeedControllerGroup(frontRightMotor, backRightMotor);
     rightSpeedGroup.setInverted(true);
+
+
+    rightEncoder = new Encoder(0, 1, false, EncodingType.k4X);
+    leftEncoder = new Encoder(3, 4, false, EncodingType.k4X);
   }
 
   @Override
@@ -60,5 +69,11 @@ public class DriveTrain extends Subsystem {
   }
   public void setRightGroupSpeed(double speed) {
     rightSpeedGroup.set(speed);
+  }
+  public Encoder getLeftEncoder() {
+    return this.leftEncoder;
+  } 
+  public Encoder getRightEncoder() {
+    return this.rightEncoder;
   }
 }

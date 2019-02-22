@@ -1,6 +1,5 @@
 package frc.robot.commands;
 
-
 import java.util.ArrayList;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -82,21 +81,17 @@ public class RotateShoulderJoint extends Command implements PIDOutput, PIDSource
             pidController.enable();
         }
         if (Robot.oi.button_A()) {
-            //shoulderMotionProfiler.startMotionProfile();
+            shoulderMotionProfiler.startMotionProfile();
             MotionTriplet shoulderTriplet = shoulderMotionProfiler.updateMotionProfile(1);
             if (shoulderMotionProfiler.getState() == MotionProfileState.RUNNING && shoulderTriplet != null) {
-               // System.out.println("setpoint: " + shoulderTriplet.position / (2*Math.PI) * 360 + ", current: " + arm.getDegrees(Motor.SHOULDER_JOINT));
                 arm.setDegrees(Motor.SHOULDER_JOINT, shoulderTriplet.position / (2*Math.PI) * 360);
             }
             else if (shoulderMotionProfiler.getState() == MotionProfileState.FINISHED) {
                 if (shoulderMotionProfiler.getPositionFunction().size() > 0) {
                     double position = shoulderMotionProfiler.getPositionFunction().get(shoulderMotionProfiler.getPositionFunction().size() - 1).y;
                     arm.setDegrees(Motor.SHOULDER_JOINT, position / (2*Math.PI) * 360);
-                    //System.out.println("setpoint: " + position / (2*Math.PI) * 360 + ", current: " + arm.getDegrees(Motor.SHOULDER_JOINT));
                 }
             }
-            
-            
             
             elbowMotionProfiler.startMotionProfile();
         }
@@ -108,19 +103,16 @@ public class RotateShoulderJoint extends Command implements PIDOutput, PIDSource
             else if (elbowMotionProfiler.getState() == MotionProfileState.FINISHED) {
                 if (elbowMotionProfiler.getPositionFunction().size() > 0) {
                     double position = elbowMotionProfiler.getPositionFunction().get(elbowMotionProfiler.getPositionFunction().size() - 1).y;
-                    //System.out.println("setpoint: " + position / (2*Math.PI) * 360 + ", current: " + arm.getDegrees(Motor.ELBOW_JOINT));
                     System.out.println(arm.getSpeed(Motor.ELBOW_JOINT) + "A");
                     arm.setDegrees(Motor.ELBOW_JOINT, position / (2 * Math.PI) * 360);
                 }
             }
         // find wrist error
-
         AHRS sensor = arm.getIMUSensor();
 
         if (!sensor.isCalibrating() && sensor.isConnected()) {
             float pitch = sensor.getPitch();
 
-        
             if (wristFilter == null) {
                 wristFilter = new LowPassFilter(0, pitch);
                 wristFilter.startFilter();
@@ -145,16 +137,14 @@ public class RotateShoulderJoint extends Command implements PIDOutput, PIDSource
             this.pidController.setSetpoint(target);
         
             System.out.println("%: " + Math.round(this.wristMotorOutput * 100) + ", target: " + Math.round(target * 100) / 100  + ", pitch: " + pitch);
-            arm.wristMotor.set(ControlMode.PercentOutput, this.wristMotorOutput);
+            arm.getWristMotor().set(ControlMode.PercentOutput, this.wristMotorOutput);
         }
         else {
-            arm.wristMotor.set(ControlMode.PercentOutput, 0);
-            //System.out.println("Not connected!");
+            arm.getWristMotor().set(ControlMode.PercentOutput, 0);
         }
-        
-        //System.out.println("e: " + arm.getDegrees(Motor.ELBOW_JOINT) + "deg");
-        //System.out.println("s: " + arm.getDegrees(Motor.SHOULDER_JOINT) + "deg");
     }
+
+    double startTime = 0;
 
     @Override
     public void pidWrite(double output) {
