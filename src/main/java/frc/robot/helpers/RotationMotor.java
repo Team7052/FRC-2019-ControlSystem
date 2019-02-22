@@ -64,7 +64,7 @@ public class RotationMotor extends WPI_TalonSRX {
     public void setDegrees(double degrees) {
         int targetPosition = (int) ((double) homeQuadraturePosition + (degrees - this.homeDegrees) / 360 * 4096 * (this.positionInverted ? -1 : 1));
         this.currentTargetQuadraturePositoin = targetPosition;
-        System.out.println("target: " + targetPosition + ", current: " + this.getSelectedSensorPosition());
+        //System.out.println("target: " + targetPosition + ", current: " + this.getSelectedSensorPosition());
         this.set(ControlMode.Position, targetPosition);
     }
 

@@ -26,8 +26,8 @@ public class TankDriveCommand extends Command {
 	DriveTrain driveTrain;
 	Encoder leftEncoder;
 	Encoder rightEncoder;
-	double deadBand = 0.000;
-	double kp = 0;
+	double deadBand = 0.1;
+	double kp = 0.000000;
     
     public TankDriveCommand() {
         super("Tank Drive Command");
@@ -37,32 +37,32 @@ public class TankDriveCommand extends Command {
         
         //required for each command to know which subsystems it will be using
 		requires(driveTrain);
-		leftEncoder = new Encoder(0, 1, false, EncodingType.k4X);
-        rightEncoder = new Encoder(3, 2, false, EncodingType.k4X);
+		leftEncoder = new Encoder(3, 2, false, EncodingType.k4X);
+        rightEncoder = new Encoder(0, 1, false, EncodingType.k4X);
     }
 
     @Override
     protected void initialize() {
         super.initialize();
-    }
+	}
 
     @Override
     protected void execute() {
-        super.execute();
+		super.execute();
 
 		// your code goes here:
 		double v = Robot.oi.axisTrigger_R2();
 		double w = Robot.oi.axisTrigger_L2();
 		double x = Robot.oi.axisLeft_X();
-		double y = v - w;
+		double y = Robot.oi.axisLeft_Y();
 		double rightSpeed = 0;
 		double leftSpeed = 0;
 		double leftTarget = 0;
 		double rightTarget = 0;
 		double difference = 0;
 		double theta = 0;
-		//System.out.println("Left: "+leftEncoder.getRate());
-		//System.out.println("Right: "+rightEncoder.getRate());
+		System.out.println("Left: "+leftEncoder.get());
+		System.out.println("Right: "+rightEncoder.get());
 
 		if (Math.abs(y) < deadBand) y=0;
 		if (Math.abs(x) < deadBand) x=0;
@@ -90,7 +90,7 @@ public class TankDriveCommand extends Command {
 		leftTarget = leftEncoder.getRate();
 		rightTarget = leftTarget*ratio;
 		//System.out.println(leftSpeed);
-		difference = -rightTarget + rightEncoder.getRate();
+		difference = rightTarget - rightEncoder.getRate();
 		driveTrain.setLeftGroupSpeed(leftSpeed*0.5);
 		driveTrain.setRightGroupSpeed((rightSpeed +difference*kp)*0.5);
 		
@@ -118,4 +118,11 @@ public class TankDriveCommand extends Command {
         return false;
     }
 
+	public void pickup_hatch() {
+
+	}
+	public void place_hatch() {
+
+	}
+	
 }

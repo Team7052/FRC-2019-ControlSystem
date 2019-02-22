@@ -21,7 +21,7 @@ public class DriveTrain extends Subsystem {
 
   // always get the current instance of the drive train
   public static DriveTrain getInstance() {
-    System.out.println(instance);
+   // System.out.println(instance);
     if (instance == null) {
       instance = new DriveTrain();
     }

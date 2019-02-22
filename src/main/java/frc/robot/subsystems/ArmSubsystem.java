@@ -63,7 +63,7 @@ public class ArmSubsystem extends Subsystem {
     shoulderJointMotor.setk_D(this.shoulderJointMotor_kD);
 
     shoulderJointMotor.configAllowableClosedloopError(10, RobotMap.kPIDIdx, RobotMap.kPIDTimeoutMillis);
-    System.out.println("Shoulder joint motor: " + this.shoulderJointMotor.getInvertedPosition());
+    //System.out.println("Shoulder joint motor: " + this.shoulderJointMotor.getInvertedPosition());
     shoulderJointMotor.homeDegrees = 335;
     shoulderJointMotor.initializeHome();
 

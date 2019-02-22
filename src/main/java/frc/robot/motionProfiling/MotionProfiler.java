@@ -79,6 +79,49 @@ public class MotionProfiler {
         interpolatedPoints.add(points.get(points.size() - 1));
         return interpolatedPoints;
     }
+    public double getLeftSum(double desiredPoint, ArrayList<Point> points) {
+        double leftSum=0;
+        for(int i=0; i<desiredPoint; i++){
+            if((points.get(i+1).y - points.get(i).y)<0){
+                double theta = Math.atan(10*(points.get(i+1).y - points.get(i).y));
+                leftSum+=Math.sin(theta)*points.get(i).y;   
+            }
+        }
+        return leftSum*4096;
+    }
+    public double getRightSum(double desiredPoint, ArrayList<Point> points) {
+        double rightSum = 0;
+        for(int i=0; i<desiredPoint; i++){
+            if((points.get(i+1).y - points.get(i).y)>0){
+                double theta = Math.atan(10*(points.get(i+1).y - points.get(i).y));
+                rightSum+=Math.sin(theta)*points.get(i).y;
+            }
+            
+        }
+        return rightSum*4096;
+
+    }
+    public double getLeftSlope(double desiredPoint, ArrayList<Point> points, double ratio) {
+        double leftSlope;
+        if((points.get((int)desiredPoint+1).y - points.get((int)desiredPoint).y)>=0){
+            leftSlope = 1;
+        } else {
+            leftSlope = (points.get((int)desiredPoint+1).y - points.get((int)desiredPoint).y)/0.1 * ratio;
+        }
+        return leftSlope;
+
+
+    }
+    public double getRightSlope(double desiredPoint, ArrayList<Point> points, double ratio) {
+        double rightSlope;
+        if((points.get((int)desiredPoint+1).y - points.get((int)desiredPoint).y)<=0){
+            rightSlope=1;
+        } else{
+            rightSlope = -(points.get((int)desiredPoint+1).y - points.get((int)desiredPoint).y)/0.1 * ratio;
+        }
+        return rightSlope;
+    }
+
     
     // setters and getters for functions
     public void setVelocityPoints(ArrayList<Point> points) {

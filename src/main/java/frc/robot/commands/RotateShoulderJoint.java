@@ -29,7 +29,7 @@ public class RotateShoulderJoint extends Command implements PIDOutput, PIDSource
 
     PIDController pidController;
 
-    double k_p1 = 0.014;
+    double k_p1 = 0.01;
     double k_i1 = 0;
     double k_d1 = 0;
 
@@ -103,13 +103,13 @@ public class RotateShoulderJoint extends Command implements PIDOutput, PIDSource
         MotionTriplet elbowTriplet = elbowMotionProfiler.updateMotionProfile(2.0);
             if (elbowMotionProfiler.getState() == MotionProfileState.RUNNING && elbowTriplet != null) {
                 arm.setDegrees(Motor.ELBOW_JOINT, elbowTriplet.position / (2*Math.PI) * 360);
-                System.out.println("setpoint: " + elbowTriplet.position / (2*Math.PI) * 360 + ", current: " + arm.getDegrees(Motor.ELBOW_JOINT));
+              //  System.out.println("setpoint: " + elbowTriplet.position / (2*Math.PI) * 360 + ", current: " + arm.getDegrees(Motor.ELBOW_JOINT));
             }
             else if (elbowMotionProfiler.getState() == MotionProfileState.FINISHED) {
                 if (elbowMotionProfiler.getPositionFunction().size() > 0) {
                     double position = elbowMotionProfiler.getPositionFunction().get(elbowMotionProfiler.getPositionFunction().size() - 1).y;
                     //System.out.println("setpoint: " + position / (2*Math.PI) * 360 + ", current: " + arm.getDegrees(Motor.ELBOW_JOINT));
-                    System.out.println(arm.getSpeed(Motor.ELBOW_JOINT) + "A");
+                 //   System.out.println(arm.getSpeed(Motor.ELBOW_JOINT) + "A");
                     arm.setDegrees(Motor.ELBOW_JOINT, position / (2 * Math.PI) * 360);
                 }
             }
@@ -139,13 +139,13 @@ public class RotateShoulderJoint extends Command implements PIDOutput, PIDSource
             }
             else {
                 pidController.setI(k_i1);
-                pidController.setP(0.01);
+                pidController.setP(this.k_p1);
             }
 
             this.pidController.setSetpoint(target);
         
-            System.out.println("%: " + Math.round(this.wristMotorOutput * 100) + ", target: " + Math.round(target * 100) / 100  + ", pitch: " + pitch);
-            arm.wristMotor.set(ControlMode.PercentOutput, this.wristMotorOutput);
+          //  System.out.println("%: " + Math.round(this.wristMotorOutput * 100) + ", target: " + Math.round(target * 100) / 100  + ", pitch: " + pitch);
+           // arm.wristMotor.set(ControlMode.PercentOutput, this.wristMotorOutput);
         }
         else {
             arm.wristMotor.set(ControlMode.PercentOutput, 0);

@@ -77,8 +77,8 @@ public class DriveTenM extends Command {
   double currentRightDisplacement = rightAngularDistance/4277;
 
 
-  System.out.println("Left Encoder Velocity: " +leftEncoder.getRate());
-  System.out.println("Right Encoder Velocity: " +rightEncoder.getRate());
+  //System.out.println("Left Encoder Velocity: " +leftEncoder.getRate());
+  //System.out.println("Right Encoder Velocity: " +rightEncoder.getRate());
   
 
 
