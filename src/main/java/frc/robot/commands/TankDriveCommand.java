@@ -26,8 +26,6 @@ public class TankDriveCommand extends Command {
 	DriveTrain driveTrain;
 	double deadBand = 0.01;
 	double kp = 0;
-	Encoder leftEncoder;
-	Encoder rightEncoder;
     
     public TankDriveCommand() {
         super("Tank Drive Command");
