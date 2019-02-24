@@ -24,8 +24,8 @@ public class TankDriveCommand extends Command {
 	double currentSpeedRight = 0;
     // declare subsystem variable
 	DriveTrain driveTrain;
-	double deadBand = 0.000;
-	double kp = 0;
+	double deadBand = 0.1;
+	double kp = 0.00000;
     
     public TankDriveCommand() {
         super("Tank Drive Command");
@@ -62,10 +62,10 @@ public class TankDriveCommand extends Command {
 		//System.out.println("Left: "+leftEncoder.getRate());
 		//System.out.println("Right: "+rightEncoder.getRate());
 
-		if (Math.abs(y) < deadBand) y=0;
-		if (Math.abs(x) < deadBand) x=0;
-		if (x != 0) {
-			theta = Math.atan(Math.abs(y / x));
+		if (Math.abs(y) < deadBand) y = 0;
+		if (Math.abs(x) < deadBand) x = 0;
+		if (y != 0) {
+			theta = Math.atan(Math.abs(x / y));
 		} 
 		else {
 			theta = 0;
@@ -74,24 +74,25 @@ public class TankDriveCommand extends Command {
 		if (y == 0) ratio = -ratio;
 
 		if (x >= 0) {
-			leftSpeed=y;
-			rightSpeed = leftSpeed*ratio;
+			leftSpeed = y;
+			rightSpeed = y * ratio;
 		}
-		if (x < 0) {
-			rightSpeed=y;
-			leftSpeed=rightSpeed*ratio;
+		else if (x < 0) {
+			rightSpeed = y;
+			leftSpeed=y*ratio;
 		}
+
 		if(y==0){
 			leftSpeed=x*0.65;
 			rightSpeed = leftSpeed * ratio;
 		}
+
 		leftTarget = leftEncoder.getRate();
 		rightTarget = leftTarget*ratio;
-		//System.out.println(leftSpeed);
 		difference = -rightTarget + rightEncoder.getRate();
-		driveTrain.setLeftGroupSpeed(leftSpeed*0.3);
-		driveTrain.setRightGroupSpeed((rightSpeed +difference*kp)*0.3);
-		
+		if (Math.abs(y) > 0.2) rightSpeed += difference * kp;
+		driveTrain.setLeftGroupSpeed(leftSpeed*0.5);
+		driveTrain.setRightGroupSpeed(rightSpeed * 0.5);
     }
 
     public double bufferSpeedLeft(double currentSpeedLeft, double desiredSpeedLeft){

@@ -62,7 +62,7 @@ public class RotationMotor extends WPI_TalonSRX {
     }
 
     public double getCurrentDegrees() {
-        return ((double) this.getSelectedSensorPosition(this.slotIdx) / (4096.0 * gearRatio)) * 360.0;
+        return (positionInverted ? -1 : 1) * ((double) this.getSelectedSensorPosition(this.slotIdx) / (4096.0 * gearRatio)) * 360.0;
     }
 
     public double getVelocity() {
@@ -96,7 +96,6 @@ public class RotationMotor extends WPI_TalonSRX {
     public void setDegrees(double degrees) {
         int targetPosition = (positionInverted ? -1 : 1) * (int) ((degrees / 360.0) * 4096 * gearRatio);
         this.currentTargetQuadraturePosition = targetPosition;
-        System.out.println("current: " + this.getPosition() + ", target: " + targetPosition);
         this.set(ControlMode.Position, targetPosition);
     }
 
