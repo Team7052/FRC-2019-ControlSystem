@@ -11,12 +11,9 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import frc.joysticks.*;
-import frc.robot.commands.ArmControllerCommand;
-import frc.robot.commands.RotateShoulderJoint;
+import frc.robot.commands.arm.ArmControllerCommand;
 import frc.robot.commands.TankDriveCommand;
 import frc.robot.networking.Network;
-import frc.robot.subsystems.ArmSubsystem;
-import frc.robot.subsystems.ArmSubsystem.Motor;
 import frc.robot.tests.TestManager;
 import frc.robot.tests.TestManagerState;
 

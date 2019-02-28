@@ -2,8 +2,6 @@ package frc.robot.motionProfiling;
 
 import java.util.ArrayList;
 
-import edu.wpi.first.wpilibj.Timer;
-
 public class MotionProfiler {
     private ArrayList<Point> velocityFunction = new ArrayList<>();
     private ArrayList<Point> accelerationFunction = new ArrayList<>();
@@ -22,7 +20,7 @@ public class MotionProfiler {
     public double index = 0;
     public MotionTriplet updateMotionProfile() {
         if (state == MotionProfileState.RUNNING) {
-            double currentTime = Timer.getFPGATimestamp();
+            double currentTime = (double) System.currentTimeMillis() / 1000;
             
             double percentage = (currentTime - startTime) / this.totalRunningTime;
             if (percentage > 1.0) {
@@ -59,14 +57,14 @@ public class MotionProfiler {
     public void stopMotionProfile() {
         this.state = MotionProfileState.FINISHED;
     }
-    public void restartMotionProfile() {
+    public void reset() {
         this.state = MotionProfileState.IDLE;
     }
 
     public void startMotionProfile() {
         if (this.state == MotionProfileState.IDLE) {
             this.state = MotionProfileState.RUNNING;
-            this.startTime = Timer.getFPGATimestamp();
+            this.startTime = (double) System.currentTimeMillis() / 1000;
         }
     }
 
@@ -177,6 +175,14 @@ public class MotionProfiler {
         this.setTotalRunningTime();
     }
 
+    public double getFinalPosition() {
+        return this.positionFunction.get(this.positionFunction.size() - 1).y;
+    }
+
+    public double getTotalTime() {
+        return this.positionFunction.get(this.positionFunction.size() - 1).x;
+    }
+
     private ArrayList<Point> pointsWithInitialDisplacement(ArrayList<Point> points, double initialDisplacement) {
         ArrayList<Point> converted = new ArrayList<>();
         for (Point point: points) {
@@ -193,10 +199,6 @@ public class MotionProfiler {
     }
     public ArrayList<Point> getPositionFunction() {
         return positionFunction;
-    }
-
-    public static ArrayList<Point> generateRotationMotorTrapezoidalProfile(double startPosition, double endPosition) {
-        return generateTrapezoidalProfile(startPosition, endPosition, Math.PI / 4.0, Math.PI / 3.0);
     }
 
     public static ArrayList<Point> generateTrapezoidalProfile(double startPosition, double endPosition, double maxVelocity, double maxAcceleration) {
@@ -224,6 +226,27 @@ public class MotionProfiler {
             trapezoidalPoints.add(new Point(totalTime - accelTime, maxVelocity));
             trapezoidalPoints.add(new Point(totalTime, 0));
         }
-        return getLinearInterpolation(trapezoidalPoints, 0.01);
+        return trapezoidalPoints;
+    }
+
+    public static ArrayList<Point> transformTrapezoidByTime(ArrayList<Point> trapezoidShape, double newTotalTime) { 
+        ArrayList<Point> newTrapezoidShape = new ArrayList<>();
+
+        double ratio = newTotalTime / MotionProfiler.totalTimeOfProfile(trapezoidShape);
+        for (Point p: trapezoidShape) {
+            newTrapezoidShape.add(new Point(p.x * ratio, p.y / ratio));
+        }
+        
+        return newTrapezoidShape;
+    }
+
+    public static double totalTimeOfProfile(ArrayList<Point> points) {
+        return points.get(points.size() - 1).x;
+    }
+    public void printPositions() {
+        for (Point point: this.getPositionFunction()) {
+            System.out.print(point.y / Math.PI * 180.0 + " ");
+        }
+        System.out.println();
     }
 }

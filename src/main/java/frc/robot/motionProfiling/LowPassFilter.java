@@ -2,8 +2,6 @@ package frc.robot.motionProfiling;
 
 import java.util.ArrayList;
 
-import edu.wpi.first.wpilibj.Timer;
-
 public class LowPassFilter {
     private ArrayList<Point> velocityFunction = new ArrayList<>();
     private ArrayList<Point> accelerationFunction = new ArrayList<>();
@@ -23,7 +21,7 @@ public class LowPassFilter {
     public double prevDegrees = -500;
     public double updateFilter() {
         if (state == MotionProfileState.RUNNING) {
-            double currentTime = Timer.getFPGATimestamp();
+            double currentTime = System.currentTimeMillis() / 1000;
             double deltaTime = currentTime - startTime;
             if (prevDegrees == -500) prevDegrees = initialDegrees;
             double target = tau / (deltaTime + tau) * prevDegrees + deltaTime / (deltaTime + tau) * this.setPointDegrees;
@@ -47,7 +45,7 @@ public class LowPassFilter {
     public void startFilter() {
         if (this.state == MotionProfileState.IDLE) {
             this.state = MotionProfileState.RUNNING;
-            this.startTime = Timer.getFPGATimestamp();
+            this.startTime = System.currentTimeMillis() / 1000;
         }
     }
 }
