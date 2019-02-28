@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj.I2C;
+import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import frc.robot.RobotMap;
 import frc.robot.helpers.RotationMotor;
@@ -10,7 +11,7 @@ import frc.robot.motionProfiling.MotionProfiler;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import com.kauailabs.navx.frc.AHRS;
+import com.ctre.phoenix.sensors.PigeonIMU;
 
 public class ArmSubsystem extends Subsystem {
     // static variable that represents the drive train
@@ -19,20 +20,22 @@ public class ArmSubsystem extends Subsystem {
   }
   private static ArmSubsystem instance;
   private RotationMotor shoulderJointMotor;
-  private final double shoulderJointMotor_kP = 1.4;
+  private final double shoulderJointMotor_kP = 1.8;
   private final double shoulderJointMotor_kI = 0;//0.0015;
   private final double shoulderJointMotor_kD = 0;
   private final double shoulderJointMotor_kF = 0.0;
 
   private RotationMotor elbowJointMotor;
-  private final double elbowJointMotor_kP = 1.4;
+  private final double elbowJointMotor_kP = 1.8;
   private final double elbowJointMotor_kI = 0;//0.0015;
   private final double elbowJointMotor_kD = 0;
   private final double elbowJointMotor_kF = 0.0;
 
   private VictorSPX wristMotor;
 
-  private AHRS imuSensor;
+  public Encoder wristEncoder;
+
+  private PigeonIMU imuSensor;
 
   MotionProfiler motionProfiler;
 
@@ -64,10 +67,10 @@ public class ArmSubsystem extends Subsystem {
 
     shoulderJointMotor.configAllowableClosedloopError(10, RobotMap.kPIDIdx, RobotMap.kPIDTimeoutMillis);
     System.out.println("Shoulder joint motor: " + this.shoulderJointMotor.getInvertedPosition());
-    shoulderJointMotor.homeDegrees = 35;
-    shoulderJointMotor.minDegrees = 35;
+    shoulderJointMotor.homeDegrees = 20;
+    shoulderJointMotor.minDegrees = 20;
     shoulderJointMotor.maxDegrees = 340;
-    shoulderJointMotor.initializeHome(35);
+    shoulderJointMotor.initializeHome(20);
 
     elbowJointMotor = new RotationMotor(RobotMap.ARM_ELBOW_JOINT_MOTOR);
     elbowJointMotor.setInverted(false);
@@ -75,8 +78,8 @@ public class ArmSubsystem extends Subsystem {
     elbowJointMotor.positionInverted = false;
     elbowJointMotor.configNominalOutputForward(0, RobotMap.kPIDTimeoutMillis);
 		elbowJointMotor.configNominalOutputReverse(0, RobotMap.kPIDTimeoutMillis);
-		elbowJointMotor.configPeakOutputForward(0.4, RobotMap.kPIDTimeoutMillis);
-    elbowJointMotor.configPeakOutputReverse(-0.4, RobotMap.kPIDTimeoutMillis);
+		elbowJointMotor.configPeakOutputForward(0.6, RobotMap.kPIDTimeoutMillis);
+    elbowJointMotor.configPeakOutputReverse(-0.6, RobotMap.kPIDTimeoutMillis);
     
     elbowJointMotor.config_kP(RobotMap.kPIDIdx, this.elbowJointMotor_kP);
     elbowJointMotor.config_kI(RobotMap.kPIDIdx, this.elbowJointMotor_kI);
@@ -93,8 +96,9 @@ public class ArmSubsystem extends Subsystem {
     wristMotor.configPeakOutputReverse(-0.3);
     wristMotor.configNominalOutputForward(0);
     wristMotor.configNominalOutputReverse(0);
-    imuSensor = new AHRS(I2C.Port.kOnboard);
+    imuSensor = new PigeonIMU(10);
     wristMotor.setInverted(true);
+    wristEncoder = new Encoder(8, 9, false, EncodingType.k4X);
   }
   @Override
   public void initDefaultCommand() {
@@ -102,7 +106,7 @@ public class ArmSubsystem extends Subsystem {
     // define the Trigger drive here
   }
 
-  public AHRS getIMUSensor() {
+  public PigeonIMU getIMUSensor() {
     return this.imuSensor;
   }
 
@@ -159,6 +163,20 @@ public class ArmSubsystem extends Subsystem {
   public double getMotorOutputPercent(Motor motor) {
     WPI_TalonSRX selected = this.getMotor(motor);
     return selected.getMotorOutputPercent();
+  }
+
+  public double getAbsoluteElbowDegrees() {
+    return this.getDegrees(Motor.ELBOW_JOINT) + this.getDegrees(Motor.SHOULDER_JOINT) - this.getHomeDegrees(Motor.SHOULDER_JOINT);
+  }
+
+  public double getWristAngle() {
+    double[] yawPitchRoll = new double[3];
+    this.getIMUSensor().getAccumGyro(yawPitchRoll);
+    return yawPitchRoll[1];
+  }
+  
+  public int getWristPosition() {
+    return wristEncoder.get();
   }
 
   private WPI_TalonSRX getMotor(Motor motor) {

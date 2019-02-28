@@ -53,8 +53,7 @@ public class DriveTrain extends Subsystem {
     rightSpeedGroup.setInverted(true);
 
 
-    rightEncoder = new Encoder(0, 1, false, EncodingType.k4X);
-    rightEncoder.setReverseDirection(true);
+    rightEncoder = new Encoder(0, 1, true, EncodingType.k4X);
     leftEncoder = new Encoder(2, 3, false, EncodingType.k4X);
   }
 

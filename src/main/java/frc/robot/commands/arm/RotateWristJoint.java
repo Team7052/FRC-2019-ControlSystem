@@ -1,9 +1,10 @@
-package frc.robot.commands;
+package frc.robot.commands.arm;
 
 import java.util.ArrayList;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.kauailabs.navx.frc.AHRS;
+import com.ctre.phoenix.sensors.PigeonIMU;
+import com.ctre.phoenix.sensors.PigeonIMU.PigeonState;
 
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDOutput;
@@ -11,19 +12,25 @@ import edu.wpi.first.wpilibj.PIDSource;
 import edu.wpi.first.wpilibj.PIDSourceType;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.motionProfiling.LowPassFilter;
+import frc.robot.motionProfiling.MotionProfiler;
 import frc.robot.motionProfiling.Point;
 import frc.robot.subsystems.ArmSubsystem;
-import frc.robot.subsystems.ArmSubsystem.Motor;
 
 public class RotateWristJoint implements PIDOutput, PIDSource {
 
-    PIDController pidController;
+    PIDController angleController;
+    PIDController positionController;
 
     double k_p1 = 0.010;
     double k_i1 = 0;
     double k_d1 = 0;
 
+    double k_p2 = 0;
+    double k_i2 = 0;
+    double k_d2 = 0;
+
     LowPassFilter wristFilter;
+    MotionProfiler motionProfiler;
 
     ArmSubsystem arm;
 
@@ -31,8 +38,8 @@ public class RotateWristJoint implements PIDOutput, PIDSource {
 
     public RotateWristJoint() {
         arm = ArmSubsystem.getInstance();
-
-        pidController = new PIDController(k_p1, k_i1, k_d1, this, this);
+        angleController = new PIDController(k_p1, k_i1, k_d1, this, this);
+     //   positionController = new PIDController(k_p2, k_i2, k_d2, source, output);
     }
 
     double motorSpeed = 0;
@@ -45,43 +52,42 @@ public class RotateWristJoint implements PIDOutput, PIDSource {
     ArrayList<Point> errorFunction = new ArrayList<>();
     double time = 0;
     public void execute() {
-        if (!pidController.isEnabled()) {
-            pidController.enable();
-        }
 
-        AHRS sensor = arm.getIMUSensor();
+        PigeonIMU sensor = arm.getIMUSensor();
 
-        if (!sensor.isCalibrating() && sensor.isConnected()) {
-            float pitch = sensor.getPitch();
+        if (!this.angleController.isEnabled()) this.angleController.enable();
 
+        if (sensor.getState() == PigeonState.Ready) {
+            double angle = arm.getWristAngle();
+            System.out.println(arm.getWristAngle());
+            
             if (wristFilter == null) {
-                wristFilter = new LowPassFilter(0, pitch);
+                wristFilter = new LowPassFilter(90, angle);
                 wristFilter.startFilter();
             }
             double target = wristFilter.updateFilter();
-            if ((Math.abs(target) < 0.1 && Math.abs(pitch) > 20) || Math.abs(target - pitch) > 20) {
-                wristFilter = new LowPassFilter(0, pitch);
+            if ((Math.abs(target) < 0.1 && Math.abs(angle) > 20) || Math.abs(target - angle) > 20) {
+                wristFilter = new LowPassFilter(90, angle);
                 wristFilter.startFilter();
                 target = wristFilter.updateFilter();
             }
 
-            if (Math.abs(pitch) <= 20 && Math.abs(pitch) > 0.5) {
-                pidController.setP(k_p1);
-                pidController.setI(0.00012);
-                pidController.setD(0);
+            if (Math.abs(angle) <= 20 && Math.abs(angle) > 0.5) {
+                angleController.setP(k_p1);
+                angleController.setI(0.00012);
+                angleController.setD(0);
             }
             else {
-                pidController.setI(k_i1);
-                pidController.setP(0.01);
+                angleController.setI(k_i1);
+                angleController.setP(0.01);
             }
 
-            this.pidController.setSetpoint(target);
+            this.angleController.setSetpoint(target);
             arm.getWristMotor().set(ControlMode.PercentOutput, this.wristMotorOutput);
         }
         else {
             arm.getWristMotor().set(ControlMode.PercentOutput, 0);
         }
-
     }
 
     double startTime = 0;
@@ -94,9 +100,7 @@ public class RotateWristJoint implements PIDOutput, PIDSource {
         double max = 0.4;
         if (output > max) output = max;
         else if (output < -max) output = -max;
-        if (targetFront) output *= -1;
         this.wristMotorOutput = output;
-        
     }
 
     @Override
@@ -110,7 +114,6 @@ public class RotateWristJoint implements PIDOutput, PIDSource {
     }
     @Override
     public double pidGet() {
-        //System.out.println(arm.getIMUSensor().getPitch());
-        return arm.getIMUSensor().getPitch();
+        return arm.getWristAngle();
     }
 }

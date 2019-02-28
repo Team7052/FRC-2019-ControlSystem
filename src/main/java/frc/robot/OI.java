@@ -46,6 +46,7 @@ public abstract class OI {
     }
 
     protected boolean getDPad(DPadType type) {
+        if (joystick.getPOVCount() == 0) return false;
         switch (type) {
             case NORTH:
                 return joystick.getPOV(0) == 0;
