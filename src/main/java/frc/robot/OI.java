@@ -1,6 +1,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
+import frc.joysticks.DPadType;
 
 // a class to represent a joystick mapping of for example Logitech
 public abstract class OI {
@@ -42,5 +43,28 @@ public abstract class OI {
     }
     protected boolean getButton(int port) {
         return joystick.getRawButton(port);
+    }
+
+    protected boolean getDPad(DPadType type) {
+        switch (type) {
+            case NORTH:
+                return joystick.getPOV(0) == 0;
+            case NORTHEAST:
+                return joystick.getPOV(0) == 45;
+            case EAST:
+                return joystick.getPOV(0) == 90;
+            case SOUTHEAST:
+                return joystick.getPOV(0) == 135;
+            case SOUTH:
+                return joystick.getPOV(0) == 180;
+            case SOUTHWEST:
+                return joystick.getPOV(0) == 225;
+            case WEST:
+                return joystick.getPOV(0) == 270;
+            case NORTHWEST:
+                return joystick.getPOV(0) == 315;
+            default:
+                return false;
+        }
     }
 }

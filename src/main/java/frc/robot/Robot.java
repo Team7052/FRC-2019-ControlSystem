@@ -11,9 +11,12 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import frc.joysticks.*;
+import frc.robot.commands.ArmControllerCommand;
 import frc.robot.commands.RotateShoulderJoint;
 import frc.robot.commands.TankDriveCommand;
 import frc.robot.networking.Network;
+import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.ArmSubsystem.Motor;
 import frc.robot.tests.TestManager;
 import frc.robot.tests.TestManagerState;
 
@@ -31,8 +34,8 @@ public class Robot extends TimedRobot {
    * This function is run when the robot is first started up and should be
    * used for any initialization code.
    */
-  RotateShoulderJoint armCommand = new RotateShoulderJoint();
   TankDriveCommand driveCommand = new TankDriveCommand();
+  ArmControllerCommand armCommand;
   //DriveTenM driveTenCommand = new DriveTenM();
   //TankDriveCommand tankDriveCommand = new TankDriveCommand();
   CommandGroup newGroup;
@@ -44,7 +47,8 @@ public class Robot extends TimedRobot {
       //change Logitech to newly extended class
     oi = new Logitech(0);
     newGroup = new CommandGroup();
-    //newGroup.addParallel(armCommand);
+    armCommand = new ArmControllerCommand();
+    newGroup.addParallel(armCommand);
     newGroup.addParallel(driveCommand);
 
     testManager = TestManager.getInstance();
@@ -97,7 +101,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopPeriodic() {
-    Scheduler.getInstance().run();    
+    Scheduler.getInstance().run();
   }
 
   /**

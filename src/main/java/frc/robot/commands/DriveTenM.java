@@ -81,7 +81,7 @@ public class DriveTenM extends Command {
         double rightDifference = 0;
         motionProfiler.startMotionProfile();
 
-        MotionTriplet triplet = motionProfiler.updateMotionProfile(8.0);
+        MotionTriplet triplet = motionProfiler.updateMotionProfile();
         if (motionProfiler.getState() == MotionProfileState.RUNNING && triplet != null) {
           
           velocity = triplet.velocity;

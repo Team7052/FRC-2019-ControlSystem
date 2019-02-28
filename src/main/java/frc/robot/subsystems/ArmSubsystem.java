@@ -19,13 +19,13 @@ public class ArmSubsystem extends Subsystem {
   }
   private static ArmSubsystem instance;
   private RotationMotor shoulderJointMotor;
-  private final double shoulderJointMotor_kP = 2.0;
+  private final double shoulderJointMotor_kP = 1.4;
   private final double shoulderJointMotor_kI = 0;//0.0015;
   private final double shoulderJointMotor_kD = 0;
   private final double shoulderJointMotor_kF = 0.0;
 
   private RotationMotor elbowJointMotor;
-  private final double elbowJointMotor_kP = 2.0;
+  private final double elbowJointMotor_kP = 1.4;
   private final double elbowJointMotor_kI = 0;//0.0015;
   private final double elbowJointMotor_kD = 0;
   private final double elbowJointMotor_kF = 0.0;
@@ -63,9 +63,11 @@ public class ArmSubsystem extends Subsystem {
     shoulderJointMotor.setk_D(this.shoulderJointMotor_kD);
 
     shoulderJointMotor.configAllowableClosedloopError(10, RobotMap.kPIDIdx, RobotMap.kPIDTimeoutMillis);
-    //System.out.println("Shoulder joint motor: " + this.shoulderJointMotor.getInvertedPosition());
-    shoulderJointMotor.homeDegrees = 335;
-    shoulderJointMotor.initializeHome(335);
+    System.out.println("Shoulder joint motor: " + this.shoulderJointMotor.getInvertedPosition());
+    shoulderJointMotor.homeDegrees = 35;
+    shoulderJointMotor.minDegrees = 35;
+    shoulderJointMotor.maxDegrees = 340;
+    shoulderJointMotor.initializeHome(35);
 
     elbowJointMotor = new RotationMotor(RobotMap.ARM_ELBOW_JOINT_MOTOR);
     elbowJointMotor.setInverted(false);
@@ -73,8 +75,8 @@ public class ArmSubsystem extends Subsystem {
     elbowJointMotor.positionInverted = false;
     elbowJointMotor.configNominalOutputForward(0, RobotMap.kPIDTimeoutMillis);
 		elbowJointMotor.configNominalOutputReverse(0, RobotMap.kPIDTimeoutMillis);
-		elbowJointMotor.configPeakOutputForward(0.5, RobotMap.kPIDTimeoutMillis);
-    elbowJointMotor.configPeakOutputReverse(-0.5, RobotMap.kPIDTimeoutMillis);
+		elbowJointMotor.configPeakOutputForward(0.4, RobotMap.kPIDTimeoutMillis);
+    elbowJointMotor.configPeakOutputReverse(-0.4, RobotMap.kPIDTimeoutMillis);
     
     elbowJointMotor.config_kP(RobotMap.kPIDIdx, this.elbowJointMotor_kP);
     elbowJointMotor.config_kI(RobotMap.kPIDIdx, this.elbowJointMotor_kI);
@@ -83,8 +85,8 @@ public class ArmSubsystem extends Subsystem {
 
     elbowJointMotor.configAllowableClosedloopError(10, RobotMap.kPIDIdx, RobotMap.kPIDTimeoutMillis);
     
-    elbowJointMotor.homeDegrees = 180;
-    elbowJointMotor.initializeHome(180);
+    elbowJointMotor.homeDegrees = 190;
+    elbowJointMotor.initializeHome(190);
 
     wristMotor = new VictorSPX(7);
     wristMotor.configPeakOutputForward(0.3);
@@ -105,7 +107,7 @@ public class ArmSubsystem extends Subsystem {
   }
 
   public RotationMotor getRotationMotor(Motor motorType) {
-    return this.getRotationMotor(motorType);
+    return this.rotationMotor(motorType);
   }
 
   public VictorSPX getWristMotor() {
