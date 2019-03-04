@@ -67,13 +67,13 @@ public class AutoCommand extends Command {
 
 
   double kv = 0.5; //needs to be tuned
-  double kp = 4.5; //needs to be tuned
+  double kp = 0; //needs to be tuned
   double leftVelocity = 0;
   double rightVelocity =0;
   double displacement = 0;
   double leftDifference = 0;
   double rightDifference = 0;
-  double desiredPoint =0;
+  int desiredPoint =0;
   double leftTheo =0;
   double rightTheo =0;
   double numPoints = 7/0.01;
@@ -86,19 +86,22 @@ public class AutoCommand extends Command {
 
 
   if(timePassed<=desiredTime){
-    desiredPoint = (int)(timePassed/desiredTime)*numPoints;
+    desiredPoint = (int)((timePassed/desiredTime)*numPoints);
     leftTheo = motionProfiler.getLeftSum(desiredPoint, newPoints);
     rightTheo = motionProfiler.getRightSum(desiredPoint, newPoints);
-    leftVelocity = motionProfiler.getLeftSlope(desiredPoint, newPoints, 7/desiredTime);
-    rightVelocity = motionProfiler.getRightSlope(desiredPoint, newPoints, 7/desiredTime);
+    leftVelocity = motionProfiler.getLeftSlope(desiredPoint, newPoints);
+    rightVelocity = motionProfiler.getRightSlope(desiredPoint, newPoints);
     leftDifference = leftTheo - leftAngularDistance;
     rightDifference = rightTheo - rightAngularDistance;
 
     double leftSpeed = (leftVelocity * kv) + (leftDifference* kp);
     double rightSpeed = (rightVelocity * kv) + (rightDifference* kp);
 
-    driveTrain.setLeftGroupSpeed(leftSpeed*0.5);
-	driveTrain.setRightGroupSpeed(rightSpeed*0.5);
+    //driveTrain.setLeftGroupSpeed(leftSpeed*0.5);
+    //driveTrain.setRightGroupSpeed(rightSpeed*0.5);
+    
+    System.out.println("left: " +leftSpeed*0.5);
+    System.out.println("right: " +rightSpeed*0.5);
     
   }
 
