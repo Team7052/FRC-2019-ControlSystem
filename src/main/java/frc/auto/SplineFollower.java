@@ -9,12 +9,24 @@ import frc.robot.motionProfiling.Point;
 
 public class SplineFollower {
     private MotionProfileState state;
+    private SplineFollowerState followingState;
     private double desiredTime;
     private double startTime;
-    Spline spline;
+    private double splineStartTime;
+    private Spline spline;
+    private double targetEncoderPosition;
+
+    private final double radiusBase = 13.5;
+    private final double radiusWheel = 3;
+
     public SplineFollower(Spline spline, double desiredTime) {
         this.desiredTime = desiredTime;
         this.spline = spline;
+        Point p0 = spline.getCubicSpline().get(0);
+        Point p1 = spline.getCubicSpline().get(1);
+        double targetTheta = Math.atan((p0.x - p1.x) / (p0.y - p1.y));
+        targetEncoderPosition = targetTheta * this.radiusBase / (2 * Math.PI * radiusWheel);
+        this.followingState = SplineFollowerState.FOLLOWING_SPLINE;
     }
 
     public void startFollowingSpline() {
@@ -26,23 +38,31 @@ public class SplineFollower {
 
     public Pair<Double> updateSplinePosition() {
         if (state == MotionProfileState.RUNNING) {
-            double currentTime = Timer.getFPGATimestamp();
-            double percentage = (currentTime - startTime) / desiredTime;
-            if (percentage >= 1.00) {
-                this.stopFollowingSpline();
-                return null;
+            if (followingState == SplineFollowerState.FOLLOWING_SPLINE) {
+                double currentTime = Timer.getFPGATimestamp();
+                double percentage = (currentTime - splineStartTime) / desiredTime;
+                if (percentage >= 1.00) {
+                    this.stopFollowingSpline();
+                    return null;
+                }
+                int desiredPoint = (int) (percentage * spline.getCubicSpline().size());
+                //closest entered point to desirecpoint
+                int i = this.closest(spline.get_xs(), spline.getCubicSpline().get(desiredPoint).x);
+                //System.out.println(i);
+                boolean concaveUp = this.concaveUp(spline.get_xs(), i, spline.get_ys(), spline.getTangents());
+                // System.out.println("Concave Up at " + newPoints.get(desiredPoint).x + ": " + concaveUp);
+                double leftTheo = this.getLeftSum(desiredPoint, spline.getCubicSpline());
+                double rightTheo = this.getRightSum(desiredPoint, spline.getCubicSpline());
+                double leftVelocity = this.getLeftSlope(desiredPoint, spline.getCubicSpline(), concaveUp);
+                double rightVelocity = this.getRightSlope(desiredPoint, spline.getCubicSpline(), concaveUp);
+                return new Pair<Double>(leftVelocity, rightVelocity);
             }
-            int desiredPoint = (int) (percentage * spline.getCubicSpline().size());
-            //closest entered point to desirecpoint
-            int i = this.closest(spline.get_xs(), spline.getCubicSpline().get(desiredPoint).x);
-            //System.out.println(i);
-            boolean concaveUp = this.concaveUp(spline.get_xs(), i, spline.get_ys(), spline.getTangents());
-            // System.out.println("Concave Up at " + newPoints.get(desiredPoint).x + ": " + concaveUp);
-            double leftTheo = this.getLeftSum(desiredPoint, spline.getCubicSpline());
-            double rightTheo = this.getRightSum(desiredPoint, spline.getCubicSpline());
-            double leftVelocity = this.getLeftSlope(desiredPoint, spline.getCubicSpline(), concaveUp);
-            double rightVelocity = this.getRightSlope(desiredPoint, spline.getCubicSpline(), concaveUp);
-            return new Pair<Double>(leftVelocity, rightVelocity);
+            else if (this.followingState == SplineFollowerState.TURNING) {
+                // turning code
+                
+                // if (robot finishd turn) this.updateFollowingState(SplineFollowerState.FOLLOW_SPLINE);
+                // else turn;
+            }
         }
         return null;
     }
@@ -53,6 +73,16 @@ public class SplineFollower {
 
     public boolean isFinished() {
         return this.state == MotionProfileState.FINISHED;
+    }
+
+    private void updateSplineState(SplineFollowerState newState) {
+        if (newState == SplineFollowerState.FOLLOWING_SPLINE && this.followingState != SplineFollowerState.FOLLOWING_SPLINE) {
+            this.followingState = newState;
+            this.splineStartTime = Timer.getFPGATimestamp();
+        }
+        else if (newState == SplineFollowerState.TURNING) {
+            this.followingState = newState;
+        }
     }
 
     private boolean concaveUp(double[] xs, int i, double[] ys, ArrayList<Point> tangents) {
