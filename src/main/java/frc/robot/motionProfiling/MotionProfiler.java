@@ -116,57 +116,304 @@ public class MotionProfiler {
         return rightSum*4096;
 
     }
-    public double getLeftSlope(int desiredPoint, ArrayList<Point> points) {
-        double leftSlope=0, rightSlope=0;
+    public double getLeftSlope(int desiredPoint, ArrayList<Point> points, boolean concaveUp) {
+       double leftSlope = 0.5, rightSlope = 0.5;
         double theta;
-        double y=points.get(desiredPoint+1).y-points.get(desiredPoint).y;
-        double x=points.get(desiredPoint+1).x-points.get(desiredPoint).x;
+        if (desiredPoint != points.size() - 1 && desiredPoint != points.size() - 2) {
+            double xOne = points.get(desiredPoint + 1).x - points.get(desiredPoint).x;
+            double yOne = points.get(desiredPoint + 1).y - points.get(desiredPoint).y;
+            double length1 = Math.sqrt(Math.pow(xOne, 2) + Math.pow(yOne, 2));
 
-        if (y != 0) {
-			theta = Math.atan(Math.abs(x / y));
-		} 
-		else {
-			theta = 0;
-		}
-		double ratio = Math.cos(theta);
-		if (y == 0) ratio = -ratio;
+            // System.out.println("Length one: " + length1);
+            double xTwo = points.get(desiredPoint + 2).x - points.get(desiredPoint + 1).x;
+            double yTwo = points.get(desiredPoint + 2).y - points.get(desiredPoint + 1).y;
+            double length2 = Math.sqrt(Math.pow(xTwo, 2) + Math.pow(yTwo, 2));
 
-		if (x >= 0) {
-			leftSlope = y;
-			rightSlope = y * ratio;
-		}
-		else if (x < 0) {
-			rightSlope = y;
-			leftSlope=y*ratio;
-		}
+            // System.out.println("Length two: " + length2);
+            double xThree = points.get(desiredPoint + 2).x - points.get(desiredPoint).x;
+            double yThree = points.get(desiredPoint + 2).y - points.get(desiredPoint).y;
+            double length3 = Math.sqrt(Math.pow(xThree, 2) + Math.pow(yThree, 2));
+
+            //  System.out.println("Length three: " + length3);
+            double part3 = (Math.pow(length1, 2) + Math.pow(length2, 2) - Math.pow(length3, 2));
+            double alpha = Math.acos(part3 / (2 * length1 * length2));
+
+            //  System.out.println("Alpha: " + alpha);
+            double ka = Math.pow(2, 25 * (Math.PI - alpha));
+            double kp = 0.5;
+
+            //System.out.println("ka: " + ka);
+            if (concaveUp) {
+                rightSlope = kp * ka;
+                //    System.out.println("leftSLope: " + leftSlope);
+            } else {
+                leftSlope = kp * ka;
+            }
+
+        }
 
         return leftSlope;
 
 
     }
-    public double getRightSlope(int desiredPoint, ArrayList<Point> points) {
-        double leftSlope=0, rightSlope=0;
+    public static ArrayList<Point> calcSecants(ArrayList<Point> points) {
+        ArrayList<Point> secants = new ArrayList<>();
+        double secant = 0;
+        for (int i = 0; i < points.size() - 1; i++) {
+            secant = (points.get(i + 1).y - points.get(i).y) / (points.get(i + 1).x - points.get(i).x);
+
+            secants.add(new Point(i, secant));
+
+        }
+
+        return secants;
+    }
+
+    public static double calch(double xs[], int i) {
+        double h;
+        if (i == 0) {
+            h = xs[i + 1] - xs[i];
+        } else if (i == xs.length - 1) {
+            h = xs[i] - xs[i];
+        } else {
+            h = xs[i + 1] - xs[i];
+        }
+
+        return h;
+    }
+
+    public static double calct(double[] xs, int i, double x) {
+        double h = calch(xs, i);
+        double t;
+        if (xs[i] == 0) {
+            t = (x - xs[i]) / h;
+        } else {
+            t = (x - xs[i]) / h;
+        }
+        return t;
+    }
+
+    public static ArrayList<Point> calcFinalPoints(double[] xs, int i, double[] ys, ArrayList<Point> tangents) {
+        ArrayList<Point> finalPoints = new ArrayList<>();
+        double yLow;
+        double yHigh;
+        double mLow;
+        double mHigh;
+        double h = calch(xs, i);
+        if (i == 0) {
+            yLow = ys[i];
+            mLow = tangents.get(i).y;
+        } else {
+            yLow = ys[i];
+            mLow = tangents.get(i).y;
+        }
+
+        if (i == ys.length - 1) {
+            yHigh = ys[i];
+            mHigh = tangents.get(i).y;
+        } else if (i == ys.length - 2) {
+            yHigh = ys[i + 1];
+            mHigh = tangents.get(i + 1).y;
+        } else {
+            yHigh = ys[i + 1];
+            mHigh = tangents.get(i + 1).y;
+        }
+        double const1 = yLow;
+        double const2 = h * mLow;
+        double const3 = yHigh;
+        double const4 = h * mHigh;
+        if (xs[i] != xs[xs.length - 1]) {
+            if (xs[i] <= xs[i + 1]) {
+                for (double x = xs[i]; x <= xs[i + 1]; x = x + 0.02) {
+                    double t = calct(xs, i, x);
+                    double part1 = 2 * Math.pow(t, 3) - 3 * Math.pow(t, 2) + 1;
+                    part1 = part1 * const1;
+
+                    double part2 = Math.pow(t, 3) - 2 * Math.pow(t, 2) + t;
+                    part2 = part2 * const2;
+
+                    double part3 = -2 * Math.pow(t, 3) + 3 * Math.pow(t, 2);
+                    part3 = part3 * const3;
+
+                    double part4 = Math.pow(t, 3) - Math.pow(t, 2);
+                    part4 = part4 * const4;
+
+                    double num = part1 + part2 + part3 + part4;
+
+                    finalPoints.add(new Point(x, num));
+                }
+            } else {
+                for (double x = xs[i]; x >= xs[i + 1]; x = x - 0.02) {
+                    double t = calct(xs, i, x);
+                    double part1 = 2 * Math.pow(t, 3) - 3 * Math.pow(t, 2) + 1;
+                    part1 = part1 * const1;
+
+                    double part2 = Math.pow(t, 3) - 2 * Math.pow(t, 2) + t;
+                    part2 = part2 * const2;
+
+                    double part3 = -2 * Math.pow(t, 3) + 3 * Math.pow(t, 2);
+                    part3 = part3 * const3;
+
+                    double part4 = Math.pow(t, 3) - Math.pow(t, 2);
+                    part4 = part4 * const4;
+
+                    double num = part1 + part2 + part3 + part4;
+
+                    finalPoints.add(new Point(x, num));
+                }
+
+            }
+
+        }
+        return finalPoints;
+    }
+
+    public boolean concaveUp(double[] xs, int i, double[] ys, ArrayList<Point> tangents) {
+        double yLow;
+        double yHigh;
+        double mLow;
+        double mHigh;
+        double h = calch(xs, i);
+        if (i == 0) {
+            yLow = ys[i];
+            mLow = tangents.get(i).y;
+        } else {
+            yLow = ys[i];
+            mLow = tangents.get(i).y;
+        }
+
+        if (i == ys.length - 1) {
+            yHigh = ys[i];
+            mHigh = tangents.get(i).y;
+        } else if (i == ys.length - 2) {
+            yHigh = ys[i + 1];
+            mHigh = tangents.get(i + 1).y;
+        } else {
+            yHigh = ys[i + 1];
+            mHigh = tangents.get(i + 1).y;
+        }
+        double const1 = yLow;
+        double const2 = h * mLow;
+        double const3 = yHigh;
+        double const4 = h * mHigh;
+        double v = xs[i];
+        double x = calct(xs, i, v);
+
+        double part1 = 12 * x - 6;
+        double part2 = 6 * x - 4;
+        double part3 = -12 * x + 6;
+        double part4 = 6 * x - 2;
+
+        double num = const1 * part1 + const2 * part2 + const3 * part3 + const4 * part4;
+
+        if (num >= 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public static ArrayList<Point> calcTangents(ArrayList<Point> points) {
+        ArrayList<Point> tangents = new ArrayList<>();
+        ArrayList<Point> secants = calcSecants(points);
+        double tangent = 0;
+        double alpha = 0;
+        double beta = 0;
+        boolean run = true;
+        boolean doubleInc = false;
+        int i = 0;
+        while (i < points.size()) {
+            if (i == 0) {
+                tangents.add(new Point(i, secants.get(i).y));
+                run = false;
+            } else if (i == points.size() - 1) {
+                tangents.add(new Point(i, secants.get(i - 1).y));
+                run = false;
+            } else if (secants.get(i).y == 0) {
+                tangents.add(new Point(i, 0));
+                tangents.add(new Point(i + 1, 0));
+                doubleInc = true;
+                run = false;
+            } else if (secants.get(i).y < 0 && secants.get(i).y > 0) {
+                tangent = 0;
+            } else if (secants.get(i).y > 0 && secants.get(i).y < 0) {
+                tangent = 0;
+            } else {
+
+                tangent = (secants.get(i - 1).y + secants.get(i).y) / 2;
+            }
+            if (run) {
+                if (secants.get(i).y != 0) {
+                    alpha = tangent / secants.get(i).y;
+                }
+                if (secants.get(i - 1).y != 0) {
+                    beta = tangent / secants.get(i - 1).y;
+                }
+
+                if (alpha < 0 || beta < 0) {
+                    tangent = 0;
+                }
+                if (alpha > 3) {
+                    tangent = 3 * beta;
+                }
+                if (beta > 3) {
+                    tangent = 3 * alpha;
+                }
+
+                tangents.add(new Point(i, tangent));
+            }
+            if (doubleInc) {
+                i++;
+            }
+            doubleInc = false;
+            run = true;
+            i++;
+        }
+
+        return tangents;
+    }
+
+    public int closest(double[] numbers, double myNumber) {
+        double distance = Math.abs(numbers[0] - myNumber);
+        int idx = 0;
+        for (int c = 1; c < numbers.length; c++) {
+            double cdistance = Math.abs(numbers[c] - myNumber);
+            if (cdistance < distance) {
+                idx = c;
+                distance = cdistance;
+            }
+        }
+        return idx;
+    }
+
+    public double getRightSlope(int desiredPoint, ArrayList<Point> points, boolean concaveUp) {
+        double leftSlope = 0.5, rightSlope = 0.5;
         double theta;
-        double y=points.get(desiredPoint+1).y-points.get(desiredPoint).y;
-        double x=points.get(desiredPoint+1).x-points.get(desiredPoint).x;
+        if (desiredPoint != points.size() - 1 && desiredPoint != points.size() - 2) {
+            double xOne = points.get(desiredPoint + 1).x - points.get(desiredPoint).x;
+            double yOne = points.get(desiredPoint + 1).y - points.get(desiredPoint).y;
+            double length1 = Math.sqrt(Math.pow(xOne, 2) + Math.pow(yOne, 2));
 
-        if (y != 0) {
-			theta = Math.atan(Math.abs(x / y));
-		} 
-		else {
-			theta = 0;
-		}
-		double ratio = Math.cos(theta);
-		if (y == 0) ratio = -ratio;
+            double xTwo = points.get(desiredPoint + 2).x - points.get(desiredPoint + 1).x;
+            double yTwo = points.get(desiredPoint + 2).y - points.get(desiredPoint + 1).y;
+            double length2 = Math.sqrt(Math.pow(xTwo, 2) + Math.pow(yTwo, 2));
 
-		if (x >= 0) {
-			leftSlope = y;
-			rightSlope = y * ratio;
-		}
-		else if (x < 0) {
-			rightSlope = y;
-			leftSlope=y*ratio;
-		}
+            double xThree = points.get(desiredPoint + 2).x - points.get(desiredPoint).x;
+            double yThree = points.get(desiredPoint + 2).y - points.get(desiredPoint).y;
+            double length3 = Math.sqrt(Math.pow(xThree, 2) + Math.pow(yThree, 2));
+
+            double part3 = (Math.pow(length1, 2) + Math.pow(length2, 2) - Math.pow(length3, 2));
+            double alpha = Math.acos(part3 / (2 * length1 * length2));
+
+            double ka = Math.pow(2, 25 * (Math.PI - alpha));
+            double kp = 0.5;
+
+            if (concaveUp) {
+                rightSlope = kp * ka;
+            } else {
+                leftSlope = kp * ka;
+            }
+        }
 
         return rightSlope;
     }

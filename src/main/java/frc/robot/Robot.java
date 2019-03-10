@@ -7,15 +7,17 @@
 
 package frc.robot;
 
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import frc.joysticks.*;
-import frc.robot.commands.arm.ArmControllerCommand;
+import frc.robot.commands.DriveTenM;
+//import frc.robot.commands.RotateShoulderJoint;
 import frc.robot.commands.TankDriveCommand;
-import frc.robot.networking.Network;
-import frc.robot.tests.TestManager;
-import frc.robot.tests.TestManagerState;
+import frc.robot.commands.AutoCommand;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -31,24 +33,16 @@ public class Robot extends TimedRobot {
    * This function is run when the robot is first started up and should be
    * used for any initialization code.
    */
-  TankDriveCommand driveCommand = new TankDriveCommand();
-  ArmControllerCommand armCommand;
+  //RotateShoulderJoint armCommand = new RotateShoulderJoint();
+  //TankDriveCommand driveCommand = new TankDriveCommand();
+ //AutoCommand autoDrive = new AutoCommand();
   //DriveTenM driveTenCommand = new DriveTenM();
   //TankDriveCommand tankDriveCommand = new TankDriveCommand();
   CommandGroup newGroup;
-
-  TestManager testManager;
-
   @Override
   public void robotInit() {
       //change Logitech to newly extended class
     oi = new Logitech(0);
-    newGroup = new CommandGroup();
-    armCommand = new ArmControllerCommand();
-    newGroup.addParallel(armCommand);
-    newGroup.addParallel(driveCommand);
-
-    testManager = TestManager.getInstance();
   }
 
   /**
@@ -61,13 +55,15 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    Network.getInstance().sendDataToServer();
   }
 
+  /**
+   * This function is called once each time the robot enters Disabled mode.
+   * You can use it to reset any subsystem information you want to clear when
+   * the robot is disabled.
+   */
   @Override
   public void disabledInit() {
-    Scheduler.getInstance().removeAll();
-    testManager.setState(TestManagerState.IDLE);
   }
 
   @Override
@@ -75,12 +71,25 @@ public class Robot extends TimedRobot {
     Scheduler.getInstance().run();
   }
 
+  /**
+   * This autonomous (along with the chooser code above) shows how to select
+   * between different autonomous modes using the dashboard. The sendable
+   * chooser code works with the Java SmartDashboard. If you prefer the
+   * LabVIEW Dashboard, remove all of the chooser code and uncomment the
+   * getString code to get the auto name from the text box below the Gyro
+   *
+   * <p>You can add additional auto modes by adding additional commands to the
+   * chooser code above (like the commented example) or additional comparisons
+   * to the switch structure below with additional strings & commands.
+   */
   @Override
   public void autonomousInit() {
-    testManager.setState(TestManagerState.IDLE);
-    Scheduler.getInstance().removeAll();
+
   }
 
+  /**
+   * This function is called periodically during autonomous.
+   */
   @Override
   public void autonomousPeriodic() {
     Scheduler.getInstance().run();
@@ -88,8 +97,11 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
-    testManager.setState(TestManagerState.IDLE);
-    Scheduler.getInstance().removeAll();
+    // This makes sure that the autonomous stops running when
+    // teleop starts running. If you want the autonomous to
+    // continue until interrupted by another command, remove
+    // this line or comment it out.
+    
     Scheduler.getInstance().add(newGroup);
   }
 
@@ -98,20 +110,13 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopPeriodic() {
-    Scheduler.getInstance().run();
+    Scheduler.getInstance().run();    
   }
 
   /**
    * This function is called periodically during test mode.
    */
   @Override
-  public void testInit() {
-    testManager.setState(TestManagerState.IDLE);
-  }
-  
-  @Override
   public void testPeriodic() {
-    testManager.update();
-    
   }
 }

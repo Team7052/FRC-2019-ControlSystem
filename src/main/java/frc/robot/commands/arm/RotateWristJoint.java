@@ -59,7 +59,7 @@ public class RotateWristJoint implements PIDOutput, PIDSource {
 
         if (sensor.getState() == PigeonState.Ready) {
             double angle = arm.getWristAngle();
-            System.out.println(arm.getWristAngle());
+            //System.out.println(arm.getWristAngle());
             
             if (wristFilter == null) {
                 wristFilter = new LowPassFilter(90, angle);
