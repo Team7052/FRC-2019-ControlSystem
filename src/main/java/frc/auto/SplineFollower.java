@@ -143,7 +143,7 @@ public class SplineFollower {
     }
 
     private double getLeftSlope(int desiredPoint, ArrayList<Point> points, boolean concaveUp) {
-       double leftSlope = 0.5, rightSlope = 0.5;
+       double leftSlope = 0.3, rightSlope = 0.3;
         double theta;
         if (desiredPoint != points.size() - 1 && desiredPoint != points.size() - 2) {
             double xOne = points.get(desiredPoint + 1).x - points.get(desiredPoint).x;
@@ -165,8 +165,8 @@ public class SplineFollower {
             double alpha = Math.acos(part3 / (2 * length1 * length2));
 
             //  System.out.println("Alpha: " + alpha);
-            double ka = Math.pow(2, 25 * (Math.PI - alpha));
-            double kp = 0.5;
+            double ka = Math.pow(2, 15 * (Math.PI - alpha));
+            double kp = 0.3;
 
             //System.out.println("ka: " + ka);
             if (concaveUp) {
@@ -182,7 +182,7 @@ public class SplineFollower {
     }
 
     private double getRightSlope(int desiredPoint, ArrayList<Point> points, boolean concaveUp) {
-        double leftSlope = 0.5, rightSlope = 0.5;
+        double leftSlope = 0.3, rightSlope = 0.3;
         double theta;
         if (desiredPoint != points.size() - 1 && desiredPoint != points.size() - 2) {
             double xOne = points.get(desiredPoint + 1).x - points.get(desiredPoint).x;
@@ -200,8 +200,8 @@ public class SplineFollower {
             double part3 = (Math.pow(length1, 2) + Math.pow(length2, 2) - Math.pow(length3, 2));
             double alpha = Math.acos(part3 / (2 * length1 * length2));
 
-            double ka = Math.pow(2, 25 * (Math.PI - alpha));
-            double kp = 0.5;
+            double ka = Math.pow(2, 15 * (Math.PI - alpha));
+            double kp = 0.3;
 
             if (concaveUp) {
                 rightSlope = kp * ka;
