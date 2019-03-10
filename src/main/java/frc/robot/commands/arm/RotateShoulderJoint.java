@@ -39,7 +39,6 @@ public class RotateShoulderJoint implements CoupledArmProfiler.ShoulderProfileDe
             double position = motionProfiler.getFinalPosition();
             arm.setDegrees(Motor.SHOULDER_JOINT, position / Math.PI * 180);
         }
-        System.out.println(RobotState.isEnabled());
     }
 
     @Override

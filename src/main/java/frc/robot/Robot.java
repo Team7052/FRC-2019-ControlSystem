@@ -38,9 +38,6 @@ public class Robot extends TimedRobot {
    */
   ArmControllerCommand armCommand;
   TankDriveCommand driveCommand;
-
-  TestManager testManager;
-
   FollowSplineCommand autoCommand;
 
   CommandGroup newGroup;
@@ -50,6 +47,7 @@ public class Robot extends TimedRobot {
     oi = new Logitech(0);
     newGroup = new CommandGroup();
     armCommand = new ArmControllerCommand();
+    driveCommand = new TankDriveCommand();
     newGroup.addParallel(armCommand);
     newGroup.addParallel(driveCommand);
     Network network = Network.getInstance();
@@ -60,10 +58,8 @@ public class Robot extends TimedRobot {
     Point[] path = {
       new Point (0, 0), new Point (2, 1), new Point (4, 4), new Point (6, 2)
     };
-
     autoCommand = new FollowSplineCommand(new ArrayList<>(Arrays.asList(path)), 5.0);
 
-    testManager = TestManager.getInstance();
   }
 
   @Override
@@ -78,8 +74,6 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledInit() {
     Scheduler.getInstance().removeAll();
-    testManager.setState(TestManagerState.IDLE);
-    calibrated = false;
   }
 
   @Override
@@ -100,7 +94,6 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-    testManager.setState(TestManagerState.IDLE);
     Scheduler.getInstance().removeAll();
     Scheduler.getInstance().add(autoCommand);
     calibrated = false;
@@ -139,12 +132,10 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void testInit() {
-    testManager.setState(TestManagerState.IDLE);
   }
   
   boolean calibrated = false;
   @Override
   public void testPeriodic() {
-    testManager.update();
   }
 }

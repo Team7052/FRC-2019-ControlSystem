@@ -48,8 +48,8 @@ public class DriveTrain extends Subsystem {
     frontRightMotor = new Spark(RobotMap.frontRightMotor);
     backRightMotor = new Spark(RobotMap.backRightMotor);
 
-    leftSpeedGroup = new SpeedControllerGroup(frontLeftMotor, backLeftMotor);
-    rightSpeedGroup = new SpeedControllerGroup(frontRightMotor, backRightMotor);
+    rightSpeedGroup = new SpeedControllerGroup(frontLeftMotor, backLeftMotor);
+    leftSpeedGroup = new SpeedControllerGroup(frontRightMotor, backRightMotor);
     rightSpeedGroup.setInverted(true);
 
     leftEncoder = new Encoder(2, 3, false, EncodingType.k4X);

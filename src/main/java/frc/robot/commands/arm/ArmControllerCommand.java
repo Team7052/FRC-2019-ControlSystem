@@ -92,13 +92,13 @@ public class ArmControllerCommand extends CommandGroup {
         }
         else if (Robot.oi.button_Y() && !currentProfile.equals("High Hatch")) {
             currentProfile = "High Hatch";
-            // this.setAngles(radians(150), radians(170));
+            //this.setAngles(radians(150), radians(170));
             controlByLengthAndHeight = true;
             current_l = 2;
             current_h = 78;
             this.setDistances(current_l, current_h);
             this.wristCommand.enableWrist();
-            //this.setAngles(radians(190), radians(210));
+            //this.setAngles(radians(235), radians(180));
         }
         else if (Robot.oi.button_L1() && !motionProfilesRunning()) {
             currentProfile = "Pull out";
@@ -106,6 +106,14 @@ public class ArmControllerCommand extends CommandGroup {
                 current_h -= 1.5;
                 this.setDistances(current_l, current_h);
                 wristCommand.disableWrist();
+            }
+        }
+        else if (Robot.oi.button_L2() && !currentProfile.equals("Flip")) {
+            currentProfile = "Flip";
+            if (this.controlByLengthAndHeight) {
+                current_h -= 1.5;
+                this.setAngles(radians(235), radians(180), radians(330));
+                wristCommand.enableWrist();
             }
         }
         else if (Robot.oi.button_R2() && !currentProfile.equals("Loading")) {
