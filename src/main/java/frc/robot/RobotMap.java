@@ -21,12 +21,12 @@ public class RobotMap {
   public static int frontLeftMotor = 0;
 
   public static int ARM_SHOULDER_JOINT_MOTOR = 5;
-  public static int ARM_SHOULDER_JOINT_ENCODER = 0;
-  public static int ARM_SHOULDER_JOINT_SLOT_IDX = 0;
 
   public static int ARM_ELBOW_JOINT_MOTOR = 6;
-  public static int ARM_ELBOW_JOINT_ENCODER = 0;
-  public static int ARM_ELBOW_JOINT_SLOT_IDX = 0;
+
+  public static int ARM_WRIST_JOINT_MOTOR = 7;
+  public static int ARM_WRIST_JOINT_ENCODER_A = 8;
+  public static int ARM_WRIST_JOINT_ENCODER_B = 9;
 
   public static int kPIDIdx = 0;
   public static int kPIDTimeoutMillis = 30;

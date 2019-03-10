@@ -12,8 +12,9 @@ import edu.wpi.first.wpilibj.command.CommandGroup;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import frc.joysticks.*;
 import frc.robot.commands.arm.ArmControllerCommand;
-import frc.robot.commands.TankDriveCommand;
 import frc.robot.networking.Network;
+import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.commands.TankDriveCommand;
 import frc.robot.tests.TestManager;
 import frc.robot.tests.TestManagerState;
 
@@ -47,27 +48,23 @@ public class Robot extends TimedRobot {
     armCommand = new ArmControllerCommand();
     newGroup.addParallel(armCommand);
     newGroup.addParallel(driveCommand);
+    Network network = Network.getInstance();
+    armCommand.elbowCommand.delegate = network;
+    armCommand.shoulderCommand.delegate = network;
+    armCommand.wristCommand.delegate = network;
 
     testManager = TestManager.getInstance();
   }
 
-  /**
-   * This function is called every robot packet, no matter the mode. Use
-   * this for items like diagnostics that you want ran during disabled,
-   * autonomous, teleoperated and test.
-   *
-   * <p>This runs after the mode specific periodic functions, but before
-   * LiveWindow and SmartDashboard integrated updating.
-   */
   @Override
   public void robotPeriodic() {
-    Network.getInstance().sendDataToServer();
   }
 
   @Override
   public void disabledInit() {
     Scheduler.getInstance().removeAll();
     testManager.setState(TestManagerState.IDLE);
+    calibrated = false;
   }
 
   @Override
@@ -79,6 +76,7 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
     testManager.setState(TestManagerState.IDLE);
     Scheduler.getInstance().removeAll();
+    calibrated = false;
   }
 
   @Override
@@ -86,11 +84,13 @@ public class Robot extends TimedRobot {
     Scheduler.getInstance().run();
   }
 
+  ArmSubsystem arm;
   @Override
   public void teleopInit() {
     testManager.setState(TestManagerState.IDLE);
     Scheduler.getInstance().removeAll();
     Scheduler.getInstance().add(newGroup);
+    calibrated = false;
   }
 
   /**
@@ -109,9 +109,9 @@ public class Robot extends TimedRobot {
     testManager.setState(TestManagerState.IDLE);
   }
   
+  boolean calibrated = false;
   @Override
   public void testPeriodic() {
     testManager.update();
-    
   }
 }

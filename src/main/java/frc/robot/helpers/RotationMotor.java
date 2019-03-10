@@ -25,6 +25,12 @@ public class RotationMotor extends WPI_TalonSRX {
     public double maxDegrees = -1;
     public double minDegrees = -1;
 
+    // getting instaneous velocity and acceleration
+    private int prevPosition = 0;
+    private double prevPositionTimestamp = 0;
+    private double prevDerivative = 0;
+    private double prevDerivativeTimestamp = 0;
+
     public double gearRatio = 1.0;
 
     int currentTargetQuadraturePosition = 0;
@@ -65,8 +71,12 @@ public class RotationMotor extends WPI_TalonSRX {
         return (positionInverted ? -1 : 1) * ((double) this.getSelectedSensorPosition(this.slotIdx) / (4096.0 * gearRatio)) * 360.0;
     }
 
-    public double getVelocity() {
+    public int getRawVelocity() {
         return this.getSelectedSensorVelocity(this.slotIdx);
+    }
+
+    public double getVelocityDegrees() {
+        return this.getSelectedSensorVelocity(this.slotIdx) / (4096 * this.gearRatio) * 360.0;
     }
 
     public int getTarget() {

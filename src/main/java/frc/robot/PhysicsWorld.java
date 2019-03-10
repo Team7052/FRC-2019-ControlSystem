@@ -38,7 +38,7 @@ public class PhysicsWorld {
         this.baseX = baseX;
 
         //forward kinematics for the arm joints
-        this.shoulderJoint = new Point(this.baseX + PhysicsConstants.backToArm + PhysicsConstants.thickness / 2, PhysicsConstants.baseHeight + PhysicsConstants.armHeight);
+        this.shoulderJoint = new Point(this.baseX + PhysicsConstants.baseWidth - PhysicsConstants.backToArm + PhysicsConstants.thickness / 2, PhysicsConstants.baseHeight + PhysicsConstants.armHeight);
         this.elbowJoint = new Point(this.shoulderJoint.x + PhysicsConstants.upperArm * Math.sin(this.theta1), this.shoulderJoint.y - PhysicsConstants.upperArm * Math.cos(this.theta1));
         this.wristJoint = new Point(this.elbowJoint.x + PhysicsConstants.lowerArm * Math.sin(this.theta2), this.elbowJoint.y - PhysicsConstants.lowerArm * Math.cos(this.theta2));
         this.fingerTip = new Point(this.wristJoint.x + PhysicsConstants.hand, this.wristJoint.y);
@@ -69,7 +69,7 @@ public class PhysicsWorld {
         double theta2 = Math.PI - Math.asin((-Math.pow(d1, 2) + Math.pow(d2, 2) + delta_l * delta_l + delta_h * delta_h) / (2 * d2 * p)) - alpha;
         //console.log(theta1 + " " + theta2);
         // console.log((this.wristJoint.x - this.shoulderJoint.x) + " " + (this.lowerArm + this.upperArm));
-        return new Pair(theta1, theta2);
+        return new Pair<Double>(theta1, theta2);
     }
 
     private boolean isInfinity(double value) {
@@ -130,7 +130,7 @@ public class PhysicsWorld {
         for (Point point: trajectory) {
             Pair<Double> anglePair = this.inverseKinematics(point.x, point.y);
             if (!isInfinity(anglePair.a) && !isInfinity(anglePair.b)) {
-                profiles.add(new Pair(anglePair.a, anglePair.b));
+                profiles.add(new Pair<Double>(anglePair.a, anglePair.b));
             }
         }
         return profiles;

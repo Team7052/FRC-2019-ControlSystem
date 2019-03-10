@@ -7,8 +7,11 @@ import frc.robot.subsystems.ArmSubsystem.Motor;
 import frc.robot.motionProfiling.Point;
 
 import java.util.ArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
-public class CoupledArmProfiler {
+public class CoupledArmProfiler implements Runnable {
     ArmSubsystem arm;
     public interface ShoulderProfileDelegate {
         void updateNewProfile(MotionProfiler profile);
@@ -17,11 +20,13 @@ public class CoupledArmProfiler {
         void updateNewProfile(MotionProfiler profile);
         void setTargetElbowAbsolutePosition(double target);
     }
-
+    public interface WristProfileDelegate {
+        void updateNewProfile(MotionProfiler profile);
+    }
 
     ShoulderProfileDelegate shoulderProfileDelegate;
     ElbowProfileDelegate elbowProfileDelegate;
-
+    WristProfileDelegate wristProfileDelegate;
 
     private MotionProfiler shoulderMotionProfiler;
     private MotionProfiler elbowMotionProfiler;
@@ -29,27 +34,75 @@ public class CoupledArmProfiler {
 
     double elbowAbsoluteAngle;
 
-    public double shoulderMaxVelocity = Math.PI;
-    public double shoulderMaxAcceleration = Math.PI;
+    public double shoulderMaxVelocity = Math.PI * 2 / 5;
+    public double shoulderMaxAcceleration = Math.PI * 2 / 3;
 
-    public double elbowMaxVelocity = Math.PI * 2;
-    public double elbowMaxAcceleration = Math.PI * 2;
+    public double elbowMaxVelocity = Math.PI;
+    public double elbowMaxAcceleration = Math.PI;
 
-    public CoupledArmProfiler(ShoulderProfileDelegate shoulderProfileDelegate, ElbowProfileDelegate elbowProfileDelegate) {
+    Thread t;
+    ScheduledExecutorService timer;
+
+    public boolean shouldGenerateMotionProfiles = false;
+    double shoulderTarget;
+    double elbowTarget;
+    double wristTarget;
+
+    public boolean shouldGenerateSequentialProfiles = false;
+    ArrayList<Pair<Double>> anglePairs = new ArrayList<>();
+
+    @Override
+    public void run() {
+        if (shouldGenerateMotionProfiles) {
+            shouldGenerateMotionProfiles = false;
+            this.generateProfiles(this.shoulderTarget, this.elbowTarget, this.wristTarget);
+        }
+        else if (shouldGenerateSequentialProfiles) {
+            System.out.println("Generate");
+            shouldGenerateSequentialProfiles = false;
+            this.generateSequentialProfilesWhenReady(this.anglePairs);
+        }
+    }
+
+    public CoupledArmProfiler(ShoulderProfileDelegate shoulderProfileDelegate, ElbowProfileDelegate elbowProfileDelegate, WristProfileDelegate wristProfileDelegate) {
         this.shoulderMotionProfiler = new MotionProfiler();
         this.elbowMotionProfiler = new MotionProfiler();
         this.wristMotionProfiler = new MotionProfiler();
 
         this.shoulderProfileDelegate = shoulderProfileDelegate;
         this.elbowProfileDelegate = elbowProfileDelegate;
+        this.wristProfileDelegate = wristProfileDelegate;
 
         arm = ArmSubsystem.getInstance();
         elbowAbsoluteAngle = arm.getHomeDegrees(Motor.ELBOW_JOINT) / 180 * Math.PI;
+
+        t = new Thread(this, "motion profiler thread");
+        timer = Executors.newSingleThreadScheduledExecutor();
+        timer.scheduleAtFixedRate(this, 0, 20, TimeUnit.MILLISECONDS);
+        t.start();
     }
 
-    public void generateProfiles(double shoulderAngle, double elbowAngle) {
-        // trapezoidal motion profiling.
+    public void generateProfilesWhenReady(double shoulderAngle, double elbowAngle) {
+        this.generateProfilesWhenReady(shoulderAngle, elbowAngle, Math.PI);
+    }
+    public void generateProfilesWhenReady(double shoulderAngle, double elbowAngle, double wristAngle) {
+        this.shouldGenerateMotionProfiles = true;
+        this.shoulderTarget = shoulderAngle;
+        this.elbowTarget = elbowAngle;
+        this.wristTarget = wristAngle;
+    }
 
+    public void generateSequentialProfilesWhenReady(ArrayList<Pair<Double>> anglePairs) {
+        this.anglePairs = anglePairs;
+        this.shouldGenerateSequentialProfiles = true;
+    }
+
+    private void generateProfiles(double shoulderAngle, double elbowAngle) {
+        this.generateProfiles(shoulderAngle, elbowAngle, Math.PI);
+    }
+
+    private void generateProfiles(double shoulderAngle, double elbowAngle, double wristAngle) {
+        // trapezoidal motion profiling.
         double initRadiansShoulder = arm.getDegrees(Motor.SHOULDER_JOINT) / 180 * Math.PI;
         double endRadiansShoulder = shoulderAngle;
         double initRadiansElbow = arm.getAbsoluteElbowDegrees() / 180 * Math.PI;
@@ -61,25 +114,33 @@ public class CoupledArmProfiler {
 
         this.elbowAbsoluteAngle = elbowMotionProfiler.getFinalPosition();
 
-        ArrayList<Point> newElbowPositions = getRelativePositionProfile(elbowMotionProfiler.getPositionFunction(), shoulderMotionProfiler.getPositionFunction());
+        // generate wrist profile
+        ArrayList<Point> wristPoints = new ArrayList<>();
+
+        // interpolate wrist points
+        double initRadiansWrist = arm.getAbsoluteWristDegrees() / 180.0 * Math.PI;
+        double totalTime = elbowMotionProfiler.getTotalTime();
+        for (Point point: elbowMotionProfiler.getPositionFunction()) {
+            double percentage = point.x / totalTime;
+            wristPoints.add(new Point(point.x, initRadiansWrist + (wristAngle - initRadiansWrist) * percentage));
+        }
+        // take elbow absolute angles and transform the wrist to match those angles
+        ArrayList<Point> relativeWristPoints = this.getRelativeWristPositionProfile(wristPoints, elbowMotionProfiler.getPositionFunction());
+        wristMotionProfiler.setPositionPoints(relativeWristPoints);
+
+        ArrayList<Point> newElbowPositions = getRelativeElbowPositionProfile(elbowMotionProfiler.getPositionFunction(), shoulderMotionProfiler.getPositionFunction());
         elbowMotionProfiler.setPositionPoints(newElbowPositions);
 
         System.out.println(elbowMotionProfiler.getTotalTime());
-
-        // generate wrist profile
-        double maxTime = newElbowPositions.get(newElbowPositions.size() - 1).x;
-
-
-        ArrayList<Point> wristPoints = new ArrayList<>();
-        wristPoints.add(new Point(0, 90));
-        wristPoints.add(new Point(maxTime, 90));
+        
         // get total time of elbow positions
         this.shoulderProfileDelegate.updateNewProfile(shoulderMotionProfiler);
         this.elbowProfileDelegate.updateNewProfile(elbowMotionProfiler);
         this.elbowProfileDelegate.setTargetElbowAbsolutePosition(this.elbowAbsoluteAngle);
+        this.wristProfileDelegate.updateNewProfile(wristMotionProfiler);
     }
 
-    public void generateSequentialProfiles(ArrayList<Pair<Double>> anglePairs) {
+    private void generateSequentialProfiles(ArrayList<Pair<Double>> anglePairs) {
         if (anglePairs.size() == 0) return;
         double initRadiansShoulder = arm.getDegrees(Motor.SHOULDER_JOINT) / 180 * Math.PI;
         double endRadiansShoulder = anglePairs.get(0).a;
@@ -108,7 +169,16 @@ public class CoupledArmProfiler {
 
         this.elbowAbsoluteAngle = elbowMotionProfiler.getFinalPosition();
 
-        ArrayList<Point> newElbowPositions = getRelativePositionProfile(elbowMotionProfiler.getPositionFunction(), shoulderMotionProfiler.getPositionFunction());
+         // generate wrist profile
+         ArrayList<Point> wristPoints = new ArrayList<>();
+         for (Point point: elbowMotionProfiler.getPositionFunction()) {
+             wristPoints.add(new Point(point.x, Math.PI));
+         }
+         // take elbow absolute angles and transform the wrist to match those angles
+         ArrayList<Point> relativeWristPoints = this.getRelativeWristPositionProfile(wristPoints, elbowMotionProfiler.getPositionFunction());
+         wristMotionProfiler.setPositionPoints(relativeWristPoints);
+
+        ArrayList<Point> newElbowPositions = getRelativeElbowPositionProfile(elbowMotionProfiler.getPositionFunction(), shoulderMotionProfiler.getPositionFunction());
         elbowMotionProfiler.setPositionPoints(newElbowPositions);
 
         System.out.println(elbowMotionProfiler.getTotalTime());
@@ -116,6 +186,7 @@ public class CoupledArmProfiler {
         this.shoulderProfileDelegate.updateNewProfile(shoulderMotionProfiler);
         this.elbowProfileDelegate.updateNewProfile(elbowMotionProfiler);
         this.elbowProfileDelegate.setTargetElbowAbsolutePosition(this.elbowAbsoluteAngle);
+        this.wristProfileDelegate.updateNewProfile(wristMotionProfiler);
     }
 
     private Pair<ArrayList<Point>> trapezoidalVelocities(double initShoulder, double endShoulder, double initElbow, double endElbow) {
@@ -131,10 +202,24 @@ public class CoupledArmProfiler {
         else if (elbowProfileTime > shoulderProfileTime) {
             shoulderTrapezoidShape = MotionProfiler.transformTrapezoidByTime(shoulderTrapezoidShape, elbowProfileTime);
         }
-        return new Pair(shoulderTrapezoidShape, elbowTrapezoidShape);
+        return new Pair<ArrayList<Point>>(shoulderTrapezoidShape, elbowTrapezoidShape);
     }
 
-    public ArrayList<Point> getRelativePositionProfile(ArrayList<Point> absoluteElbowPositionPoints, ArrayList<Point> absoluteShoulderPositionPoints) {
+    public ArrayList<Point> getRelativeWristPositionProfile(ArrayList<Point> absoluteWristPoints, ArrayList<Point> absoluteElbowPoints) {
+        ArrayList<Point> relativeWristPoints = new ArrayList<>();
+        boolean shouldProfile = true;
+        Point lastElbowPoint = absoluteElbowPoints.get(absoluteElbowPoints.size() - 1);
+        if (lastElbowPoint.x < 0.5) {
+            shouldProfile = false;
+        }
+        for (int i = 0; i < absoluteWristPoints.size(); i++) {
+            Point point = absoluteWristPoints.get(i);
+            relativeWristPoints.add(new Point(point.x, radiansWristRelativeToElbow(point.y, shouldProfile ? absoluteElbowPoints.get(i).y : lastElbowPoint.y)));
+        }
+        return relativeWristPoints;
+    }
+
+    public ArrayList<Point> getRelativeElbowPositionProfile(ArrayList<Point> absoluteElbowPositionPoints, ArrayList<Point> absoluteShoulderPositionPoints) {
         ArrayList<Point> relativeElbowPositions = new ArrayList<>();
         // reset elbow points
         if (absoluteElbowPositionPoints.size() >= absoluteShoulderPositionPoints.size()) {
@@ -143,14 +228,14 @@ public class CoupledArmProfiler {
                 Point point = absoluteElbowPositionPoints.get(i);
 
                 int shoulderIndex = i < absoluteShoulderPositionPoints.size() ? i : absoluteShoulderPositionPoints.size() - 1;
-                relativeElbowPositions.add(new Point(point.x, this.radiansRelativeToShoulder(point.y, absoluteShoulderPositionPoints.get(shoulderIndex).y)));
+                relativeElbowPositions.add(new Point(point.x, this.radiansElbowRelativeToShoulder(point.y, absoluteShoulderPositionPoints.get(shoulderIndex).y)));
             }
         }
         else {
             for (int i = 0; i < absoluteShoulderPositionPoints.size(); i++) {
                 // get shoulder profile position for time: x
                 Point point = i < absoluteElbowPositionPoints.size() ? absoluteElbowPositionPoints.get(i) : absoluteElbowPositionPoints.get(absoluteElbowPositionPoints.size() - 1);
-                relativeElbowPositions.add(new Point(point.x, this.radiansRelativeToShoulder(point.y, absoluteShoulderPositionPoints.get(i).y)));
+                relativeElbowPositions.add(new Point(point.x, this.radiansElbowRelativeToShoulder(point.y, absoluteShoulderPositionPoints.get(i).y)));
             }
         }
 
@@ -158,9 +243,14 @@ public class CoupledArmProfiler {
         return relativeElbowPositions;
     }
 
-    private double radiansRelativeToShoulder(double absoluteRadians, double shoulderRadians) {
+    private double radiansElbowRelativeToShoulder(double absoluteRadians, double shoulderRadians) {
         //System.out.println("Radians: " + absoluteRadians + " " + shoulderRadians);
-        return absoluteRadians - shoulderRadians + arm.getHomeDegrees(Motor.SHOULDER_JOINT) / 360.0 * (Math.PI * 2);
+        return absoluteRadians - shoulderRadians + arm.getHomeDegrees(Motor.SHOULDER_JOINT) / 180.0 * Math.PI;
+    }
+
+    private double radiansWristRelativeToElbow(double absoluteRadians, double elbowRadiansAbsolute) {
+        //System.out.println("Radians: " + absoluteRadians + " " + shoulderRadians);
+        return absoluteRadians - elbowRadiansAbsolute + arm.getHomeDegrees(Motor.ELBOW_JOINT) / 180.0 * Math.PI;
     }
 
     private double degrees(Motor type) {

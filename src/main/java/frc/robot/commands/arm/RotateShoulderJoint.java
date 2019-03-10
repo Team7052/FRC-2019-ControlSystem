@@ -1,5 +1,6 @@
 package frc.robot.commands.arm;
 
+import edu.wpi.first.wpilibj.RobotState;
 import frc.robot.motionProfiling.MotionProfileState;
 import frc.robot.motionProfiling.MotionProfiler;
 import frc.robot.motionProfiling.MotionTriplet;
@@ -7,6 +8,7 @@ import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ArmSubsystem.Motor;
 
 public class RotateShoulderJoint implements CoupledArmProfiler.ShoulderProfileDelegate{
+    public CommandDelegate delegate;
 
     MotionProfiler motionProfiler;
     ArmSubsystem arm;
@@ -37,6 +39,7 @@ public class RotateShoulderJoint implements CoupledArmProfiler.ShoulderProfileDe
             double position = motionProfiler.getFinalPosition();
             arm.setDegrees(Motor.SHOULDER_JOINT, position / Math.PI * 180);
         }
+        System.out.println(RobotState.isEnabled());
     }
 
     @Override
@@ -44,5 +47,6 @@ public class RotateShoulderJoint implements CoupledArmProfiler.ShoulderProfileDe
         this.motionProfiler = profile;
         this.motionProfiler.reset();
         this.motionProfiler.startMotionProfile();
+        if (delegate != null) delegate.beganMotionProfile("RotateShoulderJoint", this.motionProfiler);
     }
 }
