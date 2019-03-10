@@ -7,12 +7,17 @@
 
 package frc.robot;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import frc.joysticks.*;
 import frc.robot.commands.arm.ArmControllerCommand;
+import frc.robot.motionProfiling.Point;
 import frc.robot.networking.Network;
+import frc.robot.commands.FollowSplineCommand;
 import frc.robot.commands.TankDriveCommand;
 import frc.robot.tests.TestManager;
 import frc.robot.tests.TestManagerState;
@@ -36,6 +41,8 @@ public class Robot extends TimedRobot {
 
   TestManager testManager;
 
+  FollowSplineCommand autoCommand;
+
   CommandGroup newGroup;
   @Override
   public void robotInit() {
@@ -49,6 +56,12 @@ public class Robot extends TimedRobot {
     armCommand.elbowCommand.delegate = network;
     armCommand.shoulderCommand.delegate = network;
     armCommand.wristCommand.delegate = network;
+
+    Point[] path = {
+      new Point (0, 0), new Point (2, 1), new Point (4, 4), new Point (6, 2)
+    };
+
+    autoCommand = new FollowSplineCommand(new ArrayList<>(Arrays.asList(path)), 5.0);
 
     testManager = TestManager.getInstance();
   }
@@ -89,6 +102,7 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
     testManager.setState(TestManagerState.IDLE);
     Scheduler.getInstance().removeAll();
+    Scheduler.getInstance().add(autoCommand);
     calibrated = false;
   }
 
@@ -107,6 +121,7 @@ public class Robot extends TimedRobot {
     // continue until interrupted by another command, remove
     // this line or comment it out.
     
+    Scheduler.getInstance().removeAll();
     Scheduler.getInstance().add(newGroup);
     calibrated = false;
   }
