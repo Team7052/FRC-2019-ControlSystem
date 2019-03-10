@@ -14,19 +14,12 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import frc.joysticks.*;
-<<<<<<< HEAD
-import frc.robot.commands.DriveTenM;
-//import frc.robot.commands.RotateShoulderJoint;
-import frc.robot.commands.TankDriveCommand;
-import frc.robot.commands.AutoCommand;
-=======
 import frc.robot.commands.arm.ArmControllerCommand;
 import frc.robot.networking.Network;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.commands.TankDriveCommand;
 import frc.robot.tests.TestManager;
 import frc.robot.tests.TestManagerState;
->>>>>>> a40439eb926ff0b1d5034ed553479b506d9fafea
 
 /**
  * The VM is configured to automatically run this class, and to call the
