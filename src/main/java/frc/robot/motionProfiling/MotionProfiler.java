@@ -7,8 +7,6 @@ public class MotionProfiler {
     private ArrayList<Point> accelerationFunction = new ArrayList<>();
     private ArrayList<Point> positionFunction = new ArrayList<>();
 
-    private Point endPositionPoint;
-
     private MotionProfileState state = MotionProfileState.IDLE;
 
     private double totalRunningTime;
@@ -428,9 +426,6 @@ public class MotionProfiler {
         accelerationFunction = FunctionGenerator.getDerivative(points);
         positionFunction = this.pointsWithInitialDisplacement(FunctionGenerator.getIntegral(points), initialDisplacement);
 
-        if (positionFunction.size() > 0) {
-            endPositionPoint = positionFunction.get(positionFunction.size() - 1);
-        }
         this.setTotalRunningTime();
     }
     public void setPositionPoints(ArrayList<Point> points) {
@@ -442,9 +437,6 @@ public class MotionProfiler {
         velocityFunction = FunctionGenerator.getDerivative(points);
         accelerationFunction = FunctionGenerator.getDerivative(velocityFunction);
 
-        if (positionFunction.size() > 0) {
-            endPositionPoint = positionFunction.get(positionFunction.size() - 1);
-        }
         this.setTotalRunningTime();
     }
 
@@ -456,9 +448,6 @@ public class MotionProfiler {
         velocityFunction = FunctionGenerator.getIntegral(points);
         positionFunction = this.pointsWithInitialDisplacement(FunctionGenerator.getIntegral(velocityFunction), initialDisplacement);
 
-        if (positionFunction.size() > 0) {
-            endPositionPoint = positionFunction.get(positionFunction.size() - 1);
-        }
         this.setTotalRunningTime();
     }
 

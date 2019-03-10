@@ -14,10 +14,19 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import frc.joysticks.*;
+<<<<<<< HEAD
 import frc.robot.commands.DriveTenM;
 //import frc.robot.commands.RotateShoulderJoint;
 import frc.robot.commands.TankDriveCommand;
 import frc.robot.commands.AutoCommand;
+=======
+import frc.robot.commands.arm.ArmControllerCommand;
+import frc.robot.networking.Network;
+import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.commands.TankDriveCommand;
+import frc.robot.tests.TestManager;
+import frc.robot.tests.TestManagerState;
+>>>>>>> a40439eb926ff0b1d5034ed553479b506d9fafea
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -43,16 +52,21 @@ public class Robot extends TimedRobot {
   public void robotInit() {
       //change Logitech to newly extended class
     oi = new Logitech(0);
+<<<<<<< HEAD
+=======
+    newGroup = new CommandGroup();
+    armCommand = new ArmControllerCommand();
+    newGroup.addParallel(armCommand);
+    newGroup.addParallel(driveCommand);
+    Network network = Network.getInstance();
+    armCommand.elbowCommand.delegate = network;
+    armCommand.shoulderCommand.delegate = network;
+    armCommand.wristCommand.delegate = network;
+
+    testManager = TestManager.getInstance();
+>>>>>>> a40439eb926ff0b1d5034ed553479b506d9fafea
   }
 
-  /**
-   * This function is called every robot packet, no matter the mode. Use
-   * this for items like diagnostics that you want ran during disabled,
-   * autonomous, teleoperated and test.
-   *
-   * <p>This runs after the mode specific periodic functions, but before
-   * LiveWindow and SmartDashboard integrated updating.
-   */
   @Override
   public void robotPeriodic() {
   }
@@ -64,6 +78,12 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void disabledInit() {
+<<<<<<< HEAD
+=======
+    Scheduler.getInstance().removeAll();
+    testManager.setState(TestManagerState.IDLE);
+    calibrated = false;
+>>>>>>> a40439eb926ff0b1d5034ed553479b506d9fafea
   }
 
   @Override
@@ -84,7 +104,13 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
+<<<<<<< HEAD
 
+=======
+    testManager.setState(TestManagerState.IDLE);
+    Scheduler.getInstance().removeAll();
+    calibrated = false;
+>>>>>>> a40439eb926ff0b1d5034ed553479b506d9fafea
   }
 
   /**
@@ -95,6 +121,7 @@ public class Robot extends TimedRobot {
     Scheduler.getInstance().run();
   }
 
+  ArmSubsystem arm;
   @Override
   public void teleopInit() {
     // This makes sure that the autonomous stops running when
@@ -103,6 +130,7 @@ public class Robot extends TimedRobot {
     // this line or comment it out.
     
     Scheduler.getInstance().add(newGroup);
+    calibrated = false;
   }
 
   /**
@@ -117,6 +145,17 @@ public class Robot extends TimedRobot {
    * This function is called periodically during test mode.
    */
   @Override
+<<<<<<< HEAD
   public void testPeriodic() {
+=======
+  public void testInit() {
+    testManager.setState(TestManagerState.IDLE);
+  }
+  
+  boolean calibrated = false;
+  @Override
+  public void testPeriodic() {
+    testManager.update();
+>>>>>>> a40439eb926ff0b1d5034ed553479b506d9fafea
   }
 }

@@ -23,7 +23,10 @@ public class DriveTrain extends Subsystem {
 
   // always get the current instance of the drive train
   public static DriveTrain getInstance() {
+<<<<<<< HEAD
+=======
    // System.out.println(instance);
+>>>>>>> c2edc1de8c80a3bb08a86713ecc459a196e1b944
     if (instance == null) {
       instance = new DriveTrain();
     }
@@ -48,13 +51,12 @@ public class DriveTrain extends Subsystem {
     frontRightMotor = new Spark(RobotMap.frontRightMotor);
     backRightMotor = new Spark(RobotMap.backRightMotor);
 
-    rightSpeedGroup = new SpeedControllerGroup(frontLeftMotor, backLeftMotor);
-    leftSpeedGroup = new SpeedControllerGroup(frontRightMotor, backRightMotor);
+    leftSpeedGroup = new SpeedControllerGroup(frontLeftMotor, backLeftMotor);
+    rightSpeedGroup = new SpeedControllerGroup(frontRightMotor, backRightMotor);
     rightSpeedGroup.setInverted(true);
 
-
-    rightEncoder = new Encoder(0, 1, true, EncodingType.k4X);
     leftEncoder = new Encoder(2, 3, false, EncodingType.k4X);
+    rightEncoder = new Encoder(0, 1, true, EncodingType.k4X);
   }
 
   @Override
@@ -70,6 +72,14 @@ public class DriveTrain extends Subsystem {
   public void setRightGroupSpeed(double speed) {
     rightSpeedGroup.set(speed);
   }
+
+  public double getLeftSpeed() {
+    return leftSpeedGroup.get();
+  }
+  public double getRightSpeed() {
+    return rightSpeedGroup.get();
+  }
+
   public Encoder getLeftEncoder() {
     return this.leftEncoder;
   } 

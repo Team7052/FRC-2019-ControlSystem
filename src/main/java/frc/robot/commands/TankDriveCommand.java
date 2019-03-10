@@ -2,26 +2,13 @@ package frc.robot.commands;
 
 
 import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.CounterBase.EncodingType;
+
 import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.Robot;
 import frc.robot.subsystems.DriveTrain;
-import frc.robot.motionProfiling.FunctionGenerator;
-import edu.wpi.first.wpilibj.command.Command;
-import frc.robot.Robot;
-import frc.robot.motionProfiling.FunctionGenerator;
-import frc.robot.motionProfiling.FunctionSet;
-import frc.robot.motionProfiling.MotionProfileState;
-import frc.robot.motionProfiling.MotionProfiler;
-import frc.robot.motionProfiling.MotionTriplet;
-import frc.robot.motionProfiling.Point;
-import frc.robot.subsystems.ArmSubsystem;
-import frc.robot.subsystems.ArmSubsystem.Motor;
+
 
 public class TankDriveCommand extends Command {
-    double currentSpeedLeft = 0;
-	double currentSpeedRight = 0;
     // declare subsystem variable
 	DriveTrain driveTrain;
 	double deadBand = 0.1;
@@ -31,7 +18,6 @@ public class TankDriveCommand extends Command {
         super("Tank Drive Command");
         // get drive train subsystem instance
 		driveTrain = DriveTrain.getInstance();
-		
         
         //required for each command to know which subsystems it will be using
 		requires(driveTrain);
@@ -59,9 +45,17 @@ public class TankDriveCommand extends Command {
 		double theta = 0;
 		Encoder leftEncoder = driveTrain.getLeftEncoder();
 		Encoder rightEncoder = driveTrain.getRightEncoder();
+<<<<<<< HEAD
+		//System.out.println("Left: "+leftEncoder.get());
+		//System.out.println("Right: "+rightEncoder.get());
+
+		double multiplier = 0.5;
+=======
 		System.out.println("Left: "+leftEncoder.get());
 		System.out.println("Right: "+rightEncoder.get());
+>>>>>>> c2edc1de8c80a3bb08a86713ecc459a196e1b944
 
+		if (Robot.oi.button_L2()) multiplier = 0.85;
 		if (Math.abs(y) < deadBand) y = 0;
 		if (Math.abs(x) < deadBand) x = 0;
 		if (y != 0) {
@@ -83,7 +77,11 @@ public class TankDriveCommand extends Command {
 		}
 
 		if(y==0){
+<<<<<<< HEAD
+			leftSpeed=x*0.6;
+=======
 			leftSpeed=x*0.8;
+>>>>>>> c2edc1de8c80a3bb08a86713ecc459a196e1b944
 			rightSpeed = leftSpeed * ratio;
 		}
 
@@ -91,8 +89,13 @@ public class TankDriveCommand extends Command {
 		rightTarget = leftTarget*ratio;
 		difference = -rightTarget + rightEncoder.getRate();
 		if (Math.abs(y) > 0.2) rightSpeed += difference * kp;
+<<<<<<< HEAD
+		driveTrain.setLeftGroupSpeed(leftSpeed * multiplier);
+		driveTrain.setRightGroupSpeed(rightSpeed * multiplier);
+=======
 		driveTrain.setLeftGroupSpeed(leftSpeed*0.3);
 		driveTrain.setRightGroupSpeed(rightSpeed * 0.3);
+>>>>>>> c2edc1de8c80a3bb08a86713ecc459a196e1b944
     }
 
     public double bufferSpeedLeft(double currentSpeedLeft, double desiredSpeedLeft){
