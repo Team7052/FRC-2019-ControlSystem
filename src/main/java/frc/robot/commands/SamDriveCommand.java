@@ -32,7 +32,7 @@ public class SamDriveCommand extends Command {
     @Override
     protected void execute() {
         super.execute();
-        System.out.println("Execute");
+        //System.out.println("Execute");
         double x = Robot.oi.axisLeft_X();
         double lt = -Robot.oi.axisTrigger_L2();
         double rt = Robot.oi.axisTrigger_R2();
@@ -43,8 +43,8 @@ public class SamDriveCommand extends Command {
         double speed = 0.8;
         double deadzone = 0.1;
 
-        System.out.println("Right: " + rightSpeed);
-        System.out.println("Left: " + leftSpeed);
+       // System.out.println("Right: " + rightSpeed);
+       // System.out.println("Left: " + leftSpeed);
 
         if (Math.abs(x) > deadzone) { //if youve moved the joystick out of the deadzone
             if (x > 0) rightSpeed = Math.signum(x) * rightSpeed * speed; 

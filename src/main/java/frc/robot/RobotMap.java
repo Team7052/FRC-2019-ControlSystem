@@ -15,10 +15,10 @@ package frc.robot;
  */
 public class RobotMap {
   // PWM ports for front right motor
-  public static int frontRightMotor = 3;
-  public static int backRightMotor = 2;
-  public static int backLeftMotor = 1;
-  public static int frontLeftMotor = 0;
+  public static int frontRightMotor = 1;
+  public static int backRightMotor = 0;
+  public static int backLeftMotor = 2;
+  public static int frontLeftMotor = 3;
 
   public static int ARM_SHOULDER_JOINT_MOTOR = 5;
 

@@ -86,6 +86,89 @@ public class MotionProfiler {
         return interpolatedPoints;
     }
 
+    public double getLeftSum(double desiredPoint, ArrayList<Point> points) {
+        double leftSum=0;
+        for(int i=0; i<desiredPoint; i++){
+            if((points.get(i+1).x - points.get(i).x)>0){
+                double theta = Math.atan(10*(points.get(i+1).y - points.get(i).y));
+                leftSum+=Math.sin(theta)*(points.get(i+1).y - points.get(i).y);   
+            }
+            else{
+                leftSum+=points.get(i+1).y - points.get(i).y;
+            }
+        }
+        return leftSum*4096;
+    }
+    public double getRightSum(double desiredPoint, ArrayList<Point> points) {
+        double rightSum = 0;
+        for(int i=0; i<desiredPoint; i++){
+            if((points.get(i+1).x - points.get(i).x)<0){
+                double theta = Math.atan(10*(points.get(i+1).y - points.get(i).y));
+                rightSum+=Math.sin(theta)*points.get(i).y;
+            }
+            else{
+                rightSum+=points.get(i+1).y-points.get(i).y;
+            }
+            
+        }
+        return rightSum*4096;
+
+    }
+    public double getLeftSlope(int desiredPoint, ArrayList<Point> points) {
+        double leftSlope=0, rightSlope=0;
+        double theta;
+        double y=points.get(desiredPoint+1).y-points.get(desiredPoint).y;
+        double x=points.get(desiredPoint+1).x-points.get(desiredPoint).x;
+
+        if (y != 0) {
+			theta = Math.atan(Math.abs(x / y));
+		} 
+		else {
+			theta = 0;
+		}
+		double ratio = Math.cos(theta);
+		if (y == 0) ratio = -ratio;
+
+		if (x >= 0) {
+			leftSlope = y;
+			rightSlope = y * ratio;
+		}
+		else if (x < 0) {
+			rightSlope = y;
+			leftSlope=y*ratio;
+		}
+
+        return leftSlope;
+
+
+    }
+    public double getRightSlope(int desiredPoint, ArrayList<Point> points) {
+        double leftSlope=0, rightSlope=0;
+        double theta;
+        double y=points.get(desiredPoint+1).y-points.get(desiredPoint).y;
+        double x=points.get(desiredPoint+1).x-points.get(desiredPoint).x;
+
+        if (y != 0) {
+			theta = Math.atan(Math.abs(x / y));
+		} 
+		else {
+			theta = 0;
+		}
+		double ratio = Math.cos(theta);
+		if (y == 0) ratio = -ratio;
+
+		if (x >= 0) {
+			leftSlope = y;
+			rightSlope = y * ratio;
+		}
+		else if (x < 0) {
+			rightSlope = y;
+			leftSlope=y*ratio;
+		}
+
+        return rightSlope;
+    }
+
     public void setVelocityPoints(ArrayList<Point> points) {
         this.setVelocityPoints(points, 0);
     }
