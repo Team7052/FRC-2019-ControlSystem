@@ -7,16 +7,12 @@
 
 package frc.robot;
 
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import frc.joysticks.*;
 import frc.robot.commands.arm.ArmControllerCommand;
 import frc.robot.networking.Network;
-import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.commands.TankDriveCommand;
 import frc.robot.tests.TestManager;
 import frc.robot.tests.TestManagerState;
@@ -35,18 +31,16 @@ public class Robot extends TimedRobot {
    * This function is run when the robot is first started up and should be
    * used for any initialization code.
    */
-  //RotateShoulderJoint armCommand = new RotateShoulderJoint();
-  //TankDriveCommand driveCommand = new TankDriveCommand();
- //AutoCommand autoDrive = new AutoCommand();
-  //DriveTenM driveTenCommand = new DriveTenM();
-  //TankDriveCommand tankDriveCommand = new TankDriveCommand();
+  ArmControllerCommand armCommand;
+  TankDriveCommand driveCommand;
+
+  TestManager testManager;
+
   CommandGroup newGroup;
   @Override
   public void robotInit() {
       //change Logitech to newly extended class
     oi = new Logitech(0);
-<<<<<<< HEAD
-=======
     newGroup = new CommandGroup();
     armCommand = new ArmControllerCommand();
     newGroup.addParallel(armCommand);
@@ -57,7 +51,6 @@ public class Robot extends TimedRobot {
     armCommand.wristCommand.delegate = network;
 
     testManager = TestManager.getInstance();
->>>>>>> a40439eb926ff0b1d5034ed553479b506d9fafea
   }
 
   @Override
@@ -71,12 +64,9 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void disabledInit() {
-<<<<<<< HEAD
-=======
     Scheduler.getInstance().removeAll();
     testManager.setState(TestManagerState.IDLE);
     calibrated = false;
->>>>>>> a40439eb926ff0b1d5034ed553479b506d9fafea
   }
 
   @Override
@@ -97,13 +87,9 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-<<<<<<< HEAD
-
-=======
     testManager.setState(TestManagerState.IDLE);
     Scheduler.getInstance().removeAll();
     calibrated = false;
->>>>>>> a40439eb926ff0b1d5034ed553479b506d9fafea
   }
 
   /**
@@ -114,7 +100,6 @@ public class Robot extends TimedRobot {
     Scheduler.getInstance().run();
   }
 
-  ArmSubsystem arm;
   @Override
   public void teleopInit() {
     // This makes sure that the autonomous stops running when
@@ -138,9 +123,6 @@ public class Robot extends TimedRobot {
    * This function is called periodically during test mode.
    */
   @Override
-<<<<<<< HEAD
-  public void testPeriodic() {
-=======
   public void testInit() {
     testManager.setState(TestManagerState.IDLE);
   }
@@ -149,6 +131,5 @@ public class Robot extends TimedRobot {
   @Override
   public void testPeriodic() {
     testManager.update();
->>>>>>> a40439eb926ff0b1d5034ed553479b506d9fafea
   }
 }
