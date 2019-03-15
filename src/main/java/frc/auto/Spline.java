@@ -44,85 +44,82 @@ public class Spline {
         this.tangents = this.calcTangents(path);
         ArrayList<Point> cubic = new ArrayList<Point>();
 
-        for (int i = 0; i < path.size(); i++) {
-            ArrayList<Point> otherP = this.calcFinalPoints(xs, i, ys, tangents);
-            cubic.addAll(otherP);
-        }
+        ArrayList<Point> otherP = this.calcFinalPoints(xs, ys, tangents);
+        cubic.addAll(otherP);
+        
 
         return cubic;
     }
 
-    private ArrayList<Point> calcFinalPoints(double[] xs, int i, double[] ys, ArrayList<Point> tangents) {
+    private ArrayList<Point> calcFinalPoints(double[] xs, double[] ys, ArrayList<Point> tangents) {
         ArrayList<Point> finalPoints = new ArrayList<>();
-        double yLow;
-        double yHigh;
-        double mLow;
-        double mHigh;
-        double h = SplineMethods.calch(xs, i);
-        if (i == 0) {
-            yLow = ys[i];
-            mLow = tangents.get(i).y;
-        } else {
-            yLow = ys[i];
-            mLow = tangents.get(i).y;
-        }
-
-        if (i == ys.length - 1) {
-            yHigh = ys[i];
-            mHigh = tangents.get(i).y;
-        } else if (i == ys.length - 2) {
-            yHigh = ys[i + 1];
-            mHigh = tangents.get(i + 1).y;
-        } else {
-            yHigh = ys[i + 1];
-            mHigh = tangents.get(i + 1).y;
-        }
-        double const1 = yLow;
-        double const2 = h * mLow;
-        double const3 = yHigh;
-        double const4 = h * mHigh;
-        if (xs[i] != xs[xs.length - 1]) {
-            if (xs[i] <= xs[i + 1]) {
-                for (double x = xs[i]; x <= xs[i + 1]; x = x + 0.02) {
-                    double t = SplineMethods.calct(xs, i, x);
-                    double part1 = 2 * Math.pow(t, 3) - 3 * Math.pow(t, 2) + 1;
-                    part1 = part1 * const1;
-
-                    double part2 = Math.pow(t, 3) - 2 * Math.pow(t, 2) + t;
-                    part2 = part2 * const2;
-
-                    double part3 = -2 * Math.pow(t, 3) + 3 * Math.pow(t, 2);
-                    part3 = part3 * const3;
-
-                    double part4 = Math.pow(t, 3) - Math.pow(t, 2);
-                    part4 = part4 * const4;
-
-                    double num = part1 + part2 + part3 + part4;
-
-                    finalPoints.add(new Point(x, num));
-                }
+        double delta = 0.1;
+        for (int i = 0; i < tangents.size(); i++) {
+            double yLow;
+            double yHigh;
+            double mLow;
+            double mHigh;
+            double h = SplineMethods.calch(xs, i);
+            if (i == 0) {
+                yLow = ys[i];
+                mLow = tangents.get(i).y;
             } else {
-                for (double x = xs[i]; x >= xs[i + 1]; x = x - 0.02) {
-                    double t = SplineMethods.calct(xs, i, x);
-                    double part1 = 2 * Math.pow(t, 3) - 3 * Math.pow(t, 2) + 1;
-                    part1 = part1 * const1;
-
-                    double part2 = Math.pow(t, 3) - 2 * Math.pow(t, 2) + t;
-                    part2 = part2 * const2;
-
-                    double part3 = -2 * Math.pow(t, 3) + 3 * Math.pow(t, 2);
-                    part3 = part3 * const3;
-
-                    double part4 = Math.pow(t, 3) - Math.pow(t, 2);
-                    part4 = part4 * const4;
-
-                    double num = part1 + part2 + part3 + part4;
-
-                    finalPoints.add(new Point(x, num));
-                }
-
+                yLow = ys[i];
+                mLow = tangents.get(i).y;
             }
 
+            if (i == ys.length - 1) {
+                yHigh = ys[i];
+                mHigh = tangents.get(i).y;
+            } else if (i == ys.length - 2) {
+                yHigh = ys[i + 1];
+                mHigh = tangents.get(i + 1).y;
+            } else {
+                yHigh = ys[i + 1];
+                mHigh = tangents.get(i + 1).y;
+            }
+            double const1 = yLow;
+            double const2 = h * mLow;
+            double const3 = yHigh;
+            double const4 = h * mHigh;
+
+            if (xs[i] != xs[xs.length - 1]) {
+                if (xs[i] == xs[i + 1]) {
+                    for (double y = ys[i]; y <= ys[i + 1]; y = y + delta) {
+                        finalPoints.add(new Point(xs[i], y));
+                    }
+                } else {
+                    double x = xs[i];
+                    while (x <= xs[i + 1]) {
+                        double t = SplineMethods.calct(xs, i, x);
+                        double part1 = 2 * Math.pow(t, 3) - 3 * Math.pow(t, 2) + 1;
+                        part1 = part1 * const1;
+
+                        double part2 = Math.pow(t, 3) - 2 * Math.pow(t, 2) + t;
+                        part2 = part2 * const2;
+
+                        double part3 = -2 * Math.pow(t, 3) + 3 * Math.pow(t, 2);
+                        part3 = part3 * const3;
+
+                        double part4 = Math.pow(t, 3) - Math.pow(t, 2);
+                        part4 = part4 * const4;
+
+                        double num = part1 + part2 + part3 + part4;
+                        //x = Math.round(x * 100.0) / 100.0;
+                        //num = Math.round(num * 100.0) / 100.0;
+
+                        finalPoints.add(new Point(x, num));
+
+                        if (Math.sqrt(Math.pow(xs[i + 1] - x, 2) + (Math.pow(num - ys[i + 1], 2))) <= 0.1 && Math.sqrt(Math.pow(xs[i + 1] - x, 2) + (Math.pow(num - ys[i + 1], 2))) != 0) {
+                            x = xs[i + 1];
+                        } else {
+                            x = x + SplineMethods.xDiff(xs, ys, tangents, i, delta, new Point(x, num));
+                        }
+                        //System.out.println("X delta: " + xDiff(xs, ys, tangents, i, delta));
+
+                    }
+                }
+            }
         }
         return finalPoints;
     }
