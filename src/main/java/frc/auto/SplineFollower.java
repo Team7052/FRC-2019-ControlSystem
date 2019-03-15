@@ -22,17 +22,20 @@ public class SplineFollower {
     public SplineFollower(Spline spline, double desiredTime) {
         this.desiredTime = desiredTime;
         this.spline = spline;
-        Point p0 = spline.getCubicSpline().get(0);
+        this.state = MotionProfileState.IDLE;
+        this.followingState = SplineFollowerState.FOLLOWING_SPLINE;
+        
+       /* Point p0 = spline.getCubicSpline().get(0);
         Point p1 = spline.getCubicSpline().get(1);
         double targetTheta = Math.atan((p0.x - p1.x) / (p0.y - p1.y));
         targetEncoderPosition = targetTheta * this.radiusBase / (2 * Math.PI * radiusWheel);
-        this.followingState = SplineFollowerState.FOLLOWING_SPLINE;
+        this.followingState = SplineFollowerState.FOLLOWING_SPLINE;*/
     }
 
     public void startFollowingSpline() {
         if (state == MotionProfileState.IDLE) {
             state = MotionProfileState.RUNNING;
-            startTime = Timer.getFPGATimestamp();
+            splineStartTime = Timer.getFPGATimestamp();
         }
     }
 

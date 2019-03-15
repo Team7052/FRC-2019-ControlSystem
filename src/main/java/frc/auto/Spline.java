@@ -42,13 +42,14 @@ public class Spline {
             ys[i] = path.get(i).y;
         }
         this.tangents = this.calcTangents(path);
-        ArrayList<Point> cubicSpline = new ArrayList<Point>();
+        ArrayList<Point> cubic = new ArrayList<Point>();
 
-        for (int i = 0; i < cubicSpline.size(); i++) {
+        for (int i = 0; i < path.size(); i++) {
             ArrayList<Point> otherP = this.calcFinalPoints(xs, i, ys, tangents);
-            cubicSpline.addAll(otherP);
+            cubic.addAll(otherP);
         }
-        return cubicSpline;
+
+        return cubic;
     }
 
     private ArrayList<Point> calcFinalPoints(double[] xs, int i, double[] ys, ArrayList<Point> tangents) {

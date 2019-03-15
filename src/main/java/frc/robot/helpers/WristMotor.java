@@ -26,7 +26,7 @@ public class WristMotor extends WPI_VictorSPX {
     public int homeQuadraturePosition = 0;
 
     // degree positions all relative to ground (pointing straight downwards = 0˚)
-    public double homeDegrees = 0;
+    public double homeDegrees = 180;
     public double maxDegrees = -1;
     public double minDegrees = -1;
 
@@ -66,7 +66,7 @@ public class WristMotor extends WPI_VictorSPX {
     }
 
     public boolean getInvertedPosition() {
-        return this.getInverted();
+        return this.positionInverted;
     }
 
     public void setInvertedPosition(boolean inverted) {
@@ -84,11 +84,19 @@ public class WristMotor extends WPI_VictorSPX {
         return this.sensorPhase;
     }
 
+    public int getTarget() {
+        return (int) pidController.getSetpoint();
+    }
+
     public void setDegrees(double degrees) {
         int targetPosition = (positionInverted ? -1 : 1) * (int) (((degrees - this.homeDegrees) / 360.0) * 1024);
         this.pidController.setSetpoint(targetPosition);
         double value = this.pidController.calculatePIDOutput(this.encoder.get());
         this.set(ControlMode.PercentOutput, value);
+    }
+
+    public void setIntegralValue(double value) {
+        this.pidController.setIntegralAccumulator(value);
     }
 
     public double getk_P() { return this.k_P; }

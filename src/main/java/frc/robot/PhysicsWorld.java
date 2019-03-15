@@ -7,6 +7,11 @@ import java.util.ArrayList;
 
 public class PhysicsWorld {
     /* all measurements in inches, degrees in radians */
+    private static PhysicsWorld instance;
+    public static PhysicsWorld getInstance() {
+        if (instance == null) instance = new PhysicsWorld();
+        return instance;
+    }
     double baseX = 100;
 
     double theta1 = 20 / 180 * Math.PI;
@@ -17,7 +22,7 @@ public class PhysicsWorld {
     Point wristJoint = new Point(0,0);
     Point fingerTip = new Point(0,0);
 
-    public PhysicsWorld() {
+    private PhysicsWorld() {
         // initialize moving parts on the arm
         this.updateWorld(100, this.theta1, this.theta2, false);
     }

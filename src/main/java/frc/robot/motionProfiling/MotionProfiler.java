@@ -3,28 +3,29 @@ package frc.robot.motionProfiling;
 import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.Timer;
+import frc.robot.helpers.Triplet;
+import frc.robot.sequencing.Step;
+import frc.robot.sequencing.StepState;
 
-public class MotionProfiler {
+public class MotionProfiler extends Step<MotionTriplet> {
     private ArrayList<Point> velocityFunction = new ArrayList<>();
     private ArrayList<Point> accelerationFunction = new ArrayList<>();
     private ArrayList<Point> positionFunction = new ArrayList<>();
 
-    private MotionProfileState state = MotionProfileState.IDLE;
-
-    private double totalRunningTime;
-
     public MotionProfiler() {
-        
+        super();
+        this.totalRunningTime = () -> {
+            if (velocityFunction.size() == 0) return 0.0;
+            return velocityFunction.get(velocityFunction.size() - 1).x;
+        };
     }
-    public double startTime = 0;
+
     public double index = 0;
-    public MotionTriplet updateMotionProfile() {
-        if (state == MotionProfileState.RUNNING) {
-            double currentTime = Timer.getFPGATimestamp();
-            
-            double percentage = (currentTime - startTime) / this.totalRunningTime;
+    public MotionTriplet update(double timeStamp) {
+        if (state == StepState.RUNNING) {
+            if (this.totalRunningTime.get() == 0) return null;
+            double percentage = (timeStamp - this.startTime) / this.totalRunningTime.get();
             if (percentage > 1.0) {
-                this.stopMotionProfile();
                 return null;
             }
             
@@ -35,37 +36,18 @@ public class MotionProfiler {
             double accelerationMeasurement = accelerationFunction.get(index).y;
             double positionMeasurement = positionFunction.get(index).y;
 
-            return new MotionTriplet(velocityMeasurement, positionMeasurement, accelerationMeasurement);
+            return new MotionTriplet(positionMeasurement, velocityMeasurement, accelerationMeasurement);
         }
         else {
             return null;
         }
     }
 
-    // setters and getters for motion profile
-
-    public MotionProfileState getState() {
-        return this.state;
-    }
-
-    private void setTotalRunningTime() {
-        if (this.positionFunction.size() > 0) {
-            this.totalRunningTime = this.positionFunction.get(this.positionFunction.size() - 1).x;
-        }
-    }
-
-    public void stopMotionProfile() {
-        this.state = MotionProfileState.FINISHED;
-    }
-    public void reset() {
-        this.state = MotionProfileState.IDLE;
-    }
-
-    public void startMotionProfile() {
-        if (this.state == MotionProfileState.IDLE) {
-            this.state = MotionProfileState.RUNNING;
-            this.startTime = Timer.getFPGATimestamp();
-        }
+    @Override
+    public MotionTriplet getLastUpdate() {
+        if (velocityFunction.size() == 0) return null;
+        int lastIndex = velocityFunction.size() - 1;
+        return new MotionTriplet(positionFunction.get(lastIndex).y, velocityFunction.get(lastIndex).y, accelerationFunction.get(lastIndex).y);
     }
 
     public static ArrayList<Point> getLinearInterpolation(ArrayList<Point> points, double delta) {
@@ -97,8 +79,6 @@ public class MotionProfiler {
         velocityFunction = points;
         accelerationFunction = FunctionGenerator.getDerivative(points);
         positionFunction = this.pointsWithInitialDisplacement(FunctionGenerator.getIntegral(points), initialDisplacement);
-
-        this.setTotalRunningTime();
     }
     public void setPositionPoints(ArrayList<Point> points) {
         this.setPositionPoints(points, 0);
@@ -108,8 +88,6 @@ public class MotionProfiler {
         positionFunction = this.pointsWithInitialDisplacement(points, initialDisplacement);
         velocityFunction = FunctionGenerator.getDerivative(points);
         accelerationFunction = FunctionGenerator.getDerivative(velocityFunction);
-
-        this.setTotalRunningTime();
     }
 
     public void setAccelerationFunctionPoints(ArrayList<Point> points) {
@@ -119,8 +97,6 @@ public class MotionProfiler {
         accelerationFunction = points;
         velocityFunction = FunctionGenerator.getIntegral(points);
         positionFunction = this.pointsWithInitialDisplacement(FunctionGenerator.getIntegral(velocityFunction), initialDisplacement);
-
-        this.setTotalRunningTime();
     }
 
     public double getFinalPosition() {

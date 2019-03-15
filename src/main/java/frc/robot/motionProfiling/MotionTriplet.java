@@ -1,13 +1,9 @@
 package frc.robot.motionProfiling;
 
-public class MotionTriplet {
-    public double velocity;
-    public double position;
-    public double acceleration;
+import frc.robot.helpers.Triplet;
 
-    public MotionTriplet(double velocity, double position, double acceleration) {
-        this.velocity = velocity;
-        this.position = position;
-        this.acceleration = acceleration;
+public class MotionTriplet extends Triplet<Double> {
+    public MotionTriplet(Double a, Double b, Double c) {
+        super(a, b, c);
     }
 }

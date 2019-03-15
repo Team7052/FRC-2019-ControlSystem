@@ -29,7 +29,6 @@ public class FollowSplineCommand extends Command {
         //required for each command to know which subsystems it will be using
         requires(driveTrain);
         //Add (x, y) displacement points
-        
         spline = new Spline(splinePath);
         splineFollower = new SplineFollower(spline, totalTime);
     }
@@ -42,10 +41,6 @@ public class FollowSplineCommand extends Command {
     @Override
     protected void execute() {
         super.execute();
-
-        if (time == 0) {
-            time = Timer.getFPGATimestamp();
-        }
 
         Encoder leftEncoder = driveTrain.getLeftEncoder();
         Encoder rightEncoder = driveTrain.getRightEncoder();
@@ -61,8 +56,8 @@ public class FollowSplineCommand extends Command {
         double rightSpeed = (velocities.b) + (rightDifference * kp);
 
         System.out.println( Math.round((leftSpeed) * 100.0) / 100.0 + " " + Math.round((rightSpeed) * 100.0) / 100.0);
-  	    //driveTrain.setLeftGroupSpeed(leftSpeed*0.3);
-		//driveTrain.setRightGroupSpeed(rightSpeed * 0.3);
+  	    driveTrain.setLeftGroupSpeed(leftSpeed);
+		driveTrain.setRightGroupSpeed(rightSpeed);
     }
 
     @Override

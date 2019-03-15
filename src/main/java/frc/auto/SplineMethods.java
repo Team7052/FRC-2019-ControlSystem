@@ -1,6 +1,8 @@
 package frc.auto;
 
 public class SplineMethods {
+    public static final double delta = 0.02;
+    public static final double k_value = 5.0 * delta;
     public static double calch(double xs[], int i) {
         double h;
         if (i == 0) {

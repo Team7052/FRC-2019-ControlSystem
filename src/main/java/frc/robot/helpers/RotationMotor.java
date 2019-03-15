@@ -104,6 +104,8 @@ public class RotationMotor extends WPI_TalonSRX {
     }
 
     public void setDegrees(double degrees) {
+        if (degrees < this.minDegrees) degrees = this.minDegrees;
+        if (degrees > this.maxDegrees) degrees = this.maxDegrees;
         int targetPosition = (positionInverted ? -1 : 1) * (int) ((degrees / 360.0) * 4096 * gearRatio);
         this.currentTargetQuadraturePosition = targetPosition;
         this.set(ControlMode.Position, targetPosition);

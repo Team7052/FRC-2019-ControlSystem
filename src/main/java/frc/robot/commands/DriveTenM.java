@@ -10,6 +10,7 @@ import frc.robot.motionProfiling.MotionProfileState;
 import frc.robot.motionProfiling.MotionProfiler;
 import frc.robot.motionProfiling.MotionTriplet;
 import frc.robot.motionProfiling.Point;
+import frc.robot.sequencing.StepState;
 
 public class DriveTenM extends Command {
     double time = 0;
@@ -49,7 +50,7 @@ public class DriveTenM extends Command {
         super.execute();
         Encoder leftEncoder = driveTrain.getLeftEncoder();
         Encoder rightEncoder = driveTrain.getRightEncoder();
-        if(motionProfiler.getState() == MotionProfileState.IDLE){
+        if(motionProfiler.getState() == StepState.IDLE){
           leftEncoder.reset();
           rightEncoder.reset();
         }
@@ -79,13 +80,14 @@ public class DriveTenM extends Command {
         double displacement = 0;
         double leftDifference = 0;
         double rightDifference = 0;
-        motionProfiler.startMotionProfile();
+        double timeStamp = Timer.getFPGATimestamp();
+        motionProfiler.start(timeStamp);
 
-        MotionTriplet triplet = motionProfiler.updateMotionProfile();
-        if (motionProfiler.getState() == MotionProfileState.RUNNING && triplet != null) {
+        MotionTriplet triplet = motionProfiler.update(timeStamp);
+        if (motionProfiler.getState() == StepState.RUNNING && triplet != null) {
           
-          velocity = triplet.velocity;
-          displacement = triplet.position;
+          velocity = triplet.b;
+          displacement = triplet.a;
           leftDifference = displacement - currentLeftDisplacement;
           rightDifference = displacement - currentRightDisplacement;
         }

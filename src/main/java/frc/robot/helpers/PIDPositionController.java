@@ -47,8 +47,8 @@ public class PIDPositionController {
     public double getTotalIntegral() {
         return this.errorAccum;
     }
-    public void resetIntegral() {
-        this.errorAccum = 0;
+    public void setIntegralAccumulator(double accum) {
+        this.errorAccum = accum;
     }
 
     public void setGains(double k_p, double k_i, double k_d) {

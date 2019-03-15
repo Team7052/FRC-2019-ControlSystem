@@ -88,9 +88,9 @@ public class Network implements Runnable, CommandDelegate {
         motorSubtable.getEntry("percentOutput").setDouble(DriveTrain.getInstance().getLeftSpeed());
         /* motor data */
         // arm motors
-        this.sendWristMotorData();
-        this.sendElbowMotorData();
-        this.sendShoulderMotorData();
+        this.sendArmMotorData(Motor.SHOULDER_JOINT, RobotMap.kArmShoulderMotorName);
+        this.sendArmMotorData(Motor.ELBOW_JOINT, RobotMap.kArmElbowMotorName);
+        this.sendArmMotorData(Motor.WRIST_JOINT, RobotMap.kArmWristMotorName);
     }
 
     private void sendMotionProfileData(String name, MotionProfiler motionProfiler) {
@@ -111,106 +111,51 @@ public class Network implements Runnable, CommandDelegate {
             velocityValues[i] = velocities.get(i).y;
             accelerationValues[i] = accelerations.get(i).y;
         }
-        motionProfilingTable.getEntry("time").setDoubleArray(timeFunction);
-        motionProfilingTable.getEntry("position").setDoubleArray(positionValues);
-        motionProfilingTable.getEntry("velocity").setDoubleArray(velocityValues);
-        motionProfilingTable.getEntry("acceleration").setDoubleArray(accelerationValues);
-        motionProfilingTable.getEntry("timeStamp").setDouble(motionProfiler.startTime);
+        Setter.setDoubleArray(motionProfilingTable.getEntry("time"), timeFunction);
+        Setter.setDoubleArray(motionProfilingTable.getEntry("position"), positionValues);
+        Setter.setDoubleArray(motionProfilingTable.getEntry("velocity"), velocityValues);
+        Setter.setDoubleArray(motionProfilingTable.getEntry("acceleration"), accelerationValues);
+        Setter.setDouble(motionProfilingTable.getEntry("timeStamp"), motionProfiler.getStartTime());
     }
 
     public void sendNullMotionProfileData(String key) {
         NetworkTable motionProfilingTable = this.getTable(TableType.kMotionProfiles).getSubTable(key);
         double[] empty = new double[0];
-        motionProfilingTable.getEntry("time").setDoubleArray(empty);
-        motionProfilingTable.getEntry("position").setDoubleArray(empty);
-        motionProfilingTable.getEntry("velocity").setDoubleArray(empty);
-        motionProfilingTable.getEntry("acceleration").setDoubleArray(empty);
+        Setter.setDoubleArray(motionProfilingTable.getEntry("time"), empty);
+        Setter.setDoubleArray(motionProfilingTable.getEntry("position"), empty);
+        Setter.setDoubleArray(motionProfilingTable.getEntry("velocity"), empty);
+        Setter.setDoubleArray(motionProfilingTable.getEntry("acceleration"), empty);
     }
 
-    private void sendWristMotorData() {
-        WristMotor motor = ArmSubsystem.getInstance().getWristMotor();
-        double output = motor.getMotorOutputPercent();
-        double voltage = motor.getMotorOutputVoltage();
-        double current = motor.getCurrent();
-        int rawPosition = motor.getPosition();
-        double relativeDegrees = motor.getCurrentDegrees();
-        double absoluteDegrees = ArmSubsystem.getInstance().getAbsoluteWristDegrees();
-        double rawVelocity = motor.getRawVelocity();
-        double degreesVelocity = motor.getVelocityDegrees();
-        boolean inPhase = motor.getPhase();
-        boolean isInverted = motor.getInverted();
+    private void sendArmMotorData(Motor motor, String name) {
+        ArmSubsystem arm = ArmSubsystem.getInstance();
+        double output = arm.getMotorOutputPercent(motor);
+        double voltage = arm.getMotorOutputVoltage(motor);
+        double current = arm.getCurrent(motor);
+        int rawPosition = arm.getPosition(motor);
+        double relativeDegrees = arm.getDegrees(motor);
+        double absoluteDegrees = arm.getAbsoluteDegrees(motor);
+        double rawVelocity = arm.getRawVelocity(motor);
+        double degreesVelocity = arm.getVelocityDegrees(motor);
+        boolean inPhase = arm.getPhase(motor);
+        boolean isInverted = arm.isInverted(motor);
         
-        NetworkTable motorSubtable = this.getTable(TableType.kMotorData).getSubTable(RobotMap.kArmWristMotorName);
-        motorSubtable.getEntry("voltage").setDouble(voltage);
-        motorSubtable.getEntry("percentOutput").setDouble(output);
-        motorSubtable.getEntry("current").setDouble(current);
-        motorSubtable.getEntry("rawPosition").setDouble(rawPosition);
-        motorSubtable.getEntry("relativeDegrees").setDouble(relativeDegrees);
-        motorSubtable.getEntry("absoluteDegrees").setDouble(absoluteDegrees);
-        motorSubtable.getEntry("rawVelocity").setDouble(rawVelocity);
-        motorSubtable.getEntry("degreesVelocity").setDouble(degreesVelocity);
-        motorSubtable.getEntry("inPhase").setBoolean(inPhase);
-        motorSubtable.getEntry("isInverted").setBoolean(isInverted);
-        motorSubtable.getEntry("timeStamp").setDouble(Timer.getFPGATimestamp());
-    }
-
-    private void sendElbowMotorData() {
-        RotationMotor motor = ArmSubsystem.getInstance().getRotationMotor(Motor.ELBOW_JOINT);
-        double output = motor.getMotorOutputPercent();
-        double voltage = motor.getMotorOutputVoltage();
-        double current = motor.getCurrent();
-        int rawPosition = motor.getPosition();
-        double relativeDegrees = motor.getCurrentDegrees();
-        double absoluteDegrees = ArmSubsystem.getInstance().getAbsoluteElbowDegrees();
-        double rawVelocity = motor.getRawVelocity();
-        double degreesVelocity = motor.getVelocityDegrees();
-        boolean inPhase = motor.getPhase();
-        boolean isInverted = motor.getInverted();
-        
-        NetworkTable motorSubtable = this.getTable(TableType.kMotorData).getSubTable(RobotMap.kArmElbowMotorName);
-        motorSubtable.getEntry("voltage").setDouble(voltage);
-        motorSubtable.getEntry("percentOutput").setDouble(output);
-        motorSubtable.getEntry("current").setDouble(current);
-        motorSubtable.getEntry("rawPosition").setDouble(rawPosition);
-        motorSubtable.getEntry("relativeDegrees").setDouble(relativeDegrees);
-        motorSubtable.getEntry("absoluteDegrees").setDouble(absoluteDegrees);
-        motorSubtable.getEntry("rawVelocity").setDouble(rawVelocity);
-        motorSubtable.getEntry("degreesVelocity").setDouble(degreesVelocity);
-        motorSubtable.getEntry("inPhase").setBoolean(inPhase);
-        motorSubtable.getEntry("isInverted").setBoolean(isInverted);
-        motorSubtable.getEntry("timeStamp").setDouble(Timer.getFPGATimestamp());
-    }
-
-    private void sendShoulderMotorData() {
-        RotationMotor motor = ArmSubsystem.getInstance().getRotationMotor(Motor.SHOULDER_JOINT);
-        double output = motor.getMotorOutputPercent();
-        double voltage = motor.getMotorOutputVoltage();
-        double current = motor.getCurrent();
-        int rawPosition = motor.getPosition();
-        double degrees = motor.getCurrentDegrees();
-        double rawVelocity = motor.getRawVelocity();
-        double degreesVelocity = motor.getVelocityDegrees();
-        boolean inPhase = motor.getPhase();
-        boolean isInverted = motor.getInverted();
-
-        NetworkTable motorSubtable = this.getTable(TableType.kMotorData).getSubTable(RobotMap.kArmShoulderMotorName);
-        
-        motorSubtable.getEntry("voltage").setDouble(voltage);
-        motorSubtable.getEntry("percentOutput").setDouble(output);
-        motorSubtable.getEntry("current").setDouble(current);
-        motorSubtable.getEntry("rawPosition").setDouble(rawPosition);
-        motorSubtable.getEntry("absoluteDegrees").setDouble(degrees);
-        motorSubtable.getEntry("relativeDegrees").setDouble(degrees);
-        motorSubtable.getEntry("rawVelocity").setDouble(rawVelocity);
-        motorSubtable.getEntry("degreesVelocity").setDouble(degreesVelocity);
-        motorSubtable.getEntry("inPhase").setBoolean(inPhase);
-        motorSubtable.getEntry("isInverted").setBoolean(isInverted);
-        motorSubtable.getEntry("timeStamp").setDouble(Timer.getFPGATimestamp());
+        NetworkTable motorSubtable = this.getTable(TableType.kMotorData).getSubTable(name);
+        Setter.setDouble(motorSubtable.getEntry("voltage"), voltage);
+        Setter.setDouble(motorSubtable.getEntry("percentOutput"), output);
+        Setter.setDouble(motorSubtable.getEntry("current"), current);
+        Setter.setDouble(motorSubtable.getEntry("rawPosition"), rawPosition);
+        Setter.setDouble(motorSubtable.getEntry("relativeDegrees"), relativeDegrees);
+        Setter.setDouble(motorSubtable.getEntry("absoluteDegrees"), absoluteDegrees);
+        Setter.setDouble(motorSubtable.getEntry("rawVelocity"), rawVelocity);
+        Setter.setDouble(motorSubtable.getEntry("degreesVelocity"), degreesVelocity);
+        Setter.setBoolean(motorSubtable.getEntry("inPhase"), inPhase);
+        Setter.setBoolean(motorSubtable.getEntry("isInverted"), isInverted);
+        Setter.setDouble(motorSubtable.getEntry("timeStamp"), Timer.getFPGATimestamp());
     }
 
     public void sendSparkData(String name, Spark motor) {
         NetworkTable motorSubtable = this.getTable(TableType.kMotorData).getSubTable(name);
-        
     }
 
     @Override

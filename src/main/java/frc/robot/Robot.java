@@ -22,6 +22,8 @@ import frc.robot.commands.TankDriveCommand;
 import frc.robot.tests.TestManager;
 import frc.robot.tests.TestManagerState;
 
+import frc.robot.subsystems.ArmSubsystem;
+
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the TimedRobot
@@ -51,19 +53,16 @@ public class Robot extends TimedRobot {
     newGroup.addParallel(armCommand);
     newGroup.addParallel(driveCommand);
     Network network = Network.getInstance();
-    armCommand.elbowCommand.delegate = network;
-    armCommand.shoulderCommand.delegate = network;
-    armCommand.wristCommand.delegate = network;
 
     Point[] path = {
-      new Point (0, 0), new Point (2, 1), new Point (4, 4), new Point (6, 2)
+      new Point (0, 0), new Point (0.5,4), new Point (3, 5), new Point (6, 6)
     };
     autoCommand = new FollowSplineCommand(new ArrayList<>(Arrays.asList(path)), 5.0);
 
   }
 
   @Override
-  public void robotPeriodic() {
+  public void robotPeriodic() { 
   }
 
   /**
