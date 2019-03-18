@@ -56,7 +56,7 @@ public class FollowSplineCommand extends Command {
         double rightSpeed = (velocities.b) + (rightDifference * kp);
 
         System.out.println( Math.round((leftSpeed) * 100.0) / 100.0 + " " + Math.round((rightSpeed) * 100.0) / 100.0);
-  	   //driveTrain.setLeftGroupSpeed(leftSpeed);
+  	    //driveTrain.setLeftGroupSpeed(leftSpeed);
 		//driveTrain.setRightGroupSpeed(rightSpeed);
     }
 

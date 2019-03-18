@@ -48,9 +48,9 @@ public class Robot extends TimedRobot {
       //change Logitech to newly extended class
     oi = new Logitech(0);
     newGroup = new CommandGroup();
-    armCommand = new ArmControllerCommand();
+    //armCommand = new ArmControllerCommand();
     driveCommand = new TankDriveCommand();
-    newGroup.addParallel(armCommand);
+    //newGroup.addParallel(armCommand);
     newGroup.addParallel(driveCommand);
     Network network = Network.getInstance();
 
