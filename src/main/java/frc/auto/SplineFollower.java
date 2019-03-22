@@ -16,14 +16,18 @@ public class SplineFollower {
     private Spline spline;
     private double targetEncoderPosition;
 
-    private final double radiusBase = 13.5;
+    private final double radiusBase = 11.5;
     private final double radiusWheel = 3;
+    double baseSpeed = 0.35;
+    double turnConst1 = 2;
+    double turnConst2 = 300;
+    double wheelSpinConst = 3;
 
     public SplineFollower(Spline spline, double desiredTime) {
         this.desiredTime = desiredTime;
         this.spline = spline;
         this.state = MotionProfileState.IDLE;
-        this.followingState = SplineFollowerState.FOLLOWING_SPLINE;
+        this.followingState = SplineFollowerState.TURNING;
         
        /* Point p0 = spline.getCubicSpline().get(0);
         Point p1 = spline.getCubicSpline().get(1);
@@ -56,15 +60,39 @@ public class SplineFollower {
                 // System.out.println("Concave Up at " + newPoints.get(desiredPoint).x + ": " + concaveUp);
                 double leftTheo = this.getLeftSum(desiredPoint, spline.getCubicSpline());
                 double rightTheo = this.getRightSum(desiredPoint, spline.getCubicSpline());
-                double leftVelocity = this.getLeftSlope(desiredPoint, spline.getCubicSpline(), concaveUp);
-                double rightVelocity = this.getRightSlope(desiredPoint, spline.getCubicSpline(), concaveUp);
-                return new Pair<Double>(leftVelocity, rightVelocity);
+                Pair<Double> velocities = this.getSlope(desiredPoint, spline.getCubicSpline(), concaveUp);
+                return velocities;
             }
             else if (this.followingState == SplineFollowerState.TURNING) {
                 // turning code
-                
-                // if (robot finishd turn) this.updateFollowingState(SplineFollowerState.FOLLOW_SPLINE);
-                // else turn;
+                double x = spline.getCubicSpline().get(1).x;
+                double y = spline.getCubicSpline().get(1).y;
+                double theta = Math.atan(Math.abs(x/y));
+                double numRotations = (theta*radiusBase)/(2*Math.PI*radiusWheel);
+                double fraction = 0.1 /numRotations; // turn a lot -> small, turn a bit -> large
+
+                double currentTime = Timer.getFPGATimestamp();
+                double percentage = (currentTime - splineStartTime) / fraction;
+                if (percentage >= 1.00) {
+                    this.updateSplineState(SplineFollowerState.FOLLOWING_SPLINE);
+                } else {
+                    if(percentage>0.5){
+                        percentage = 1- percentage;
+                    }
+                    percentage = percentage*0.8;
+                    if(y>0){
+                        if(x>0){
+                            //left positive right negative
+                            System.out.println("Turning left");
+                            return new Pair<>(percentage, -percentage);
+                        } else {
+                            //right positive left negative
+                            System.out.println("Turning right");
+                            return new Pair<>(-percentage, percentage);
+
+                        }
+                    }
+                }
             }
         }
         return null;
@@ -175,8 +203,8 @@ public class SplineFollower {
 
     }
 
-    private double getLeftSlope(int desiredPoint, ArrayList<Point> points, boolean concaveUp) {
-       double leftSlope = 0.3, rightSlope = 0.3;
+    private Pair<Double> getSlope(int desiredPoint, ArrayList<Point> points, boolean concaveUp) {
+       double leftSlope = baseSpeed, rightSlope = baseSpeed;
         double theta;
         if (desiredPoint != points.size() - 1 && desiredPoint != points.size() - 2) {
             double xOne = points.get(desiredPoint + 1).x - points.get(desiredPoint).x;
@@ -198,51 +226,19 @@ public class SplineFollower {
             double alpha = Math.acos(part3 / (2 * length1 * length2));
 
             //  System.out.println("Alpha: " + alpha);
-            double ka = Math.pow(2, 15 * (Math.PI - alpha));
-            double kp = 0.3;
+            double turn = Math.pow(turnConst1, turnConst2 * (Math.PI - alpha));
+            
 
             //System.out.println("ka: " + ka);
             if (concaveUp) {
-                rightSlope = kp * ka;
+                rightSlope = baseSpeed * turn;
                 //    System.out.println("leftSLope: " + leftSlope);
             } else {
-                leftSlope = kp * ka;
+                leftSlope = baseSpeed * turn;
             }
 
         }
 
-        return leftSlope;
-    }
-
-    private double getRightSlope(int desiredPoint, ArrayList<Point> points, boolean concaveUp) {
-        double leftSlope = 0.3, rightSlope = 0.3;
-        double theta;
-        if (desiredPoint != points.size() - 1 && desiredPoint != points.size() - 2) {
-            double xOne = points.get(desiredPoint + 1).x - points.get(desiredPoint).x;
-            double yOne = points.get(desiredPoint + 1).y - points.get(desiredPoint).y;
-            double length1 = Math.sqrt(Math.pow(xOne, 2) + Math.pow(yOne, 2));
-
-            double xTwo = points.get(desiredPoint + 2).x - points.get(desiredPoint + 1).x;
-            double yTwo = points.get(desiredPoint + 2).y - points.get(desiredPoint + 1).y;
-            double length2 = Math.sqrt(Math.pow(xTwo, 2) + Math.pow(yTwo, 2));
-
-            double xThree = points.get(desiredPoint + 2).x - points.get(desiredPoint).x;
-            double yThree = points.get(desiredPoint + 2).y - points.get(desiredPoint).y;
-            double length3 = Math.sqrt(Math.pow(xThree, 2) + Math.pow(yThree, 2));
-
-            double part3 = (Math.pow(length1, 2) + Math.pow(length2, 2) - Math.pow(length3, 2));
-            double alpha = Math.acos(part3 / (2 * length1 * length2));
-
-            double ka = Math.pow(2, 15 * (Math.PI - alpha));
-            double kp = 0.3;
-
-            if (concaveUp) {
-                rightSlope = kp * ka;
-            } else {
-                leftSlope = kp * ka;
-            }
-        }
-
-        return rightSlope;
+        return new Pair<>(leftSlope, rightSlope);
     }
 }
