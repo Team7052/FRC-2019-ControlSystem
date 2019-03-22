@@ -1,12 +1,13 @@
 package frc.robot.commands.arm;
 
-import frc.robot.PhysicsConstants;
-import frc.robot.PhysicsWorld;
+import frc.robot.util.physics.PhysicsConstants;
+import frc.robot.util.physics.PhysicsWorld;
 import frc.robot.helpers.Pair;
 import frc.robot.helpers.Triplet;
 import frc.robot.motionProfiling.MotionProfiler;
 import frc.robot.motionProfiling.MotionTriplet;
 import frc.robot.sequencing.Sequence;
+import frc.robot.states.ArmSuperState;
 
 public class ArmSequences {
     public static final double shoulderMaxVelocity = Math.PI * 2 / 5;
@@ -30,18 +31,28 @@ public class ArmSequences {
     public static Triplet<Sequence<MotionTriplet>> highRocketHatchSequence() {
         return toSequence(setDistances(2, 78, radians(180)));
     }
+
+    public static Triplet<Sequence<MotionTriplet>> raiseArmSequence() {
+        // get current displacements
+        Pair<Double> currentDisplacements = PhysicsWorld.getInstance().solveArmKinematics();
+        return toSequence(setDistances(currentDisplacements.a, currentDisplacements.b + 2, radians(180)));
+    }
+    public static Triplet<Sequence<MotionTriplet>> lowerArmSequence() {
+        // get current displacements
+        Pair<Double> currentDisplacements = PhysicsWorld.getInstance().solveArmKinematics();
+        return toSequence(setDistances(currentDisplacements.a, currentDisplacements.b - 2, radians(180)));
+    }
     public static Triplet<Sequence<MotionTriplet>> intakeCargoSequence() {
-        return toSequence(CoupledArmProfiler.generateProfiles(radians(40),  radians(160), radians(180)));
+        return toSequence(CoupledArmProfiler.generateProfiles(radians(40),  radians(160), radians(270)));
     }
     public static Triplet<Sequence<MotionTriplet>> lowRocketCargoSequence() {
-        return toSequence(CoupledArmProfiler.generateProfiles(radians(60), radians(70), radians(0)));
+        return toSequence(CoupledArmProfiler.generateProfiles(radians(60), radians(70), radians(270)));
     }
     public static Triplet<Sequence<MotionTriplet>> midRocketCargoSequence() {
-        return toSequence(CoupledArmProfiler.generateProfiles(radians(60), radians(70), radians(90)));
+        return toSequence(CoupledArmProfiler.generateProfiles(radians(60), radians(70), radians(270)));
     }
-
     private static Triplet<MotionProfiler> setDistances(double l, double h, double wristRadians) {
-        Pair<Double> angles = PhysicsWorld.getInstance().inverseKinematics(l + PhysicsConstants.backToArm + PhysicsConstants.thickness - PhysicsConstants.hand, PhysicsConstants.armHeight + PhysicsConstants.baseHeight - h);
+        Pair<Double> angles = PhysicsWorld.getInstance().armInverseKinematics(l + PhysicsConstants.backToArm + PhysicsConstants.thickness - PhysicsConstants.hand, PhysicsConstants.armHeight + PhysicsConstants.baseHeight - h);
         return CoupledArmProfiler.generateProfiles(angles.a, angles.b, wristRadians);
     }
 

@@ -15,21 +15,19 @@ package frc.robot;
  */
 public class RobotMap {
   // PWM ports for front right motor
-  public static int frontRightMotor = 1;
-  public static int backRightMotor = 0;
-  public static int backLeftMotor = 2;
-  public static int frontLeftMotor = 3;
+  public static final int kFrontRightMotor = 1;
+  public static final int kBackRightMotor = 0;
+  public static final int kBackLeftMotor = 2;
+  public static final int kFrontLeftMotor = 3;
 
-  public static int ARM_SHOULDER_JOINT_MOTOR = 5;
+  public static final int kArmShoulderMotor = 5;
+  public static final double kArmShoulderMotorGearRatio = 48.0 / 15.0;
 
-  public static int ARM_ELBOW_JOINT_MOTOR = 6;
-
-  public static int ARM_WRIST_JOINT_MOTOR = 7;
-  public static int ARM_WRIST_JOINT_ENCODER_A = 8;
-  public static int ARM_WRIST_JOINT_ENCODER_B = 9;
-
-  public static int kPIDIdx = 0;
-  public static int kPIDTimeoutMillis = 30;
+  public static final int kArmElbowMotor = 6;
+  
+  public static final int kArmWristMotor = 7;
+  public static int kArmWristMotorEncoderA = 8;
+  public static int kArmWristMotorEncoderB = 9;
 
   // names for 
   public static final String kArmShoulderMotorName = "armShoulderMotor";

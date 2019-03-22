@@ -20,7 +20,6 @@ public class CoupledArmProfiler {
 
         return CoupledArmProfiler.generateProfiles(initShoulder, initElbow, initWrist, endShoulder, endElbow, endWrist);
     }
-
     public static Triplet<MotionProfiler> generateProfiles(double initShoulder, double initElbow, double initWrist, double endShoulder, double endElbow, double endWrist) {
         // trapezoidal motion profiling.
         MotionProfiler shoulderMotionProfiler = new MotionProfiler();

@@ -1,51 +1,21 @@
-package frc.robot;
+package frc.robot.util.physics;
 
 import frc.robot.helpers.Pair;
 import frc.robot.motionProfiling.Point;
 
 import java.util.ArrayList;
 
-public class PhysicsWorld {
-    /* all measurements in inches, degrees in radians */
-    private static PhysicsWorld instance;
-    public static PhysicsWorld getInstance() {
-        if (instance == null) instance = new PhysicsWorld();
-        return instance;
-    }
-    double baseX = 100;
+public class ArmKinematics {
+    public Point shoulderJoint = new Point(0,0);
+    public Point elbowJoint = new Point(0,0);
+    public Point wristJoint = new Point(0,0);
+    public Point fingerTip = new Point(0,0);
 
-    double theta1 = 20 / 180 * Math.PI;
-    double theta2 = 70 / 180 * Math.PI;
-
-    Point shoulderJoint = new Point(0,0);
-    Point elbowJoint = new Point(0,0);
-    Point wristJoint = new Point(0,0);
-    Point fingerTip = new Point(0,0);
-
-    private PhysicsWorld() {
-        // initialize moving parts on the arm
-        this.updateWorld(100, this.theta1, this.theta2, false);
-    }
-
-    public void updateWorld() {
-        this.updateWorld(this.baseX, this.theta1 / Math.PI * 180, this.theta1 / Math.PI * 180, true);
-    }
-
-    public void updateWorld(double baseX, double theta1, double theta2, boolean degrees) {
-        if (degrees) {
-            this.theta1 = theta1 / 180 * Math.PI;
-            this.theta2 = theta2 / 180 * Math.PI;
-        }
-        else {
-            this.theta1 = theta1;
-            this.theta2 = theta2;
-        }
-        this.baseX = baseX;
-
+    public void update(double theta1, double theta2, double theta3) {
         //forward kinematics for the arm joints
-        this.shoulderJoint = new Point(this.baseX + PhysicsConstants.baseWidth - PhysicsConstants.backToArm + PhysicsConstants.thickness / 2, PhysicsConstants.baseHeight + PhysicsConstants.armHeight);
-        this.elbowJoint = new Point(this.shoulderJoint.x + PhysicsConstants.upperArm * Math.sin(this.theta1), this.shoulderJoint.y - PhysicsConstants.upperArm * Math.cos(this.theta1));
-        this.wristJoint = new Point(this.elbowJoint.x + PhysicsConstants.lowerArm * Math.sin(this.theta2), this.elbowJoint.y - PhysicsConstants.lowerArm * Math.cos(this.theta2));
+        this.shoulderJoint = new Point( PhysicsConstants.baseLength - PhysicsConstants.backToArm + PhysicsConstants.thickness / 2, PhysicsConstants.baseHeight + PhysicsConstants.armHeight);
+        this.elbowJoint = new Point(this.shoulderJoint.x + PhysicsConstants.upperArm * Math.sin(theta1), this.shoulderJoint.y - PhysicsConstants.upperArm * Math.cos(theta1));
+        this.wristJoint = new Point(this.elbowJoint.x + PhysicsConstants.lowerArm * Math.sin(theta2), this.elbowJoint.y - PhysicsConstants.lowerArm * Math.cos(theta2));
         this.fingerTip = new Point(this.wristJoint.x + PhysicsConstants.hand, this.wristJoint.y);
     }
 
@@ -74,23 +44,23 @@ public class PhysicsWorld {
         double theta2 = Math.PI - Math.asin((-Math.pow(d1, 2) + Math.pow(d2, 2) + delta_l * delta_l + delta_h * delta_h) / (2 * d2 * p)) - alpha;
         //console.log(theta1 + " " + theta2);
         // console.log((this.wristJoint.x - this.shoulderJoint.x) + " " + (this.lowerArm + this.upperArm));
-        return new Pair<Double>(theta1, theta2);
+        return new Pair<>(theta1, theta2);
     }
 
     private boolean isInfinity(double value) {
         return value == Double.POSITIVE_INFINITY || value == Double.NEGATIVE_INFINITY;
     }
 
-    public Point getLengthAndHeight() {
+    public Pair<Double> getLengthAndHeight() {
         double current_l = this.wristJoint.x - this.shoulderJoint.x;
         double current_h = this.shoulderJoint.y - this.wristJoint.y;
-        return new Point(current_l, current_h);
+        return new Pair<>(current_l, current_h);
     }
 
     public Pair<Double> displaceLengthAndHeight(double delta_l, double delta_h) {
-        Point currentDistance = this.getLengthAndHeight();
-        double new_l = currentDistance.x + delta_l;
-        double new_h = currentDistance.y - delta_h;
+        Pair<Double> currentDistance = this.getLengthAndHeight();
+        double new_l = currentDistance.a + delta_l;
+        double new_h = currentDistance.b - delta_h;
 
         return inverseKinematics(new_l, new_h);
     }
@@ -115,9 +85,8 @@ public class PhysicsWorld {
         return this.shoulderJoint.y - this.wristJoint.y;
     }
 
-
     public ArrayList<Pair<Double>> generateTrajectory(double x, double y) {
-        // linear interpolate between 
+        // linear interpolate between
         double new_l = x - this.shoulderJoint.x - PhysicsConstants.hand;
         double new_h = this.shoulderJoint.y - y;
 
@@ -140,5 +109,6 @@ public class PhysicsWorld {
         }
         return profiles;
     }
+
 
 }

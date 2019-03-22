@@ -2,6 +2,8 @@ package frc.robot.sequencing;
 
 import java.util.ArrayList;
 
+import frc.robot.util.Callback;
+
 public class Sequence<T> extends Step<T> {
     private int currentStepIndex = 0;
     StepState state;

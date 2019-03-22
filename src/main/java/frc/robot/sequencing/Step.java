@@ -1,11 +1,14 @@
 package frc.robot.sequencing;
 
 import edu.wpi.first.wpilibj.Timer;
+import frc.robot.util.Callback;
 
 public abstract class Step<T> {
     protected StepState state = StepState.IDLE;
     protected double startTime = 0;
     protected DynamicEndTime totalRunningTime;
+
+    public Callback callback;
 
     public Step(double runningTime) {
         this.totalRunningTime = () -> runningTime;
@@ -21,6 +24,7 @@ public abstract class Step<T> {
 
     public abstract T update(double timeStamp);
     public abstract T getLastUpdate();
+
     public final void start(double timeStamp) {
         if (this.state == StepState.IDLE) {
             this.state = StepState.RUNNING;
@@ -43,6 +47,9 @@ public abstract class Step<T> {
     public final boolean isFinished(double timeStamp) {
         if (this.state == StepState.RUNNING && timeStamp - startTime >= this.totalRunningTime.get()) {
             this.state = StepState.FINISHED;
+            if (this.callback != null) {
+                callback.didFinish();
+            }
         }
         return this.state == StepState.FINISHED;
     }

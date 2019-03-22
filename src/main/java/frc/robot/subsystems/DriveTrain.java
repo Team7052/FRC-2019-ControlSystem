@@ -23,7 +23,6 @@ public class DriveTrain extends Subsystem {
 
   // always get the current instance of the drive train
   public static DriveTrain getInstance() {
-   // System.out.println(instance);
     if (instance == null) {
       instance = new DriveTrain();
     }
@@ -43,17 +42,17 @@ public class DriveTrain extends Subsystem {
 
   // private initializer so you can't initialize more than 1 drive train
   private DriveTrain() {
-    frontLeftMotor = new Spark(RobotMap.frontLeftMotor);
-    backLeftMotor = new Spark(RobotMap.backLeftMotor);
-    frontRightMotor = new Spark(RobotMap.frontRightMotor);
-    backRightMotor = new Spark(RobotMap.backRightMotor);
+    frontLeftMotor = new Spark(RobotMap.kFrontLeftMotor);
+    backLeftMotor = new Spark(RobotMap.kBackLeftMotor);
+    frontRightMotor = new Spark(RobotMap.kFrontRightMotor);
+    backRightMotor = new Spark(RobotMap.kBackRightMotor);
 
     rightSpeedGroup = new SpeedControllerGroup(frontLeftMotor, backLeftMotor);
     leftSpeedGroup = new SpeedControllerGroup(frontRightMotor, backRightMotor);
     rightSpeedGroup.setInverted(true);
 
-    leftEncoder = new Encoder(2, 3, false, EncodingType.k4X);
-    rightEncoder = new Encoder(0, 1, true, EncodingType.k4X);
+    leftEncoder = new Encoder(2, 3, false, EncodingType.k1X);
+    rightEncoder = new Encoder(0, 1, true, EncodingType.k1X);
   }
 
   @Override
@@ -62,14 +61,12 @@ public class DriveTrain extends Subsystem {
     // define the Trigger drive here
   }
 
-  /* public methods callable by commands */
   public void setLeftGroupSpeed(double speed) {
     leftSpeedGroup.set(speed);
   }
   public void setRightGroupSpeed(double speed) {
     rightSpeedGroup.set(speed);
   }
-
   public double getLeftSpeed() {
     return leftSpeedGroup.get();
   }
@@ -77,10 +74,17 @@ public class DriveTrain extends Subsystem {
     return rightSpeedGroup.get();
   }
 
-  public Encoder getLeftEncoder() {
-    return this.leftEncoder;
+  public int getLeftDisplacement() {
+    return this.leftEncoder.get();
   } 
-  public Encoder getRightEncoder() {
-    return this.rightEncoder;
+  public int getRightDisplacement() {
+    return this.rightEncoder.get();
+  }
+
+  public double getLeftVelocity() {
+    return this.leftEncoder.getRate();
+  }
+  public double getRightVelocity() {
+    return this.rightEncoder.getRate();
   }
 }

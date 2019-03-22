@@ -48,7 +48,7 @@ public class DriveTenM extends Command {
     @Override
     protected void execute() {
         super.execute();
-        Encoder leftEncoder = driveTrain.getLeftEncoder();
+        /*Encoder leftEncoder = driveTrain.getLeftEncoder();
         Encoder rightEncoder = driveTrain.getRightEncoder();
         if(motionProfiler.getState() == StepState.IDLE){
           leftEncoder.reset();
@@ -103,7 +103,7 @@ public class DriveTenM extends Command {
           driveTrain.setRightGroupSpeed(rightSpeed);
         }
         
-
+*/
 
     }
 

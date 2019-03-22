@@ -16,17 +16,13 @@ import edu.wpi.first.wpilibj.Timer;
 import frc.robot.RobotMap;
 import frc.robot.motionProfiling.MotionProfiler;
 import frc.robot.motionProfiling.Point;
-import frc.robot.helpers.RotationMotor;
-import frc.robot.helpers.WristMotor;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.ArmSubsystem.Motor;
 import frc.robot.commands.arm.CommandDelegate;
 
-public class Network implements Runnable, CommandDelegate {    
+public class Network implements CommandDelegate {    
     // new thread for output data
-    Thread t;
-    ScheduledExecutorService timer;
 
     private static Network instance;
     private NetworkTableInstance networkInstance;
@@ -38,10 +34,6 @@ public class Network implements Runnable, CommandDelegate {
 
     private Network() {
         networkInstance = NetworkTableInstance.getDefault();
-        t = new Thread(this, "network-thread");
-        timer = Executors.newSingleThreadScheduledExecutor();
-        timer.scheduleAtFixedRate(this, 0, 20, TimeUnit.MILLISECONDS);
-        t.start();
     }
 
     public NetworkTable getTable(TableType type) {
@@ -60,11 +52,6 @@ public class Network implements Runnable, CommandDelegate {
             else if (RobotState.isAutonomous()) entry.setString("auto");
             else if (RobotState.isTest()) entry.setString("test");
         }
-    }
-
-    @Override
-    public void run() {
-        this.sendDataToServer();
     }
 
     Map<String, MotionProfiler> motionProfilesStarted = new HashMap<>();
@@ -138,7 +125,7 @@ public class Network implements Runnable, CommandDelegate {
         double rawVelocity = arm.getRawVelocity(motor);
         double degreesVelocity = arm.getVelocityDegrees(motor);
         boolean inPhase = arm.getPhase(motor);
-        boolean isInverted = arm.isInverted(motor);
+        boolean isInverted = arm.getInverted(motor);
         
         NetworkTable motorSubtable = this.getTable(TableType.kMotorData).getSubTable(name);
         Setter.setDouble(motorSubtable.getEntry("voltage"), voltage);

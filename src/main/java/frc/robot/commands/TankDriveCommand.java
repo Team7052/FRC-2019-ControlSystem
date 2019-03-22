@@ -3,35 +3,24 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.Encoder;
 
-import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.Robot;
+import frc.robot.states.ClimberSuperState;
+import frc.robot.states.substates.ClimberState;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.DriveTrain;
 
-
-public class TankDriveCommand extends Command {
+public class TankDriveCommand {
     // declare subsystem variable
 	DriveTrain driveTrain;
 	double deadBand = 0.1;
-	double kp = 0.00001;
+	double kp = 0;//0.00001;
     
     public TankDriveCommand() {
-        super("Tank Drive Command");
         // get drive train subsystem instance
 		driveTrain = DriveTrain.getInstance();
-        
-        //required for each command to know which subsystems it will be using
-		requires(driveTrain);
-    }
-
-    @Override
-    protected void initialize() {
-        super.initialize();
 	}
-
-    @Override
-    protected void execute() {
-		super.execute();
-
+	
+    public void execute() {
 		// your code goes here:
 		double v = Robot.oi.axisTrigger_R2();
 		double w = Robot.oi.axisTrigger_L2();
@@ -43,10 +32,8 @@ public class TankDriveCommand extends Command {
 		double rightTarget = 0;
 		double difference = 0;
 		double theta = 0;
-		Encoder leftEncoder = driveTrain.getLeftEncoder();
-		Encoder rightEncoder = driveTrain.getRightEncoder();
-		//System.out.println("Left: "+leftEncoder.get());
-		//System.out.println("Right: "+rightEncoder.get());
+		//Encoder leftEncoder = driveTrain.getLeftEncoder();
+		//Encoder rightEncoder = driveTrain.getRightEncoder();
 
 		double multiplier = 0.4;
 
@@ -59,7 +46,7 @@ public class TankDriveCommand extends Command {
 		else {
 			theta = 0;
 		}
-		double ratio = Math.cos(theta);
+		double ratio = Math.cos(theta);	
 		if (y == 0) ratio = -ratio;
 
 		if (x >= 0) {
@@ -76,41 +63,25 @@ public class TankDriveCommand extends Command {
 			rightSpeed = leftSpeed * ratio;
 		}
 
-		leftTarget = leftEncoder.getRate();
-		rightTarget = leftTarget*ratio;
-		difference = -rightTarget + rightEncoder.getRate();
-		if (Math.abs(y) > 0.2) rightSpeed += difference * kp;
-		driveTrain.setLeftGroupSpeed(leftSpeed * multiplier);
-		driveTrain.setRightGroupSpeed(rightSpeed * multiplier);
-    }
-
-    public double bufferSpeedLeft(double currentSpeedLeft, double desiredSpeedLeft){
-		double speedIncrement=desiredSpeedLeft;
-		double threshold = 0.08;
-		if(Math.abs(desiredSpeedLeft-currentSpeedLeft)>threshold){
-			if(desiredSpeedLeft>currentSpeedLeft){
-				speedIncrement=currentSpeedLeft+threshold;
+		//leftTarget = leftEncoder.getRate();
+		//rightTarget = leftTarget*ratio;
+		//difference = -rightTarget + rightEncoder.getRate();
+		if (ClimberSuperState.getInstance().getState() == ClimberState.safelyStowed) {
+			if (Math.abs(y) > 0.2) rightSpeed += difference * kp;
+			driveTrain.setLeftGroupSpeed(leftSpeed * multiplier);
+			driveTrain.setRightGroupSpeed(rightSpeed * multiplier);
+		}
+		else {
+			if (y > 0.2) {
+				Climber.getInstance().driveWheelsForward();
 			}
-			if(desiredSpeedLeft<currentSpeedLeft){
-				speedIncrement=currentSpeedLeft-threshold;
+			if (y < -0.2) {
+				Climber.getInstance().driveWheelsBackward();
+			}
+			else {
+				Climber.getInstance().driveWheelsStop();
 			}
 		}
-		if(Math.abs(desiredSpeedLeft-currentSpeedLeft)<0.1){
-			speedIncrement=desiredSpeedLeft;
-		}
-
-        return speedIncrement;
+		
     }
-    @Override
-    protected boolean isFinished() {
-        return false;
-    }
-
-	public void pickup_hatch() {
-
-	}
-	public void place_hatch() {
-
-	}
-	
 }

@@ -2,8 +2,6 @@ package frc.robot.motionProfiling;
 
 import java.util.ArrayList;
 
-import edu.wpi.first.wpilibj.Timer;
-import frc.robot.helpers.Triplet;
 import frc.robot.sequencing.Step;
 import frc.robot.sequencing.StepState;
 
@@ -79,15 +77,22 @@ public class MotionProfiler extends Step<MotionTriplet> {
         velocityFunction = points;
         accelerationFunction = FunctionGenerator.getDerivative(points);
         positionFunction = this.pointsWithInitialDisplacement(FunctionGenerator.getIntegral(points), initialDisplacement);
+        this.totalRunningTime = () -> {
+            if (velocityFunction.size() == 0) return 0.0;
+            return velocityFunction.get(velocityFunction.size() - 1).x;
+        };
     }
     public void setPositionPoints(ArrayList<Point> points) {
         this.setPositionPoints(points, 0);
-
     }
     public void setPositionPoints(ArrayList<Point> points, double initialDisplacement) {
         positionFunction = this.pointsWithInitialDisplacement(points, initialDisplacement);
         velocityFunction = FunctionGenerator.getDerivative(points);
         accelerationFunction = FunctionGenerator.getDerivative(velocityFunction);
+        this.totalRunningTime = () -> {
+            if (velocityFunction.size() == 0) return 0.0;
+            return velocityFunction.get(velocityFunction.size() - 1).x;
+        };
     }
 
     public void setAccelerationFunctionPoints(ArrayList<Point> points) {
@@ -97,6 +102,10 @@ public class MotionProfiler extends Step<MotionTriplet> {
         accelerationFunction = points;
         velocityFunction = FunctionGenerator.getIntegral(points);
         positionFunction = this.pointsWithInitialDisplacement(FunctionGenerator.getIntegral(velocityFunction), initialDisplacement);
+        this.totalRunningTime = () -> {
+            if (velocityFunction.size() == 0) return 0.0;
+            return velocityFunction.get(velocityFunction.size() - 1).x;
+        };
     }
 
     public double getFinalPosition() {

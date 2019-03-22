@@ -1,6 +1,5 @@
 package frc.robot.tests.calibration;
 
-import frc.robot.helpers.RotationMotor;
 import frc.robot.networking.Network;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ArmSubsystem.Motor;

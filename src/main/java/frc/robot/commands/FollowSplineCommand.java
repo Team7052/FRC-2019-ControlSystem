@@ -3,7 +3,6 @@ package frc.robot.commands;
 import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.subsystems.DriveTrain;
 import frc.auto.Spline;
@@ -42,7 +41,7 @@ public class FollowSplineCommand extends Command {
     protected void execute() {
         super.execute();
 
-        Encoder leftEncoder = driveTrain.getLeftEncoder();
+       /* Encoder leftEncoder = driveTrain.getLeftEncoder();
         Encoder rightEncoder = driveTrain.getRightEncoder();
 
         double kp = 0; //needs to be tuned
@@ -57,7 +56,7 @@ public class FollowSplineCommand extends Command {
 
         System.out.println( Math.round((leftSpeed) * 100.0) / 100.0 + " " + Math.round((rightSpeed) * 100.0) / 100.0);
   	    driveTrain.setLeftGroupSpeed(leftSpeed);
-		driveTrain.setRightGroupSpeed(rightSpeed);
+		driveTrain.setRightGroupSpeed(rightSpeed);*/
     }
 
     @Override
