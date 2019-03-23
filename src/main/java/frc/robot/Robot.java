@@ -9,7 +9,6 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import frc.joysticks.*;
-import frc.robot.subsystems.Climber;
 import frc.robot.util.loops.Looper;
 
 

@@ -7,7 +7,6 @@ import frc.robot.helpers.Triplet;
 import frc.robot.motionProfiling.MotionProfiler;
 import frc.robot.motionProfiling.MotionTriplet;
 import frc.robot.sequencing.Sequence;
-import frc.robot.states.ArmSuperState;
 
 public class ArmSequences {
     public static final double shoulderMaxVelocity = Math.PI * 2 / 5;
@@ -35,12 +34,18 @@ public class ArmSequences {
     public static Triplet<Sequence<MotionTriplet>> raiseArmSequence() {
         // get current displacements
         Pair<Double> currentDisplacements = PhysicsWorld.getInstance().solveArmKinematics();
-        return toSequence(setDistances(currentDisplacements.a, currentDisplacements.b + 2, radians(180)));
+        double normalized_l = currentDisplacements.a - PhysicsConstants.backToArm - PhysicsConstants.thickness / 2 + PhysicsConstants.hand;
+        double normalized_h = PhysicsConstants.armHeight + PhysicsConstants.baseHeight - currentDisplacements.b;
+        System.out.println("Raise the arm");
+        return toSequence(setDistances(normalized_l, normalized_h + 3, radians(180)));
     }
     public static Triplet<Sequence<MotionTriplet>> lowerArmSequence() {
         // get current displacements
         Pair<Double> currentDisplacements = PhysicsWorld.getInstance().solveArmKinematics();
-        return toSequence(setDistances(currentDisplacements.a, currentDisplacements.b - 2, radians(180)));
+        double normalized_l = currentDisplacements.a - PhysicsConstants.backToArm - PhysicsConstants.thickness / 2 + PhysicsConstants.hand;
+        double normalized_h = PhysicsConstants.armHeight + PhysicsConstants.baseHeight - currentDisplacements.b;
+        System.out.println("Lower the arm");
+        return toSequence(setDistances(normalized_l, normalized_h - 2, radians(180)));
     }
     public static Triplet<Sequence<MotionTriplet>> intakeCargoSequence() {
         return toSequence(CoupledArmProfiler.generateProfiles(radians(40),  radians(160), radians(270)));
@@ -52,7 +57,7 @@ public class ArmSequences {
         return toSequence(CoupledArmProfiler.generateProfiles(radians(60), radians(70), radians(270)));
     }
     private static Triplet<MotionProfiler> setDistances(double l, double h, double wristRadians) {
-        Pair<Double> angles = PhysicsWorld.getInstance().armInverseKinematics(l + PhysicsConstants.backToArm + PhysicsConstants.thickness - PhysicsConstants.hand, PhysicsConstants.armHeight + PhysicsConstants.baseHeight - h);
+        Pair<Double> angles = PhysicsWorld.getInstance().armInverseKinematics(l + PhysicsConstants.backToArm + PhysicsConstants.thickness / 2 - PhysicsConstants.hand, PhysicsConstants.armHeight + PhysicsConstants.baseHeight - h);
         return CoupledArmProfiler.generateProfiles(angles.a, angles.b, wristRadians);
     }
 

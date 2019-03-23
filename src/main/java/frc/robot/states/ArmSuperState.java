@@ -66,6 +66,9 @@ public class ArmSuperState extends SuperState<ArmState> {
         else if (this.armMotionState == MotionState.followingMotionProfiles) {
             if (shoulderMotionState == MotionState.finishedMotion && elbowMotionState == MotionState.finishedMotion && wristMotionState == MotionState.finishedMotion) {
                 this.setMotionStates(MotionState.finishedMotion);
+                if (this.systemState == ArmState.lowerArm || this.systemState == ArmState.raiseArm) {
+                    this.systemState = ArmState.adjustingPosition;
+                }
             }
         }
     }
@@ -96,8 +99,11 @@ public class ArmSuperState extends SuperState<ArmState> {
             case midRocketCargo:
                 return ArmSequences.midRocketCargoSequence();
             case raiseArm:
+                System.out.println(this.armMotionState + " " + this.systemState);
+                if (this.systemState == ArmState.home && (this.armMotionState == MotionState.waitingForMotion || this.armMotionState == MotionState.finishedMotion)) return null;
                 return ArmSequences.raiseArmSequence();
             case lowerArm:
+                if (this.systemState == ArmState.home && this.armMotionState != MotionState.waitingForMotion) return null;
                 return ArmSequences.lowerArmSequence();
             default:
                 return null;

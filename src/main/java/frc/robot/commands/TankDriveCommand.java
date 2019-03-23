@@ -72,6 +72,7 @@ public class TankDriveCommand {
 			driveTrain.setRightGroupSpeed(rightSpeed * multiplier);
 		}
 		else {
+			System.out.println(ClimberSuperState.getInstance().getState());
 			if (y > 0.2) {
 				Climber.getInstance().driveWheelsForward();
 			}
