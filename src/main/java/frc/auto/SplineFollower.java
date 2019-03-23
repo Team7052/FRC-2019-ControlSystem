@@ -22,6 +22,7 @@ public class SplineFollower {
     double turnConst1 = 2;
     double turnConst2 = 300;
     double wheelSpinConst = 3;
+    double beginningTurnConst = 1.8;
 
     public SplineFollower(Spline spline, double desiredTime) {
         this.desiredTime = desiredTime;
@@ -40,8 +41,11 @@ public class SplineFollower {
         if (state == MotionProfileState.IDLE) {
             state = MotionProfileState.RUNNING;
             splineStartTime = Timer.getFPGATimestamp();
+            this.prevTime = splineStartTime;
         }
     }
+
+    double prevTime = 0;
 
     public Pair<Double> updateSplinePosition() {
         if (state == MotionProfileState.RUNNING) {
@@ -69,30 +73,31 @@ public class SplineFollower {
                 double y = spline.getCubicSpline().get(1).y;
                 double theta = Math.atan(Math.abs(x/y));
                 double numRotations = (theta*radiusBase)/(2*Math.PI*radiusWheel);
-                double fraction = 0.1 /numRotations; // turn a lot -> small, turn a bit -> large
+                double fraction = beginningTurnConst *numRotations; // turn a lot -> small, turn a bit -> large
 
                 double currentTime = Timer.getFPGATimestamp();
                 double percentage = (currentTime - splineStartTime) / fraction;
+                System.out.println("time: " + fraction + " " + percentage + " " + (currentTime - prevTime));
+
                 if (percentage >= 1.00) {
                     this.updateSplineState(SplineFollowerState.FOLLOWING_SPLINE);
                 } else {
                     if(percentage>0.5){
                         percentage = 1- percentage;
                     }
-                    percentage = percentage*0.8;
                     if(y>0){
                         if(x>0){
                             //left positive right negative
-                            System.out.println("Turning left");
+                            System.out.println("Turning right");
                             return new Pair<>(percentage, -percentage);
                         } else {
                             //right positive left negative
-                            System.out.println("Turning right");
+                            System.out.println("Turning left");
                             return new Pair<>(-percentage, percentage);
-
                         }
                     }
                 }
+                this.prevTime = currentTime;
             }
         }
         return null;
