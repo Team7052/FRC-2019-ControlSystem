@@ -233,7 +233,6 @@ public class SplineFollower {
             //  System.out.println("Alpha: " + alpha);
             double turn = Math.pow(turnConst1, turnConst2 * (Math.PI - alpha));
             
-
             //System.out.println("ka: " + ka);
             if (concaveUp) {
                 rightSlope = baseSpeed * turn;

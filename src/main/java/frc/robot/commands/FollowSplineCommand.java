@@ -42,9 +42,6 @@ public class FollowSplineCommand extends Command {
     protected void execute() {
         super.execute();
 
-        Encoder leftEncoder = driveTrain.getLeftEncoder();
-        Encoder rightEncoder = driveTrain.getRightEncoder();
-
         double kp = 0; //needs to be tuned
         double leftDifference = 0;
         double rightDifference = 0;
