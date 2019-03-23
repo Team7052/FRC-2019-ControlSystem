@@ -1,8 +1,6 @@
 package frc.robot.commands;
 
 
-import edu.wpi.first.wpilibj.Encoder;
-
 import frc.robot.Robot;
 import frc.robot.states.ClimberSuperState;
 import frc.robot.states.substates.ClimberState;
@@ -72,15 +70,15 @@ public class TankDriveCommand {
 			driveTrain.setRightGroupSpeed(rightSpeed * multiplier);
 		}
 		else {
-			System.out.println(ClimberSuperState.getInstance().getState());
-			if (y > 0.2) {
-				Climber.getInstance().driveWheelsForward();
-			}
 			if (y < -0.2) {
-				Climber.getInstance().driveWheelsBackward();
+				Climber.getInstance().driveWheelsForward();
+				driveTrain.setLeftGroupSpeed(-0.2);
+				driveTrain.setRightGroupSpeed(-0.2);
 			}
 			else {
 				Climber.getInstance().driveWheelsStop();
+				driveTrain.setLeftGroupSpeed(-0.0);
+				driveTrain.setRightGroupSpeed(-0.0);
 			}
 		}
 		

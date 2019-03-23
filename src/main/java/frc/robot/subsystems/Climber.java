@@ -30,7 +30,7 @@ public class Climber extends Subsystem {
         clawMotor.configPeakOutputReverse(-0.9, clawMotor.slotIdx);
         clawMotor.setInvertedPosition(true);
         clawMotor.setHomeDegrees(180);
-        clawMotor.setDegreesLimits(75, 190);
+        clawMotor.setDegreesLimits(60, 190);
 
         clawMotor.set_kp(0.015);
         clawMotor.set_ki(0.0);
@@ -38,8 +38,8 @@ public class Climber extends Subsystem {
         this.legMotor = new LinearTalonSRX(12, 0.55 * 2 * Math.PI);
         legMotor.configNominalOutputForward(0, legMotor.slotIdx);
         legMotor.configNominalOutputReverse(0, legMotor.slotIdx);
-        legMotor.configPeakOutputForward(0.7, legMotor.slotIdx);
-        legMotor.configPeakOutputReverse(-0.7, legMotor.slotIdx);
+        legMotor.configPeakOutputForward(1.0, legMotor.slotIdx);
+        legMotor.configPeakOutputReverse(-1.0, legMotor.slotIdx);
         legMotor.setSensorPhase(true);
         this.legMotor.setHomeLinearPosition(-PhysicsConstants.climberLegMaxWheelsGroundOffset);
         this.legMotor.setDisplacementLimits(-PhysicsConstants.climberLegMaxWheelsGroundOffset, 19.5);
@@ -71,7 +71,7 @@ public class Climber extends Subsystem {
 
 
     public void driveWheelsForward() {
-        this.driveMotor.set(ControlMode.PercentOutput, 0.2);
+        this.driveMotor.set(ControlMode.PercentOutput, 0.5);
     }
 
     public void driveWheelsBackward() {

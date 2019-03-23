@@ -95,11 +95,11 @@ class HabClimbSequences {
     public static Pair<Sequence<MotionTriplet>> hab2ClimbSequence() {
         double initClaw = climber.getClaw().getDegrees() / 180.0 * Math.PI;
         double initRack = climber.getLeg().getLinearPosition();
-        double midClaw = PhysicsWorld.getInstance().solveClimberClawAngleForHeight(0, 5.75);
+        double midClaw = PhysicsWorld.getInstance().solveClimberClawAngleForHeight(0,6.125);
         double midRack = 0;
 
         double endClaw = 90 / 180 * Math.PI;
-        double endRack = 5.75 + midRack;
+        double endRack = 6.125 + midRack;
 
         Pair<MotionProfiler> step1 = CoupledLiftProfiler.generateProfiles(initClaw, midClaw, initRack, midRack);
         Pair<MotionProfiler> step2 = CoupledLiftProfiler.getHabClimbProfiles(midClaw, endClaw, midRack, endRack);
@@ -118,11 +118,11 @@ class HabClimbSequences {
     public static Pair<Sequence<MotionTriplet>> hab3ClimbSequence() {
         double initClaw = climber.getClaw().getDegrees() / 180.0 * Math.PI;
         double initRack = climber.getLeg().getLinearPosition();
-        double midClaw = PhysicsWorld.getInstance().solveClimberClawAngleForHeight(0, 19);
+        double midClaw = PhysicsWorld.getInstance().solveClimberClawAngleForHeight(0, 19.125);
         double midRack = 0;
 
         double endClaw = 90 / 180 * Math.PI;
-        double endRack = 19 + midRack;
+        double endRack = 19.125 + midRack;
 
         Pair<MotionProfiler> step1 = CoupledLiftProfiler.generateProfiles(initClaw, midClaw, initRack, midRack);
         Pair<MotionProfiler> step2 = CoupledLiftProfiler.getHabClimbProfiles(midClaw, endClaw, midRack, endRack);

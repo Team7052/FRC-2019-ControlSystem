@@ -18,10 +18,18 @@ public class JointController implements ArmSuperStateDelegate {
         jointSequence = new Sequence<>();
     }
 
+    double prev = 0;
+
     public void execute() {
+        if (prev == 0) prev = Timer.getFPGATimestamp();
         double timestamp = Timer.getFPGATimestamp();
+        if (!jointSequence.hasBegan()) {
+            System.out.println(timestamp - prev);
+        }
         if (!jointSequence.hasBegan()) jointSequence.start(timestamp);
         MotionTriplet triplet = jointSequence.update(timestamp);
+
+        
 
         if (jointSequence.isRunning() && triplet != null) {
             // a = position
@@ -35,7 +43,7 @@ public class JointController implements ArmSuperStateDelegate {
                 arm.setDegrees(motor, position / Math.PI * 180);
             }
         }
-        
+        prev = timestamp;
     }
 
     @Override

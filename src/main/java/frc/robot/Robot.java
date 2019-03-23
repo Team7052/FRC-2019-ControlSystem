@@ -40,7 +40,8 @@ public class Robot extends TimedRobot {
     mlooper.register(loopsManager.stateManagerLoop);
 
     Point[] path = {
-      new Point (0, 0), new Point (27,56.5), new Point (45, 81.5), new Point (60, 89.5)
+      //new Point (0, 0), new Point (27,56.5), new Point (45, 81.5), new Point (60, 89.5)
+      new Point(0,0), new Point(10,10)
     };
     autoCommand = new FollowSplineCommand(new ArrayList<>(Arrays.asList(path)), 5.0);
 
