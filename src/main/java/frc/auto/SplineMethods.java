@@ -51,7 +51,7 @@ public class SplineMethods {
         int g = 0;
 
         //System.out.println("Desired Point: (" + xs[i] + ", " + ys[i] + ")");
-        for (double j = goalPoint.x + 0.001; j <= xs[i + 1]/2; j = j + 0.001) {
+        for (double j = goalPoint.x + 0.001; j <= xs[i + 1]/2; j = j + 0.01) {
 
             double t = SplineMethods.calct(xs, i, j);
             double part1 = 2 * Math.pow(t, 3) - 3 * Math.pow(t, 2) + 1;

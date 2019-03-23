@@ -18,11 +18,11 @@ public class SplineFollower {
 
     private final double radiusBase = 11.5;
     private final double radiusWheel = 3;
-    double baseSpeed = 0.35;
+    double baseSpeed = 0.36;
     double turnConst1 = 2;
-    double turnConst2 = 300;
+    double turnConst2 = 110;
     double wheelSpinConst = 3;
-    double beginningTurnConst = 1.8;
+    double beginningTurnConst = 2.00;
 
     public SplineFollower(Spline spline, double desiredTime) {
         this.desiredTime = desiredTime;
@@ -82,18 +82,18 @@ public class SplineFollower {
                 if (percentage >= 1.00) {
                     this.updateSplineState(SplineFollowerState.FOLLOWING_SPLINE);
                 } else {
-                    if(percentage>0.5){
+                   /* if(percentage>0.5){
                         percentage = 1- percentage;
-                    }
+                    } */
                     if(y>0){
                         if(x>0){
                             //left positive right negative
                             System.out.println("Turning right");
-                            return new Pair<>(percentage, -percentage);
+                            return new Pair<>(0.3, -0.3);
                         } else {
                             //right positive left negative
                             System.out.println("Turning left");
-                            return new Pair<>(-percentage, percentage);
+                            return new Pair<>(-0.3, 0.3);
                         }
                     }
                 }

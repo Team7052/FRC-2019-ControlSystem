@@ -41,8 +41,9 @@ public class Robot extends TimedRobot {
 
     Point[] path = {
       new Point (0, 0), new Point (27,56.5), new Point (45, 81.5), new Point (60, 89.5)
+      //new Point (0,0), new Point (27,56.5)
     };
-    autoCommand = new FollowSplineCommand(new ArrayList<>(Arrays.asList(path)), 5.0);
+    autoCommand = new FollowSplineCommand(new ArrayList<>(Arrays.asList(path)), 3.5);
 
     autoLooper.register(new Loop(){
       @Override
@@ -55,7 +56,6 @@ public class Robot extends TimedRobot {
         autoCommand.execute();
       }
     });
-    mlooper.start();
   }
   @Override
   public void robotPeriodic() {
@@ -82,6 +82,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
+    mlooper.start();
   }
 
   @Override
