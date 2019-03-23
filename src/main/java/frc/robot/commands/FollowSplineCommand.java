@@ -11,7 +11,7 @@ import frc.auto.SplineFollower;
 import frc.robot.helpers.Pair;
 import frc.robot.motionProfiling.Point;
 
-public class FollowSplineCommand extends Command {
+public class FollowSplineCommand {
     double time = 0;
     // declare subsystem variable
     DriveTrain driveTrain;
@@ -21,27 +21,20 @@ public class FollowSplineCommand extends Command {
     public ArrayList<Point> splinePath;
     
     public FollowSplineCommand(ArrayList<Point> splinePath, double totalTime) {
-        super("Follow Spline Command");
         this.splinePath = splinePath;
         // get drive train subsystem instance
         driveTrain = DriveTrain.getInstance();
         
         //required for each command to know which subsystems it will be using
-        requires(driveTrain);
         //Add (x, y) displacement points
         spline = new Spline(splinePath);
         splineFollower = new SplineFollower(spline, totalTime);
     }
 
-    @Override
-    protected void initialize() {
-        super.initialize();
+    public void initialize() {
     }
 
-    @Override
-    protected void execute() {
-        super.execute();
-
+    public void execute() {
         double kp = 0; //needs to be tuned
         double leftDifference = 0;
         double rightDifference = 0;
@@ -57,8 +50,7 @@ public class FollowSplineCommand extends Command {
         driveTrain.setRightGroupSpeed(rightSpeed);
     }
 
-    @Override
-    protected boolean isFinished() {
+    public boolean isFinished() {
         return splineFollower.isFinished();
     }
 }
