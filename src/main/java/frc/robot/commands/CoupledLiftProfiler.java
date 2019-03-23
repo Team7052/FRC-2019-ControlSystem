@@ -10,7 +10,7 @@ import frc.robot.util.physics.PhysicsWorld;
 public class CoupledLiftProfiler {
     public static double clawMaxVelocity = Math.PI / 3;
     public static double clawMaxAcceleration = Math.PI / 2;
-    public static double rackMaxVelocity = 1.5; // inches / s
+    public static double rackMaxVelocity = 2.5; // inches / s
     public static double rackMaxAcceleration = 1.5; // inches / s^2
     public static Pair<MotionProfiler> generateProfiles(double initClaw, double endClaw, double initRack, double endRack) {
         // define geometric variables
@@ -39,10 +39,13 @@ public class CoupledLiftProfiler {
             System.out.println("Solve with fixed rack heights");
             rackProfile.setVelocityPoints(MotionProfiler.getLinearInterpolation(rackShape, 0.01), initRack);
             ArrayList<Point> clawPoints = new ArrayList<>();
+            double give = 15.0 / 180.0 * Math.PI;
+            double totalTime = MotionProfiler.totalTimeOfProfile(rackProfile.getPositionFunction());
             for (Point position: rackProfile.getPositionFunction()) {
                 double angle = PhysicsWorld.getInstance().solveClimberClawAngleForHeight(position.y, endRack);
-                clawPoints.add(new Point(position.x, angle));
+                clawPoints.add(new Point(position.x, angle - give * position.x / totalTime));
             }
+
             clawProfile.setPositionPoints(clawPoints);
         }
         else {
