@@ -2,21 +2,21 @@ package frc.robot.commands;
 
 import java.util.ArrayList;
 
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.subsystems.DriveTrain;
 import frc.auto.Spline;
 import frc.auto.SplineFollower;
+import frc.auto.TurnToAngleStep;
 import frc.robot.helpers.Pair;
 import frc.robot.motionProfiling.Point;
+import frc.robot.sequencing.Sequence;
 
 public class FollowSplineCommand {
     double time = 0;
     // declare subsystem variable
     DriveTrain driveTrain;
-    Spline spline;
-    SplineFollower splineFollower;
+
+    Sequence<Pair<Double>> driveTrainSequence;
 
     public ArrayList<Point> splinePath;
     
@@ -27,30 +27,28 @@ public class FollowSplineCommand {
         
         //required for each command to know which subsystems it will be using
         //Add (x, y) displacement points
-        spline = new Spline(splinePath);
-        splineFollower = new SplineFollower(spline, totalTime);
-    }
+        Spline spline = new Spline(splinePath);
+        // turn to angle step
+        TurnToAngleStep angleTurner = new TurnToAngleStep(spline.getInitialTurnAngle(), false);
+        SplineFollower splineFollower = new SplineFollower(spline, totalTime);
 
-    public void initialize() {
+        driveTrainSequence = new Sequence<>();
+        driveTrainSequence.addStep(angleTurner);
+        driveTrainSequence.addStep(splineFollower);
     }
 
     public void execute() {
         double kp = 0; //needs to be tuned
         double leftDifference = 0;
         double rightDifference = 0;
-        splineFollower.startFollowingSpline();
-        Pair<Double> velocities = splineFollower.updateSplinePosition();
+        driveTrainSequence.start(Timer.getFPGATimestamp());
+        Pair<Double> velocities = driveTrainSequence.update(Timer.getFPGATimestamp());
         if (velocities == null) velocities = new Pair<Double>(0.0, 0.0);
 
         double leftSpeed = (velocities.a) + (leftDifference * kp);
         double rightSpeed = (velocities.b) + (rightDifference * kp);
 
-        System.out.println( Math.round((leftSpeed) * 100.0) / 100.0 + " " + Math.round((rightSpeed) * 100.0) / 100.0);
   	    driveTrain.setLeftGroupSpeed(leftSpeed);
         driveTrain.setRightGroupSpeed(rightSpeed);
-    }
-
-    public boolean isFinished() {
-        return splineFollower.isFinished();
     }
 }

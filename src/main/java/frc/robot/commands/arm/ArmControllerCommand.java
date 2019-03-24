@@ -1,6 +1,5 @@
 package frc.robot.commands.arm;
 
-import frc.robot.states.ArmSuperState;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ArmSubsystem.Motor;
 
@@ -16,9 +15,9 @@ public class ArmControllerCommand{
         elbowController = new JointController(Motor.ELBOW_JOINT);
         wristController = new JointController(Motor.WRIST_JOINT);
 
-        ArmSuperState.getInstance().addShoulderDelegate(shoulderController);
-        ArmSuperState.getInstance().addElbowDelegate(elbowController);
-        ArmSuperState.getInstance().addWristDelegate(wristController);
+        arm.getSuperState().addShoulderDelegate(shoulderController);
+        arm.getSuperState().addElbowDelegate(elbowController);
+        arm.getSuperState().addWristDelegate(wristController);
     }
 
     protected boolean isFinished() {

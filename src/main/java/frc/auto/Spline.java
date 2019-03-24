@@ -16,6 +16,15 @@ public class Spline {
     public ArrayList<Point> getInitialPath() {
         return this.path;
     }
+
+    public double getInitialTurnAngle() {
+        if (this.path.size() < 2) return 0;
+        Point initPoint = this.path.get(0);
+        Point secondPoint = this.path.get(1);
+        double theta = Math.atan(Math.abs((secondPoint.y - initPoint.y) / (secondPoint.x - initPoint.x)));
+        if (secondPoint.x - initPoint.x < 0) theta += Math.PI;
+        return theta;
+    }
     
     public ArrayList<Point> getCubicSpline() {
         return this.cubicSpline;

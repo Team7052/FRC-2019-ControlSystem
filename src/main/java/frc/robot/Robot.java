@@ -11,9 +11,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import frc.joysticks.*;
 import frc.robot.commands.FollowSplineCommand;
 import frc.robot.motionProfiling.Point;
+import frc.robot.states.ArmSuperState;
+import frc.robot.states.substates.ArmState;
 import frc.robot.util.loops.Loop;
 import frc.robot.util.loops.Looper;
 
@@ -22,22 +25,26 @@ public class Robot extends TimedRobot {
 
   public static OI oi;
 
-  Looper mlooper;
+  Looper globalLooper;
+  Looper teleopLooper;
   Looper autoLooper;
   LoopsManager loopsManager;
   FollowSplineCommand autoCommand;
   @Override
   public void robotInit() {
     // change Logitech to newly extended class
-    mlooper = new Looper();
-    oi = new Logitech(0);
-    loopsManager = new LoopsManager();
+    teleopLooper = new Looper();
     autoLooper = new Looper();
+    globalLooper = new Looper();
+    oi = new Logitech(0);
+
+    loopsManager = new LoopsManager();
     
-    mlooper.register(loopsManager.hardwareLoop);
-    mlooper.register(loopsManager.networkLoop);
-    mlooper.register(loopsManager.physicsWorldLoop);
-    mlooper.register(loopsManager.stateManagerLoop);
+    teleopLooper.register(loopsManager.hardwareLoop);
+    teleopLooper.register(loopsManager.stateManagerLoop);
+
+    globalLooper.register(loopsManager.networkLoop);
+    globalLooper.register(loopsManager.physicsWorldLoop);
 
     Point[] path = {
       new Point (0, 0), new Point (27,56.5), new Point (45, 81.5), new Point (60, 89.5)
@@ -45,17 +52,9 @@ public class Robot extends TimedRobot {
     };
     autoCommand = new FollowSplineCommand(new ArrayList<>(Arrays.asList(path)), 3.5);
 
-    autoLooper.register(new Loop(){
-      @Override
-      public void onStart() {
-        
-      }
-      @Override
-      public void onUpdate() {
-        System.out.println("Update");
-        autoCommand.execute();
-      }
-    });
+    autoLooper.register(loopsManager.autoLoop);
+
+
   }
   @Override
   public void robotPeriodic() {
@@ -63,8 +62,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledInit() {
-    this.mlooper.stop();
-    autoLooper.stop();
+    this.teleopLooper.stop();
+    this.autoLooper.stop();
   }
 
   @Override
@@ -82,12 +81,11 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
-    mlooper.start();
+    teleopLooper.start();
   }
 
   @Override
   public void teleopPeriodic() {
-    this.mlooper.start();
   }
 
   @Override

@@ -5,12 +5,15 @@ import frc.robot.RobotMap;
 import frc.robot.helpers.IRotationMotor;
 import frc.robot.helpers.RotationTalonSRX;
 import frc.robot.helpers.RotationVictorSPX;
+import frc.robot.states.ArmSuperState;
 
 public class ArmSubsystem extends Subsystem {
   // static variable that represents the drive train
   public enum Motor {
     SHOULDER_JOINT, ELBOW_JOINT, WRIST_JOINT
   }
+
+  private ArmSuperState superState;
 
   private static ArmSubsystem instance;
   public static ArmSubsystem getInstance() {
@@ -88,12 +91,17 @@ public class ArmSubsystem extends Subsystem {
 
     wristMotor.setHomeDegrees(180);
     wristMotor.setDegreesLimits(0, 360);
+
+    superState = new ArmSuperState();
   }
   @Override
   public void initDefaultCommand() {
     // Set the default command for a subsystem here.
   }
 
+  public ArmSuperState getSuperState() {
+    return this.superState;
+  }
   /* Getters */
   public double getSpeed(Motor motor) {
     return this.getMotor(motor).getPercentOutput();

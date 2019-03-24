@@ -7,11 +7,6 @@ import frc.robot.sequencing.Sequence;
 import frc.robot.states.substates.ArmState;
 
 public class ArmSuperState extends SuperState<ArmState> {
-    private static ArmSuperState instance;
-    public static ArmSuperState getInstance() {
-        if (instance == null) instance = new ArmSuperState();
-        return instance;
-    }
     public enum MotionState {
         waitingForMotion, followingMotionProfiles, finishedMotion
     }
@@ -21,7 +16,7 @@ public class ArmSuperState extends SuperState<ArmState> {
     private MotionState armMotionState;
     private MotionState shoulderMotionState, elbowMotionState, wristMotionState;
 
-    private ArmSuperState() {
+    public ArmSuperState() {
         systemState = ArmState.disabled;
         armMotionState = MotionState.waitingForMotion;
         shoulderMotionState = MotionState.waitingForMotion;
@@ -67,7 +62,7 @@ public class ArmSuperState extends SuperState<ArmState> {
             if (shoulderMotionState == MotionState.finishedMotion && elbowMotionState == MotionState.finishedMotion && wristMotionState == MotionState.finishedMotion) {
                 this.setMotionStates(MotionState.finishedMotion);
                 if (this.systemState == ArmState.lowerArm || this.systemState == ArmState.raiseArm) {
-                    this.systemState = ArmState.adjustingPosition;
+                    this.systemState = ArmState.adjustedPosition;
                 }
             }
         }

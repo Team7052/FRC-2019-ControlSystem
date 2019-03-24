@@ -1,10 +1,12 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.command.Subsystem;
+import frc.robot.RobotMap;
 import frc.robot.helpers.ILinearMotor;
 import frc.robot.helpers.IRotationMotor;
 import frc.robot.helpers.LinearTalonSRX;
 import frc.robot.helpers.RotationVictorSPX;
+import frc.robot.states.ClimberSuperState;
 import frc.robot.util.physics.PhysicsConstants;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -13,15 +15,18 @@ import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 public class Climber extends Subsystem {
     private static Climber instance;
     RotationVictorSPX clawMotor;
-    LinearTalonSRX legMotor;
+    LinearTalonSRX rackMotor;
     VictorSPX driveMotor;
+
+    private ClimberSuperState superState;
+
     public static Climber getInstance() {
         if (instance == null)  instance = new Climber();
         return instance;
     }
 
     private Climber() {
-        this.clawMotor = new RotationVictorSPX(13, 4, 5, 2.0, 1024);
+        this.clawMotor = new RotationVictorSPX(RobotMap.kClimberClawMotor, RobotMap.kClimberClawMotorEncoderA, RobotMap.kClimberClawMotorEncoderB, RobotMap.kClimberClawMotorGearRatio, RobotMap.kClimberClawMotorEncoderTicks);
         clawMotor.setSensorPhase(false);
         clawMotor.setInverted(true);
         clawMotor.configNominalOutputForward(0, clawMotor.slotIdx);
@@ -30,27 +35,34 @@ public class Climber extends Subsystem {
         clawMotor.configPeakOutputReverse(-0.9, clawMotor.slotIdx);
         clawMotor.setInvertedPosition(true);
         clawMotor.setHomeDegrees(180);
-        clawMotor.setDegreesLimits(60, 190);
+        clawMotor.setDegreesLimits(60, 200);
 
         clawMotor.set_kp(0.015);
         clawMotor.set_ki(0.0);
         clawMotor.set_kd(0.0);
-        this.legMotor = new LinearTalonSRX(12, 0.55 * 2 * Math.PI);
-        legMotor.configNominalOutputForward(0, legMotor.slotIdx);
-        legMotor.configNominalOutputReverse(0, legMotor.slotIdx);
-        legMotor.configPeakOutputForward(1.0, legMotor.slotIdx);
-        legMotor.configPeakOutputReverse(-1.0, legMotor.slotIdx);
-        legMotor.setSensorPhase(true);
-        this.legMotor.setHomeLinearPosition(-PhysicsConstants.climberLegMaxWheelsGroundOffset);
-        this.legMotor.setDisplacementLimits(-PhysicsConstants.climberLegMaxWheelsGroundOffset, 19.5);
-        legMotor.set_kp(2.0);
-        legMotor.set_ki(0.0);
-        legMotor.set_kd(0.0);
+
+        this.rackMotor = new LinearTalonSRX(RobotMap.kClimberRackMotor, RobotMap.kClimberRackPitchDiameter * Math.PI);
+        rackMotor.configNominalOutputForward(0, rackMotor.slotIdx);
+        rackMotor.configNominalOutputReverse(0, rackMotor.slotIdx);
+        rackMotor.configPeakOutputForward(1.0, rackMotor.slotIdx);
+        rackMotor.configPeakOutputReverse(-1.0, rackMotor.slotIdx);
+        rackMotor.setSensorPhase(true);
+        this.rackMotor.setHomeLinearPosition(-PhysicsConstants.climberLegMaxWheelsGroundOffset);
+        this.rackMotor.setDisplacementLimits(-PhysicsConstants.climberLegMaxWheelsGroundOffset, 19.5);
+        rackMotor.set_kp(2.0);
+        rackMotor.set_ki(0.0);
+        rackMotor.set_kd(0.0);
 
         driveMotor = new VictorSPX(14);
         driveMotor.setInverted(true);
 
-        System.out.println("absolute position: " + this.legMotor.getSensorCollection().getPulseWidthPosition()); 
+        this.superState = new ClimberSuperState();
+
+        System.out.println("absolute position: " + this.rackMotor.getSensorCollection().getPulseWidthPosition()); 
+    }
+
+    public ClimberSuperState getSuperState() {
+        return this.superState;
     }
 
     @Override
@@ -65,8 +77,8 @@ public class Climber extends Subsystem {
     public IRotationMotor getClaw() {
         return this.clawMotor;
     }
-    public ILinearMotor getLeg() {
-        return this.legMotor;
+    public ILinearMotor getRack() {
+        return this.rackMotor;
     }
 
 

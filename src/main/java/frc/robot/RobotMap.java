@@ -26,8 +26,17 @@ public class RobotMap {
   public static final int kArmElbowMotor = 6;
   
   public static final int kArmWristMotor = 7;
-  public static int kArmWristMotorEncoderA = 8;
-  public static int kArmWristMotorEncoderB = 9;
+  public static final int kArmWristMotorEncoderA = 8;
+  public static final int kArmWristMotorEncoderB = 9;
+
+  public static final int kClimberClawMotor = 13;
+  public static final int kClimberClawMotorEncoderA = 4;
+  public static final int kClimberClawMotorEncoderB = 5;
+  public static final int kClimberClawMotorEncoderTicks = 1024;
+  public static final double kClimberClawMotorGearRatio = 2.0;
+
+  public static final int kClimberRackMotor = 12;
+  public static final double kClimberRackPitchDiameter = 1.1;
 
   // names for 
   public static final String kArmShoulderMotorName = "armShoulderMotor";

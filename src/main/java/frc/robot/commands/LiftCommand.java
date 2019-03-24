@@ -12,15 +12,15 @@ public class LiftCommand {
     public void execute() {
         if (Robot.oi.dPad_RIGHT()) {
             // up
-            climber.getLeg().setPercentOutput(0.3);
-            System.out.println(climber.getLeg().getLinearPosition() + " " + climber.getLeg().getLinearVelocity());
+            climber.getRack().setPercentOutput(0.3);
+            System.out.println(climber.getRack().getLinearPosition() + " " + climber.getRack().getLinearVelocity());
         }
         else if (Robot.oi.dPad_LEFT()) {
-            climber.getLeg().setPercentOutput(-0.3);
-            System.out.println(climber.getLeg().getLinearPosition() + " " + climber.getLeg().getLinearVelocity());
+            climber.getRack().setPercentOutput(-0.3);
+            System.out.println(climber.getRack().getLinearPosition() + " " + climber.getRack().getLinearVelocity());
         }
         else {
-            climber.getLeg().setPercentOutput(0.0);
+            climber.getRack().setPercentOutput(0.0);
         }
     }
 }

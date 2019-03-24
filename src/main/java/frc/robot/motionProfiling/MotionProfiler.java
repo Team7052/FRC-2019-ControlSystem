@@ -48,26 +48,6 @@ public class MotionProfiler extends Step<MotionTriplet> {
         return new MotionTriplet(positionFunction.get(lastIndex).y, velocityFunction.get(lastIndex).y, accelerationFunction.get(lastIndex).y);
     }
 
-    public static ArrayList<Point> getLinearInterpolation(ArrayList<Point> points, double delta) {
-        ArrayList<Point> interpolatedPoints = new ArrayList<>();
-        if (points.size() < 2) {
-            return points;
-        }
-        for (int i = 0, n = points.size() - 1; i < n; i++) {
-            double deltaX = points.get(i+1).x - points.get(i).x;
-            interpolatedPoints.add(points.get(i));
-            double slope = (points.get(i+1).y - points.get(i).y) / (points.get(i+1).x - points.get(i).x);
-            double b = points.get(i).y - slope * points.get(i).x;
-
-            for (double j = delta; j < deltaX; j += delta) {
-                double x = j + points.get(i).x;
-                interpolatedPoints.add(new Point(x, slope * x + b));
-            }
-        }
-        interpolatedPoints.add(points.get(points.size() - 1));
-        return interpolatedPoints;
-    }
-
     public void setVelocityPoints(ArrayList<Point> points) {
         this.setVelocityPoints(points, 0);
     }
@@ -134,48 +114,7 @@ public class MotionProfiler extends Step<MotionTriplet> {
         return positionFunction;
     }
 
-    public static ArrayList<Point> generateTrapezoidalProfile(double startPosition, double endPosition, double maxVelocity, double maxAcceleration) {
-        // max acceleration = (pi) rad / s^2
-        // max velocity = (pi / 2) rad / s
-        double displacement = endPosition - startPosition;
-        if (displacement < 0) {
-            maxVelocity = -maxVelocity;
-            maxAcceleration = -maxAcceleration;
-        }
-        ArrayList<Point> trapezoidalPoints = new ArrayList<>();
-        trapezoidalPoints.add(new Point(0, 0));
-        double accelTime = maxVelocity / maxAcceleration;
-        double totalTime = displacement / maxVelocity + accelTime;
-
-        if (accelTime >= totalTime / 2) {
-            // constrained max velocity
-            double halfTime = Math.sqrt(displacement / maxAcceleration);
-            double newVelocity = halfTime * maxAcceleration;
-            trapezoidalPoints.add(new Point(halfTime, newVelocity));
-            trapezoidalPoints.add(new Point(halfTime * 2, 0));
-        }
-        else {
-            trapezoidalPoints.add(new Point(accelTime, maxVelocity));
-            trapezoidalPoints.add(new Point(totalTime - accelTime, maxVelocity));
-            trapezoidalPoints.add(new Point(totalTime, 0));
-        }
-        return trapezoidalPoints;
-    }
-
-    public static ArrayList<Point> transformTrapezoidByTime(ArrayList<Point> trapezoidShape, double newTotalTime) { 
-        ArrayList<Point> newTrapezoidShape = new ArrayList<>();
-
-        double ratio = newTotalTime / MotionProfiler.totalTimeOfProfile(trapezoidShape);
-        for (Point p: trapezoidShape) {
-            newTrapezoidShape.add(new Point(p.x * ratio, p.y / ratio));
-        }
-        
-        return newTrapezoidShape;
-    }
-
-    public static double totalTimeOfProfile(ArrayList<Point> points) {
-        return points.get(points.size() - 1).x;
-    }
+    
     public void printPositions() {
         for (Point point: this.getPositionFunction()) {
             System.out.print(point.y / Math.PI * 180.0 + " ");

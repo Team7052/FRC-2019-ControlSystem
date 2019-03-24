@@ -2,7 +2,6 @@ package frc.robot.commands;
 
 
 import frc.robot.Robot;
-import frc.robot.states.ClimberSuperState;
 import frc.robot.states.substates.ClimberState;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.DriveTrain;
@@ -26,12 +25,8 @@ public class TankDriveCommand {
 		double y = Robot.oi.axisLeft_Y();
 		double rightSpeed = 0;
 		double leftSpeed = 0;
-		double leftTarget = 0;
-		double rightTarget = 0;
 		double difference = 0;
 		double theta = 0;
-		//Encoder leftEncoder = driveTrain.getLeftEncoder();
-		//Encoder rightEncoder = driveTrain.getRightEncoder();
 
 		double multiplier = 0.4;
 
@@ -61,13 +56,12 @@ public class TankDriveCommand {
 			rightSpeed = leftSpeed * ratio;
 		}
 
-		//leftTarget = leftEncoder.getRate();
-		//rightTarget = leftTarget*ratio;
-		//difference = -rightTarget + rightEncoder.getRate();
-		if (ClimberSuperState.getInstance().getState() == ClimberState.safelyStowed) {
+		System.out.println("encoder: " + driveTrain.getLeftDisplacement() + " " + driveTrain.getRightDisplacement());
+		if (Climber.getInstance().getSuperState().getState() == ClimberState.safelyStowed) {
 			if (Math.abs(y) > 0.2) rightSpeed += difference * kp;
 			driveTrain.setLeftGroupSpeed(leftSpeed * multiplier);
 			driveTrain.setRightGroupSpeed(rightSpeed * multiplier);
+			Climber.getInstance().driveWheelsStop();
 		}
 		else {
 			if (y < -0.2) {

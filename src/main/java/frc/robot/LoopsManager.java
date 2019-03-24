@@ -1,13 +1,11 @@
 package frc.robot;
 
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.commands.ClawCommand;
 import frc.robot.commands.RackCommand;
 import frc.robot.commands.TankDriveCommand;
 import frc.robot.commands.arm.ArmControllerCommand;
-import frc.robot.helpers.Pair;
 import frc.robot.networking.Network;
-import frc.robot.states.ArmSuperState;
-import frc.robot.states.ClimberSuperState;
 import frc.robot.states.substates.ArmState;
 import frc.robot.states.substates.ClimberState;
 import frc.robot.subsystems.ArmSubsystem;
@@ -15,13 +13,12 @@ import frc.robot.subsystems.ArmSubsystem.Motor;
 import frc.robot.subsystems.Climber;
 import frc.robot.util.loops.Loop;
 import frc.robot.util.physics.PhysicsWorld;
-import frc.robot.util.physics.PhysicsConstants;
 
 import frc.robot.commands.LiftCommand;
 
 public class LoopsManager {
-    ArmSuperState armSuperState;
     ArmSubsystem arm;
+    Climber climber;
 
     ArmControllerCommand armCommand;
     TankDriveCommand driveCommand;
@@ -30,17 +27,16 @@ public class LoopsManager {
     LiftCommand liftCommand;
     
     public LoopsManager() {
-        armSuperState = ArmSuperState.getInstance();
-
         arm = ArmSubsystem.getInstance();
+        climber = Climber.getInstance();
         armCommand = new ArmControllerCommand();
         driveCommand = new TankDriveCommand();
         rackCommand = new RackCommand();
         clawCommand = new ClawCommand();
         liftCommand = new LiftCommand();
 
-        ClimberSuperState.getInstance().setClawDelegate(clawCommand);
-        ClimberSuperState.getInstance().setRackDelegate(rackCommand);
+        climber.getSuperState().setClawDelegate(clawCommand);
+        climber.getSuperState().setRackDelegate(rackCommand);
     }
     public Loop hardwareLoop = new Loop() {
         @Override
@@ -58,46 +54,42 @@ public class LoopsManager {
         @Override
         public synchronized void onUpdate() {
             if (Robot.oi.button_A()) {
-                armSuperState.setState(ArmState.home);
+                arm.getSuperState().setState(ArmState.home);
             }
             else if (Robot.oi.button_R2()) {
-                armSuperState.setState(ArmState.intakeHatch);
+                arm.getSuperState().setState(ArmState.intakeHatch);
             }
             else if (Robot.oi.button_X()) {
-                armSuperState.setState(ArmState.lowRocketHatch);
+                arm.getSuperState().setState(ArmState.lowRocketHatch);
             }
             else if (Robot.oi.button_B()) {
-                armSuperState.setState(ArmState.midRocketHatch);
+                arm.getSuperState().setState(ArmState.midRocketHatch);
             }
             else if (Robot.oi.button_Y()) {
-                armSuperState.setState(ArmState.highRocketHatch);
+                arm.getSuperState().setState(ArmState.highRocketHatch);
             }
             else if (Robot.oi.button_L3()) {
-                armSuperState.setState(ArmState.intakeCargo);
+                arm.getSuperState().setState(ArmState.intakeCargo);
             }
             else if (Robot.oi.button_R3()) {
-                armSuperState.setState(ArmState.lowRocketCargo);
+                arm.getSuperState().setState(ArmState.lowRocketCargo);
             }
             else if (Robot.oi.dPad_DOWN()) {
-                armSuperState.setState(ArmState.lowerArm);
+                arm.getSuperState().setState(ArmState.lowerArm);
             }
             else if (Robot.oi.dPad_UP()) {
-                armSuperState.setState(ArmState.raiseArm);
+                arm.getSuperState().setState(ArmState.raiseArm);
             }
 
             if (Robot.oi.button_L1()) {
-                ClimberSuperState.getInstance().setState(ClimberState.hab2Climb);
+                climber.getSuperState().setState(ClimberState.hab2Climb);
             }
             else if (Robot.oi.dPad_LEFT()) {
-                ClimberSuperState.getInstance().setState(ClimberState.home);
+                climber.getSuperState().setState(ClimberState.home);
             }
             else if (Robot.oi.dPad_RIGHT()) {
-                ClimberSuperState.getInstance().setState(ClimberState.hab3Climb);
+                climber.getSuperState().setState(ClimberState.hab3Climb);
             }
-
-            /*if (Robot.oi.button_A()) {
-                ClimberSuperState.getInstance().setState(ClimberState.hab3Climb);
-            }*/
             /*
             if (Robot.oi.button_L1() && !motionProfilesRunning()) {
                 currentProfile = "Pull out";
@@ -117,8 +109,8 @@ public class LoopsManager {
             }
             */
 
-            armSuperState.update();
-            ClimberSuperState.getInstance().update();
+            arm.getSuperState().update();
+            climber.getSuperState().update();
         }
     };
 
@@ -133,7 +125,27 @@ public class LoopsManager {
         @Override
         public synchronized void onUpdate() {
             PhysicsWorld.getInstance().updateArmKinematics(arm.getDegrees(Motor.SHOULDER_JOINT), arm.getAbsoluteDegrees(Motor.ELBOW_JOINT), arm.getAbsoluteDegrees(Motor.WRIST_JOINT), true);
-            PhysicsWorld.getInstance().updateClimberKinematics(Climber.getInstance().getClaw().getDegrees() / 180.0 * Math.PI, Climber.getInstance().getLeg().getLinearPosition());
+            PhysicsWorld.getInstance().updateClimberKinematics(Climber.getInstance().getClaw().getDegrees() / 180.0 * Math.PI, Climber.getInstance().getRack().getLinearPosition());
+        }
+    };
+
+    public Loop autoLoop = new Loop() {
+        double prev = 0;
+        double timestamp = 0;
+        @Override
+        public void onStart() {
+            
+        }
+        @Override
+        public void onUpdate() {
+            if (prev == 0) prev = Timer.getFPGATimestamp();
+                timestamp = Timer.getFPGATimestamp();
+                System.out.println("Update");
+            if (timestamp - prev > 1.5) {
+                arm.getSuperState().setState(ArmState.highRocketHatch);
+            }
+            armCommand.execute();
+            arm.getSuperState().update();
         }
     };
 }

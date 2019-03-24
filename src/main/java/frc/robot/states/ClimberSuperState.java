@@ -11,18 +11,12 @@ import frc.robot.subsystems.Climber;
 import frc.robot.util.physics.PhysicsWorld;
 
 public class ClimberSuperState extends SuperState<ClimberState> {
-    private static ClimberSuperState instance;
-    public static ClimberSuperState getInstance() {
-        if (instance == null) return instance = new ClimberSuperState();
-        return instance;
-    }
-
     public enum ClimberDeployState {
         notDeployed, shouldDeploy, deploy
     }
 
     MotionProfileState clawState = MotionProfileState.IDLE;
-    MotionProfileState legState = MotionProfileState.IDLE;
+    MotionProfileState rackState = MotionProfileState.IDLE;
 
     private ClimberDeployState deployState;
 
@@ -30,7 +24,7 @@ public class ClimberSuperState extends SuperState<ClimberState> {
     private ClimberSuperStateDelegate rackDelegate;
 
 
-    private ClimberSuperState() {
+    public ClimberSuperState() {
         this.systemState = ClimberState.safelyStowed;
         this.deployState = ClimberDeployState.notDeployed;
     }
@@ -78,13 +72,13 @@ public class ClimberSuperState extends SuperState<ClimberState> {
                 this.clawDelegate.updateSequence(sequence.a);
                 this.rackDelegate.updateSequence(sequence.b);
                 this.clawState = MotionProfileState.RUNNING;
-                this.legState = MotionProfileState.RUNNING;
+                this.rackState = MotionProfileState.RUNNING;
 
                 sequence.a.callback = () -> this.clawState = MotionProfileState.FINISHED;
-                sequence.b.callback = () -> this.legState = MotionProfileState.FINISHED;
+                sequence.b.callback = () -> this.rackState = MotionProfileState.FINISHED;
             }
         }
-        if (this.clawState == MotionProfileState.FINISHED && this.legState == MotionProfileState.FINISHED) {
+        if (this.clawState == MotionProfileState.FINISHED && this.rackState == MotionProfileState.FINISHED) {
             if (this.systemState == ClimberState.home) this.systemState = ClimberState.safelyStowed;
         }
     }
@@ -94,7 +88,7 @@ class HabClimbSequences {
     private static Climber climber = Climber.getInstance();
     public static Pair<Sequence<MotionTriplet>> hab2ClimbSequence() {
         double initClaw = climber.getClaw().getDegrees() / 180.0 * Math.PI;
-        double initRack = climber.getLeg().getLinearPosition();
+        double initRack = climber.getRack().getLinearPosition();
         double midClaw = PhysicsWorld.getInstance().solveClimberClawAngleForHeight(0,6.125);
         double midRack = 0;
 
@@ -117,7 +111,7 @@ class HabClimbSequences {
 
     public static Pair<Sequence<MotionTriplet>> hab3ClimbSequence() {
         double initClaw = climber.getClaw().getDegrees() / 180.0 * Math.PI;
-        double initRack = climber.getLeg().getLinearPosition();
+        double initRack = climber.getRack().getLinearPosition();
         double midClaw = PhysicsWorld.getInstance().solveClimberClawAngleForHeight(0, 19.125);
         double midRack = 0;
 
@@ -140,9 +134,9 @@ class HabClimbSequences {
 
     public static Pair<Sequence<MotionTriplet>> homeSequence() {
         double initClaw = climber.getClaw().getDegrees() / 180.0 * Math.PI;
-        double initRack = climber.getLeg().getLinearPosition();
+        double initRack = climber.getRack().getLinearPosition();
         double endClaw = 180 / 180 * Math.PI;
-        double endRack = climber.getLeg().getHomeLinearPosition();
+        double endRack = climber.getRack().getHomeLinearPosition();
 
         Pair<MotionProfiler> step1 = CoupledLiftProfiler.generateProfiles(initClaw, endClaw, initRack, endRack);
         

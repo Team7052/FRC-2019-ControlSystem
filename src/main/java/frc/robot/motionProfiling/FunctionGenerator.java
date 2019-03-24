@@ -3,34 +3,25 @@ package frc.robot.motionProfiling;
 import java.util.ArrayList;
 
 public class FunctionGenerator {
-    public static ArrayList<Point> generate(FunctionSet... sets) {
-        ArrayList<Point> finalFunction = new ArrayList<>();
-        for (int i = 0, n = sets.length; i < n; i++) {
-            if (i != 0) {
-                if (sets[i - 1].getUpper() > sets[i].getLower()) {
-                    return new ArrayList<>();
-                }
+    public static ArrayList<Point> getLinearInterpolation(ArrayList<Point> points, double delta) {
+        ArrayList<Point> interpolatedPoints = new ArrayList<>();
+        if (points.size() < 2) {
+            return points;
+        }
+        for (int i = 0, n = points.size() - 1; i < n; i++) {
+            double deltaX = points.get(i+1).x - points.get(i).x;
+            interpolatedPoints.add(points.get(i));
+            double slope = (points.get(i+1).y - points.get(i).y) / (points.get(i+1).x - points.get(i).x);
+            double b = points.get(i).y - slope * points.get(i).x;
+
+            for (double j = delta; j < deltaX; j += delta) {
+                double x = j + points.get(i).x;
+                interpolatedPoints.add(new Point(x, slope * x + b));
             }
-            ArrayList<Point> currentSetFunction = FunctionGenerator.generate((sets[i]));
-            for (Point p: currentSetFunction) finalFunction.add(p);
         }
-        if (sets.length > 1) {
-            if (sets[sets.length - 1].getLower() < sets[sets.length - 2].getUpper()) return new ArrayList<>();
-        }
-        return finalFunction;
+        interpolatedPoints.add(points.get(points.size() - 1));
+        return interpolatedPoints;
     }
-
-    public static ArrayList<Point> generate(FunctionSet set) {
-        ArrayList<Point> newPoints = new ArrayList<>();
-        if (set.getLower() > set.getUpper()) return newPoints;
-        for (double i = set.getLower(); i <= set.getUpper(); i += set.getDelta()) {
-            double x = i;
-            double y = set.getFunction().resultFor(x);
-            newPoints.add(new Point(x, y));
-        }
-        return newPoints;
-    }
-
     public static ArrayList<Point> getDerivative(ArrayList<Point> points) {
         ArrayList<Point> derivate = new ArrayList<>();
         for (int i = 0, n = points.size(); i < n; i++) {

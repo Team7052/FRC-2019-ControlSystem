@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.subsystems.DriveTrain;
+import frc.robot.motionProfiling.FunctionGenerator;
 import frc.robot.motionProfiling.MotionProfileState;
 import frc.robot.motionProfiling.MotionProfiler;
 import frc.robot.motionProfiling.MotionTriplet;
@@ -35,7 +36,7 @@ public class DriveTenM extends Command {
         points.add(new Point(8, 0));
 
         motionProfiler = new MotionProfiler();
-        ArrayList<Point> interpolatedPoints = motionProfiler.getLinearInterpolation(points,0.01);
+        ArrayList<Point> interpolatedPoints = FunctionGenerator.getLinearInterpolation(points,0.01);
 
         motionProfiler.setVelocityPoints(interpolatedPoints);
     }
