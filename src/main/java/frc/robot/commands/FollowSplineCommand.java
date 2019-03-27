@@ -8,7 +8,10 @@ import frc.auto.Spline;
 import frc.auto.SplineFollower;
 import frc.auto.TurnToAngleStep;
 import frc.robot.helpers.Pair;
+import frc.robot.motionProfiling.MotionFilter;
 import frc.robot.motionProfiling.Point;
+import frc.robot.motionProfiling.TrapezoidShape;
+import frc.robot.motionProfiling.TrapezoidalFunctions;
 import frc.robot.sequencing.Sequence;
 
 public class FollowSplineCommand {
@@ -29,11 +32,20 @@ public class FollowSplineCommand {
         //Add (x, y) displacement points
         Spline spline = new Spline(splinePath);
         // turn to angle step
-        TurnToAngleStep angleTurner = new TurnToAngleStep(spline.getInitialTurnAngle(), false);
+        if (driveTrain.imuSensorIsConnectedAndCalibrated()) {
+            driveTrain.resetAngle();
+            double initAngle = driveTrain.getAngle();
+            TrapezoidShape turnVelocityShape = TrapezoidalFunctions.generateTrapezoidShape(initAngle, spline.getInitialTurnAngle(), Math.PI / 2, Math.PI / 2);
+            MotionFilter turningFilter = MotionFilter.trapezoidalProfileFilter(turnVelocityShape, initAngle);
+        }
+        else {
+            TurnToAngleStep angleTurner = new TurnToAngleStep(spline.getInitialTurnAngle(), false);
+            driveTrainSequence.addStep(angleTurner);
+        }
+
+
         SplineFollower splineFollower = new SplineFollower(spline, totalTime);
 
-        driveTrainSequence = new Sequence<>();
-        driveTrainSequence.addStep(angleTurner);
         driveTrainSequence.addStep(splineFollower);
     }
 

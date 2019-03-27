@@ -56,7 +56,7 @@ public class TankDriveCommand {
 			rightSpeed = leftSpeed * ratio;
 		}
 
-		System.out.println("encoder: " + driveTrain.getLeftDisplacement() + " " + driveTrain.getRightDisplacement());
+		//System.out.println("encoder: " + driveTrain.getLeftDisplacement() + " " + driveTrain.getRightDisplacement());
 		if (Climber.getInstance().getSuperState().getState() == ClimberState.safelyStowed) {
 			if (Math.abs(y) > 0.2) rightSpeed += difference * kp;
 			driveTrain.setLeftGroupSpeed(leftSpeed * multiplier);

@@ -3,9 +3,6 @@ package frc.robot.networking;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -15,13 +12,11 @@ import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.RobotMap;
 import frc.robot.motionProfiling.MotionProfiler;
-import frc.robot.motionProfiling.Point;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.ArmSubsystem.Motor;
-import frc.robot.commands.arm.CommandDelegate;
 
-public class Network implements CommandDelegate {    
+public class Network {    
     // new thread for output data
 
     private static Network instance;
@@ -60,17 +55,6 @@ public class Network implements CommandDelegate {
         // send network data
         this.updateRobotState();
 
-        /* Coupled arm profiler */
-        for (Map.Entry<String, MotionProfiler> entrySet: motionProfilesStarted.entrySet()) {
-            if (entrySet.getValue() != null) {
-                this.sendMotionProfileData(entrySet.getKey(), entrySet.getValue());
-                motionProfilesStarted.put(entrySet.getKey(), null);
-            }
-            else {
-                this.sendNullMotionProfileData(entrySet.getKey());
-            }
-        }
-        
         NetworkTable motorSubtable = this.getTable(TableType.kMotorData).getSubTable("driveBaseLeft");
         motorSubtable.getEntry("percentOutput").setDouble(DriveTrain.getInstance().getLeftSpeed());
         /* motor data */
@@ -78,40 +62,6 @@ public class Network implements CommandDelegate {
         this.sendArmMotorData(Motor.SHOULDER_JOINT, RobotMap.kArmShoulderMotorName);
         this.sendArmMotorData(Motor.ELBOW_JOINT, RobotMap.kArmElbowMotorName);
         this.sendArmMotorData(Motor.WRIST_JOINT, RobotMap.kArmWristMotorName);
-    }
-
-    private void sendMotionProfileData(String name, MotionProfiler motionProfiler) {
-        NetworkTable motionProfilingTable = this.getTable(TableType.kMotionProfiles).getSubTable(name);
-        ArrayList<Point> positions = motionProfiler.getPositionFunction();
-        ArrayList<Point> velocities = motionProfiler.getVelocityFunction();
-        ArrayList<Point> accelerations = motionProfiler.getAccelerationFunction();
-
-        int size = positions.size();
-        double[] timeFunction = new double[size];
-        double[] positionValues = new double[size];
-        double[] velocityValues = new double[size];
-        double[] accelerationValues = new double[size];
-
-        for (int i = 0; i < size; i++) {
-            timeFunction[i] = positions.get(i).x;
-            positionValues[i] = positions.get(i).y;
-            velocityValues[i] = velocities.get(i).y;
-            accelerationValues[i] = accelerations.get(i).y;
-        }
-        Setter.setDoubleArray(motionProfilingTable.getEntry("time"), timeFunction);
-        Setter.setDoubleArray(motionProfilingTable.getEntry("position"), positionValues);
-        Setter.setDoubleArray(motionProfilingTable.getEntry("velocity"), velocityValues);
-        Setter.setDoubleArray(motionProfilingTable.getEntry("acceleration"), accelerationValues);
-        Setter.setDouble(motionProfilingTable.getEntry("timeStamp"), motionProfiler.getStartTime());
-    }
-
-    public void sendNullMotionProfileData(String key) {
-        NetworkTable motionProfilingTable = this.getTable(TableType.kMotionProfiles).getSubTable(key);
-        double[] empty = new double[0];
-        Setter.setDoubleArray(motionProfilingTable.getEntry("time"), empty);
-        Setter.setDoubleArray(motionProfilingTable.getEntry("position"), empty);
-        Setter.setDoubleArray(motionProfilingTable.getEntry("velocity"), empty);
-        Setter.setDoubleArray(motionProfilingTable.getEntry("acceleration"), empty);
     }
 
     private void sendArmMotorData(Motor motor, String name) {
@@ -143,10 +93,5 @@ public class Network implements CommandDelegate {
 
     public void sendSparkData(String name, Spark motor) {
         NetworkTable motorSubtable = this.getTable(TableType.kMotorData).getSubTable(name);
-    }
-
-    @Override
-    public void beganMotionProfile(String command, MotionProfiler profiler) {
-        this.motionProfilesStarted.put(command, profiler);
     }
 }

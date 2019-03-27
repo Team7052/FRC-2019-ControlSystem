@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import frc.robot.RobotMap;
 import frc.robot.helpers.ILinearMotor;
@@ -10,13 +11,12 @@ import frc.robot.states.ClimberSuperState;
 import frc.robot.util.physics.PhysicsConstants;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
 public class Climber extends Subsystem {
     private static Climber instance;
     RotationVictorSPX clawMotor;
     LinearTalonSRX rackMotor;
-    VictorSPX driveMotor;
+    WPI_VictorSPX driveMotor;
 
     private ClimberSuperState superState;
 
@@ -53,12 +53,12 @@ public class Climber extends Subsystem {
         rackMotor.set_ki(0.0);
         rackMotor.set_kd(0.0);
 
-        driveMotor = new VictorSPX(14);
+        driveMotor = new WPI_VictorSPX(14);
         driveMotor.setInverted(true);
 
         this.superState = new ClimberSuperState();
 
-        System.out.println("absolute position: " + this.rackMotor.getSensorCollection().getPulseWidthPosition()); 
+        //System.out.println("absolute position: " + this.rackMotor.getSensorCollection().getPulseWidthPosition());
     }
 
     public ClimberSuperState getSuperState() {

@@ -1,10 +1,18 @@
 package frc.robot.states;
 
-import frc.robot.commands.arm.ArmSequences;
+import frc.robot.helpers.Pair;
 import frc.robot.helpers.Triplet;
+import frc.robot.motionProfiling.FilterOutputModifier;
+import frc.robot.motionProfiling.MotionFilter;
 import frc.robot.motionProfiling.MotionTriplet;
+import frc.robot.motionProfiling.TrapezoidShape;
+import frc.robot.motionProfiling.TrapezoidalFunctions;
 import frc.robot.sequencing.Sequence;
 import frc.robot.states.substates.ArmState;
+import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.ArmSubsystem.Motor;
+import frc.robot.util.physics.PhysicsConstants;
+import frc.robot.util.physics.PhysicsWorld;
 
 public class ArmSuperState extends SuperState<ArmState> {
     public enum MotionState {
@@ -66,6 +74,14 @@ public class ArmSuperState extends SuperState<ArmState> {
                 }
             }
         }
+
+        /* Disable the wrist motor if trying to pull out */
+        if (this.systemState == ArmState.pullOutSequence) {
+            wristDelegate.setEnabled(false);
+        }
+        else {
+            wristDelegate.setEnabled(true);
+        }
     }
 
     private void setMotionStates(MotionState state) {
@@ -81,6 +97,8 @@ public class ArmSuperState extends SuperState<ArmState> {
                 return ArmSequences.homeSequence();
             case intakeHatch:
                 return ArmSequences.intakeHatchSequence();
+            case pullOutSequence:
+                return ArmSequences.pullOutSequence();
             case intakeCargo:
                 return ArmSequences.intakeCargoSequence();
             case lowRocketHatch:
@@ -103,5 +121,133 @@ public class ArmSuperState extends SuperState<ArmState> {
             default:
                 return null;
         }
+    }
+}
+
+class ArmSequences {
+    public static final double shoulderMaxVelocity = Math.PI * 2 / 5;
+    public static final double shoulderMaxAcceleration = Math.PI * 2 / 3;
+
+    public static final double elbowMaxVelocity = Math.PI;
+    public static final double elbowMaxAcceleration = Math.PI;
+    
+    public static Triplet<Sequence<MotionTriplet>> homeSequence() {
+        return toSequence(generateProfiles(radians(25), radians(180), radians(180)));
+    }
+    public static Triplet<Sequence<MotionTriplet>> intakeHatchSequence() {
+        return toSequence(setDistances(16, 20, radians(180)));
+    }
+    public static Triplet<Sequence<MotionTriplet>> lowerRocketHatchSequence() {
+        return toSequence(setDistances(16, 26, radians(180)));
+    }
+    public static Triplet<Sequence<MotionTriplet>> midRocketHatchSequence() {
+        return toSequence(setDistances(14, 52, radians(180)));
+    }
+    public static Triplet<Sequence<MotionTriplet>> highRocketHatchSequence() {
+        return toSequence(setDistances(2, 78, radians(180)));
+    }
+
+    public static Triplet<Sequence<MotionTriplet>> intakeCargoSequence() {
+        return toSequence(generateProfiles(radians(40),  radians(160), radians(90)));
+    }
+    public static Triplet<Sequence<MotionTriplet>> lowRocketCargoSequence() {
+        return toSequence(generateProfiles(radians(60), radians(70), radians(90)));
+    }
+    public static Triplet<Sequence<MotionTriplet>> midRocketCargoSequence() {
+        return toSequence(generateProfiles(radians(60), radians(70), radians(90)));
+    }
+
+    public static Triplet<Sequence<MotionTriplet>> raiseArmSequence() {
+        // get current displacements
+        Pair<Double> currentDisplacements = PhysicsWorld.getInstance().solveArmKinematics();
+        double normalized_l = currentDisplacements.a - PhysicsConstants.backToArm - PhysicsConstants.thickness / 2 + PhysicsConstants.hand;
+        double normalized_h = PhysicsConstants.armHeight + PhysicsConstants.baseHeight - currentDisplacements.b;
+        return toSequence(setDistances(normalized_l, normalized_h + 3, radians(180)));
+    }
+    public static Triplet<Sequence<MotionTriplet>> lowerArmSequence() {
+        // get current displacements
+        Pair<Double> currentDisplacements = PhysicsWorld.getInstance().solveArmKinematics();
+        double normalized_l = currentDisplacements.a - PhysicsConstants.backToArm - PhysicsConstants.thickness / 2 + PhysicsConstants.hand;
+        double normalized_h = PhysicsConstants.armHeight + PhysicsConstants.baseHeight - currentDisplacements.b;
+        return toSequence(setDistances(normalized_l, normalized_h - 2, radians(180)));
+    }
+    public static Triplet<Sequence<MotionTriplet>> pullOutSequence() {
+        // get current displacements
+        Pair<Double> currentDisplacements = PhysicsWorld.getInstance().solveArmKinematics();
+        double normalized_l = currentDisplacements.a - PhysicsConstants.backToArm - PhysicsConstants.thickness / 2 + PhysicsConstants.hand;
+        double normalized_h = PhysicsConstants.armHeight + PhysicsConstants.baseHeight - currentDisplacements.b;
+        return toSequence(setDistances(normalized_l, normalized_h - 2, radians(180)));
+    }
+
+    private static Triplet<MotionFilter> setDistances(double l, double h, double wristRadians) {
+        Pair<Double> angles = PhysicsWorld.getInstance().armInverseKinematics(l + PhysicsConstants.backToArm + PhysicsConstants.thickness / 2 - PhysicsConstants.hand, PhysicsConstants.armHeight + PhysicsConstants.baseHeight - h);
+        return generateProfiles(angles.a, angles.b, wristRadians);
+    }
+
+    private static double radians(double degrees) {
+        return degrees / 180.0 * Math.PI;
+    }
+
+    private static Triplet<Sequence<MotionTriplet>> toSequence(Triplet<MotionFilter> triplet) {
+        Triplet<Sequence<MotionTriplet>> sequence = new Triplet<>(new Sequence<>(), new Sequence<>(), new Sequence<>());
+        sequence.a.addStep(triplet.a);
+        sequence.b.addStep(triplet.b);
+        sequence.c.addStep(triplet.c);
+        return sequence;
+    }
+
+    private static Triplet<MotionFilter> generateProfiles(double shoulderAngle, double elbowAngle, double wristAngle) {
+        double initShoulder = ArmSubsystem.getInstance().getDegrees(Motor.SHOULDER_JOINT) / 180 * Math.PI;
+        double endShoulder = shoulderAngle;
+        double initElbow = ArmSubsystem.getInstance().getAbsoluteDegrees(Motor.ELBOW_JOINT) / 180 * Math.PI;
+        double endElbow =  elbowAngle;
+        double initWrist = ArmSubsystem.getInstance().getAbsoluteDegrees(Motor.WRIST_JOINT) / 180.0 * Math.PI;
+        double endWrist = wristAngle;
+
+        return generateProfiles(initShoulder, initElbow, initWrist, endShoulder, endElbow, endWrist);
+    }
+    private static Triplet<MotionFilter> generateProfiles(double initShoulder, double initElbow, double initWrist, double endShoulder, double endElbow, double endWrist) {
+        // trapezoidal motion profiling.
+        TrapezoidShape initShoulderShape = TrapezoidalFunctions.generateTrapezoidShape(initShoulder, endShoulder, shoulderMaxVelocity, shoulderMaxAcceleration);
+        TrapezoidShape initElbowShape = TrapezoidalFunctions.generateTrapezoidShape(initElbow, endElbow, elbowMaxVelocity, elbowMaxAcceleration);
+        Pair<TrapezoidShape> newShapes = TrapezoidalFunctions.syncTrapezoidShapes(initShoulderShape, initElbowShape);
+        // generate nonsensical elbow shape at beginning
+        MotionFilter shoulderProfile = MotionFilter.trapezoidalProfileFilter(newShapes.a, initShoulder);
+
+        FilterOutputModifier<MotionTriplet> elbowFilter = (dt, endTime, triplet) -> {
+            double absoluteShoulderPosition = shoulderProfile.getUpdateForDeltaTime(dt).getPosition();
+            double relativeElbow = radiansElbowRelativeToShoulder(triplet.getPosition(), absoluteShoulderPosition);
+            return new MotionTriplet(relativeElbow, triplet.getVelocity(), triplet.getAcceleration());
+        };
+        MotionFilter elbowProfile = MotionFilter.trapezoidalProfileFilter(newShapes.b, initElbow);
+        elbowProfile.addFilter(elbowFilter);
+        // interpolate wrist points
+        FilterOutputModifier<MotionTriplet> wristFilter = (dt, endTime, triplet) -> {
+            double absoluteWristPosition = initWrist + (endWrist - initWrist) * (dt / endTime);
+
+            double absoluteShoulderPosition = shoulderProfile.getUpdateForDeltaTime(dt).getPosition();
+            double relativeElbowPosition = elbowProfile.getUpdateForDeltaTime(dt).getPosition();
+            double absoluteElbowPosition = relativeElbowToAbsolute(relativeElbowPosition, absoluteShoulderPosition);
+            double relativeWristPosition = radiansWristRelativeToElbow(absoluteWristPosition, absoluteElbowPosition);
+            return new MotionTriplet(relativeWristPosition, 0.0, 0.0);
+        };
+        // take elbow absolute angles and transform the wrist to match those angles
+        MotionFilter wristProfile = new MotionFilter(wristFilter, () -> newShapes.a.totalTime());
+
+        return new Triplet<>(shoulderProfile, elbowProfile, wristProfile);
+    }
+
+    private static double radiansElbowRelativeToShoulder(double absoluteRadians, double shoulderRadians) {
+        //System.out.println("Radians: " + absoluteRadians + " " + shoulderRadians);
+        return absoluteRadians - shoulderRadians + ArmSubsystem.getInstance().getHomeDegrees(Motor.SHOULDER_JOINT) / 180.0 * Math.PI;
+    }
+
+    private static double radiansWristRelativeToElbow(double absoluteRadians, double elbowRadiansAbsolute) {
+        //System.out.println("Radians: " + absoluteRadians + " " + shoulderRadians);
+        return absoluteRadians - elbowRadiansAbsolute + ArmSubsystem.getInstance().getHomeDegrees(Motor.ELBOW_JOINT) / 180.0 * Math.PI;
+    }
+
+    private static double relativeElbowToAbsolute(double relativeElbow, double absoluteShoulder) {
+        return relativeElbow + absoluteShoulder - ArmSubsystem.getInstance().getHomeDegrees(Motor.SHOULDER_JOINT) / 180 * Math.PI;
     }
 }

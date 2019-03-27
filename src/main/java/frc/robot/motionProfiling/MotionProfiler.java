@@ -19,33 +19,18 @@ public class MotionProfiler extends Step<MotionTriplet> {
     }
 
     public double index = 0;
-    public MotionTriplet update(double timeStamp) {
-        if (state == StepState.RUNNING) {
-            if (this.totalRunningTime.get() == 0) return null;
-            double percentage = (timeStamp - this.startTime) / this.totalRunningTime.get();
-            if (percentage > 1.0) {
-                return null;
-            }
-            
-            int index = (int) Math.round(percentage * ((double) velocityFunction.size() - 1));
-            
-            // get velocity
-            double velocityMeasurement = velocityFunction.get(index).y;
-            double accelerationMeasurement = accelerationFunction.get(index).y;
-            double positionMeasurement = positionFunction.get(index).y;
-
-            return new MotionTriplet(positionMeasurement, velocityMeasurement, accelerationMeasurement);
-        }
-        else {
-            return null;
-        }
-    }
 
     @Override
-    public MotionTriplet getLastUpdate() {
+    public MotionTriplet getUpdateForDeltaTime(double dt) {
         if (velocityFunction.size() == 0) return null;
-        int lastIndex = velocityFunction.size() - 1;
-        return new MotionTriplet(positionFunction.get(lastIndex).y, velocityFunction.get(lastIndex).y, accelerationFunction.get(lastIndex).y);
+        int index = (int) Math.round(dt / this.getTotalTime() * ((double) velocityFunction.size() - 1));
+        
+        // get velocity
+        double velocityMeasurement = velocityFunction.get(index).y;
+        double accelerationMeasurement = accelerationFunction.get(index).y;
+        double positionMeasurement = positionFunction.get(index).y;
+
+        return new MotionTriplet(positionMeasurement, velocityMeasurement, accelerationMeasurement);
     }
 
     public void setVelocityPoints(ArrayList<Point> points) {
@@ -91,10 +76,7 @@ public class MotionProfiler extends Step<MotionTriplet> {
     public double getFinalPosition() {
         return this.positionFunction.get(this.positionFunction.size() - 1).y;
     }
-
-    public double getTotalTime() {
-        return this.positionFunction.get(this.positionFunction.size() - 1).x;
-    }
+    
 
     private ArrayList<Point> pointsWithInitialDisplacement(ArrayList<Point> points, double initialDisplacement) {
         ArrayList<Point> converted = new ArrayList<>();

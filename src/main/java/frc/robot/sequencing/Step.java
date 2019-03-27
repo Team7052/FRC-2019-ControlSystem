@@ -1,18 +1,25 @@
 package frc.robot.sequencing;
 
-import edu.wpi.first.wpilibj.Timer;
+import java.util.HashMap;
+import java.util.Map;
+
 import frc.robot.util.Callback;
 
 public abstract class Step<T> {
     protected StepState state = StepState.IDLE;
     protected double startTime = 0;
     protected DynamicEndTime totalRunningTime;
-
     public Callback callback;
+
+    Map<Double, T> lookupTable = new HashMap<>();
+
 
     public Step(double runningTime) {
         this.totalRunningTime = () -> runningTime;
-        
+    }
+
+    public final double getTotalTime() {
+        return this.totalRunningTime.get();
     }
 
     public Step(DynamicEndTime totalRunningTime) {
@@ -22,8 +29,22 @@ public abstract class Step<T> {
         this.totalRunningTime = () -> 0.0;
     }
 
-    public abstract T update(double timeStamp);
-    public abstract T getLastUpdate();
+    public final T update(double timeStamp) {
+        if (this.state == StepState.RUNNING) {
+            double dt = timeStamp - this.startTime;
+            if (dt > this.totalRunningTime.get()) {
+                this.endStep();
+                dt = this.totalRunningTime.get();
+            }
+            if (lookupTable.containsKey(dt)) return lookupTable.get(timeStamp);
+            return this.getUpdateForDeltaTime(dt);
+        }
+        return null;
+    }
+    public final T getLastUpdate() {
+        return this.getUpdateForDeltaTime(this.getTotalTime());
+    }
+    public abstract T getUpdateForDeltaTime(double dt);
 
     public final void start(double timeStamp) {
         if (this.state == StepState.IDLE) {
@@ -47,15 +68,14 @@ public abstract class Step<T> {
     public final boolean isFinished(double timeStamp) {
         if (this.state == StepState.RUNNING && timeStamp - startTime >= this.totalRunningTime.get()) {
             this.state = StepState.FINISHED;
-            if (this.callback != null) {
-                callback.didFinish();
-            }
+            if (this.callback != null) callback.didFinish();
         }
         return this.state == StepState.FINISHED;
     }
 
     public final void endStep() {
         this.state = StepState.FINISHED;
+        if (this.callback != null) callback.didFinish();
     }
 
     public final StepState getState() {

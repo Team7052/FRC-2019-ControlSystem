@@ -38,6 +38,8 @@ public class RobotMap {
   public static final int kClimberRackMotor = 12;
   public static final double kClimberRackPitchDiameter = 1.1;
 
+  public static final int kPigeonSensor = 20;
+
   // names for 
   public static final String kArmShoulderMotorName = "armShoulderMotor";
   public static final String kArmElbowMotorName = "armElbowMotor";

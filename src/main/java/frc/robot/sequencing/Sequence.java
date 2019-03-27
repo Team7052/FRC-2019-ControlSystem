@@ -33,12 +33,22 @@ public class Sequence<T> extends Step<T> {
         this.steps.add(step);
         return true;
     }
-
-    public T getLastUpdate() {
-        if (steps.size() == 0) return null;
-        return this.steps.get(this.steps.size() - 1).getLastUpdate();
+    @Override
+    public T getUpdateForDeltaTime(double dt) {
+        double runningTotalTimeSum = 0.0;
+        for (Step<T> step: this.steps) {
+            if (step.totalRunningTime.get() >= dt) {
+                return step.getUpdateForDeltaTime(dt - runningTotalTimeSum);
+            }
+            runningTotalTimeSum += step.totalRunningTime.get();
+        }
+        return null;
     }
 
+    public final boolean isEmpty() {
+        return this.steps.size() == 0;
+    }
+/*
     @Override
     public T update(double timeStamp) {
         if (currentStepIndex >= steps.size()) return null;
@@ -56,4 +66,5 @@ public class Sequence<T> extends Step<T> {
         
         return null;
     }
+    */
 }

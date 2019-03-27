@@ -7,92 +7,83 @@
 
 package frc.robot;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.Timer;
 import frc.joysticks.*;
 import frc.robot.commands.FollowSplineCommand;
-import frc.robot.motionProfiling.Point;
-import frc.robot.states.ArmSuperState;
-import frc.robot.states.substates.ArmState;
-import frc.robot.util.loops.Loop;
+
 import frc.robot.util.loops.Looper;
 
 
 public class Robot extends TimedRobot {
 
-  public static OI oi;
+    public static OI oi;
 
-  Looper globalLooper;
-  Looper teleopLooper;
-  Looper autoLooper;
-  LoopsManager loopsManager;
-  FollowSplineCommand autoCommand;
-  @Override
-  public void robotInit() {
-    // change Logitech to newly extended class
-    teleopLooper = new Looper();
-    autoLooper = new Looper();
-    globalLooper = new Looper();
-    oi = new Logitech(0);
+    Looper globalLooper;
+    Looper teleopLooper;
+    Looper autoLooper;
+    LoopsManager loopsManager;
+    FollowSplineCommand autoCommand;
+    @Override
+    public void robotInit() {
+        // change Logitech to newly extended class
+        teleopLooper = new Looper();
+        autoLooper = new Looper();
+        globalLooper = new Looper();
+        oi = new Logitech(0);
 
-    loopsManager = new LoopsManager();
-    
-    teleopLooper.register(loopsManager.hardwareLoop);
-    teleopLooper.register(loopsManager.stateManagerLoop);
+        loopsManager = new LoopsManager();
 
-    globalLooper.register(loopsManager.networkLoop);
-    globalLooper.register(loopsManager.physicsWorldLoop);
+        teleopLooper.register(loopsManager.hardwareLoop);
+        teleopLooper.register(loopsManager.stateManagerLoop);
 
-    Point[] path = {
-      new Point (0, 0), new Point (27,56.5), new Point (45, 81.5), new Point (60, 89.5)
-      //new Point (0,0), new Point (27,56.5)
-    };
-    autoCommand = new FollowSplineCommand(new ArrayList<>(Arrays.asList(path)), 3.5);
+        globalLooper.register(loopsManager.networkLoop);
+        globalLooper.register(loopsManager.physicsWorldLoop);
 
-    autoLooper.register(loopsManager.autoLoop);
+        autoLooper.register(loopsManager.autoLoop);
 
+        globalLooper.start();
+    }
+    @Override
+    public void robotPeriodic() {
+    }
 
-  }
-  @Override
-  public void robotPeriodic() {
-  }
+    @Override
+    public void disabledInit() {
+        this.teleopLooper.stop();
+        this.autoLooper.stop();
+    }
 
-  @Override
-  public void disabledInit() {
-    this.teleopLooper.stop();
-    this.autoLooper.stop();
-  }
+    @Override
+    public void disabledPeriodic() {
+        this.teleopLooper.stop();
+        this.autoLooper.stop();
+    }
 
-  @Override
-  public void disabledPeriodic() {
-  }
+    @Override
+    public void autonomousInit() {
+        autoLooper.start();
+    }
 
-  @Override
-  public void autonomousInit() {
-    autoLooper.start();
-  }
+    @Override
+    public void autonomousPeriodic() {
+        autoLooper.start();
+    }
 
-  @Override
-  public void autonomousPeriodic() {
-  }
+    @Override
+    public void teleopInit() {
+        teleopLooper.start();
+    }
 
-  @Override
-  public void teleopInit() {
-    teleopLooper.start();
-  }
+    @Override
+    public void teleopPeriodic() {
+        teleopLooper.start();
+    }
 
-  @Override
-  public void teleopPeriodic() {
-  }
+    @Override
+    public void testInit() {
+    }
 
-  @Override
-  public void testInit() {
-  }
-  
-  @Override
-  public void testPeriodic() {
-  }
+    @Override
+    public void testPeriodic() {
+    }
 }

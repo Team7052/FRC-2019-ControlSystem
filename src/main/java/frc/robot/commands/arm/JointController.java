@@ -12,6 +12,8 @@ public class JointController implements ArmSuperStateDelegate {
     private Motor motor;
     Sequence<MotionTriplet> jointSequence;
 
+    private boolean isEnabled = true;
+
     public JointController(Motor motor) {
         arm = ArmSubsystem.getInstance();
         this.motor = motor;
@@ -23,13 +25,13 @@ public class JointController implements ArmSuperStateDelegate {
     public void execute() {
         if (prev == 0) prev = Timer.getFPGATimestamp();
         double timestamp = Timer.getFPGATimestamp();
-        if (!jointSequence.hasBegan()) {
-            System.out.println(timestamp - prev);
-        }
-        if (!jointSequence.hasBegan()) jointSequence.start(timestamp);
+        if (!jointSequence.hasBegan() && !jointSequence.isEmpty()) jointSequence.start(timestamp);
         MotionTriplet triplet = jointSequence.update(timestamp);
 
-        
+        if (!isEnabled) {
+            arm.setSpeed(motor, 0.0);
+            return;
+        }
 
         if (jointSequence.isRunning() && triplet != null) {
             // a = position
@@ -49,5 +51,10 @@ public class JointController implements ArmSuperStateDelegate {
     @Override
     public void setSequence(Sequence<MotionTriplet> sequence) {
         this.jointSequence = sequence;
+    }
+
+    @Override
+    public void setEnabled(boolean isEnabled) {
+        this.isEnabled = isEnabled;
     }
 }

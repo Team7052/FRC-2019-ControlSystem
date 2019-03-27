@@ -1,10 +1,12 @@
 package frc.robot.states;
 
-import frc.robot.commands.CoupledLiftProfiler;
 import frc.robot.helpers.Pair;
 import frc.robot.motionProfiling.MotionProfileState;
-import frc.robot.motionProfiling.MotionProfiler;
 import frc.robot.motionProfiling.MotionTriplet;
+import frc.robot.motionProfiling.FilterOutputModifier;
+import frc.robot.motionProfiling.TrapezoidShape;
+import frc.robot.motionProfiling.TrapezoidalFunctions;
+import frc.robot.motionProfiling.MotionFilter;
 import frc.robot.sequencing.Sequence;
 import frc.robot.states.substates.ClimberState;
 import frc.robot.subsystems.Climber;
@@ -85,48 +87,42 @@ public class ClimberSuperState extends SuperState<ClimberState> {
 }
 
 class HabClimbSequences {
+    public static double clawMaxVelocity = Math.PI / 3;
+    public static double clawMaxAcceleration = Math.PI / 2;
+    public static double rackMaxVelocity = 2.5; // inches / s
+    public static double rackMaxAcceleration = 1.5; // inches / s^2
+
     private static Climber climber = Climber.getInstance();
+
     public static Pair<Sequence<MotionTriplet>> hab2ClimbSequence() {
-        double initClaw = climber.getClaw().getDegrees() / 180.0 * Math.PI;
-        double initRack = climber.getRack().getLinearPosition();
-        double midClaw = PhysicsWorld.getInstance().solveClimberClawAngleForHeight(0,6.125);
-        double midRack = 0;
-
-        double endClaw = 90 / 180 * Math.PI;
-        double endRack = 6.125 + midRack;
-
-        Pair<MotionProfiler> step1 = CoupledLiftProfiler.generateProfiles(initClaw, midClaw, initRack, midRack);
-        Pair<MotionProfiler> step2 = CoupledLiftProfiler.getHabClimbProfiles(midClaw, endClaw, midRack, endRack);
-        Sequence<MotionTriplet> clawSequence = new Sequence<>();
-        Sequence<MotionTriplet> rackSequence = new Sequence<>();
-
-        clawSequence.addStep(step1.a);
-        clawSequence.addStep(step2.a);
-
-        rackSequence.addStep(step1.b);
-        rackSequence.addStep(step2.b);
-
-        return new Pair<>(clawSequence, rackSequence);
+        return habClimbSequence(6.125);
     }
-
     public static Pair<Sequence<MotionTriplet>> hab3ClimbSequence() {
+        return habClimbSequence(19.125);
+    }
+    public static Pair<Sequence<MotionTriplet>> habClimbSequence(double habHeight) {
         double initClaw = climber.getClaw().getDegrees() / 180.0 * Math.PI;
         double initRack = climber.getRack().getLinearPosition();
-        double midClaw = PhysicsWorld.getInstance().solveClimberClawAngleForHeight(0, 19.125);
+        double midClaw = PhysicsWorld.getInstance().solveClimberClawAngleForHeight(0, habHeight);
         double midRack = 0;
 
         double endClaw = 90 / 180 * Math.PI;
-        double endRack = 19.125 + midRack;
+        double endRack = habHeight + midRack;
 
-        Pair<MotionProfiler> step1 = CoupledLiftProfiler.generateProfiles(initClaw, midClaw, initRack, midRack);
-        Pair<MotionProfiler> step2 = CoupledLiftProfiler.getHabClimbProfiles(midClaw, endClaw, midRack, endRack);
+        TrapezoidShape clawShape = TrapezoidalFunctions.generateTrapezoidShape(initClaw, endClaw, clawMaxVelocity, clawMaxAcceleration);
+        TrapezoidShape rackShape = TrapezoidalFunctions.generateTrapezoidShape(initRack, endRack, rackMaxVelocity, rackMaxAcceleration);
+        MotionFilter clawProfileStep1 = MotionFilter.trapezoidalProfileFilter(clawShape, initClaw);
+        MotionFilter rackProfileStep1 = MotionFilter.trapezoidalProfileFilter(rackShape, initRack);
+
+        Pair<MotionFilter> step2 = syncHabClimbProfiles(midClaw, endClaw, midRack, endRack);
         Sequence<MotionTriplet> clawSequence = new Sequence<>();
         Sequence<MotionTriplet> rackSequence = new Sequence<>();
 
-        clawSequence.addStep(step1.a);
+
+        clawSequence.addStep(clawProfileStep1);
         clawSequence.addStep(step2.a);
 
-        rackSequence.addStep(step1.b);
+        rackSequence.addStep(rackProfileStep1);
         rackSequence.addStep(step2.b);
 
         return new Pair<>(clawSequence, rackSequence);
@@ -138,13 +134,51 @@ class HabClimbSequences {
         double endClaw = 180 / 180 * Math.PI;
         double endRack = climber.getRack().getHomeLinearPosition();
 
-        Pair<MotionProfiler> step1 = CoupledLiftProfiler.generateProfiles(initClaw, endClaw, initRack, endRack);
-        
+        TrapezoidShape clawShape = TrapezoidalFunctions.generateTrapezoidShape(initClaw, endClaw, clawMaxVelocity, clawMaxAcceleration);
+        TrapezoidShape rackShape = TrapezoidalFunctions.generateTrapezoidShape(initRack, endRack, rackMaxVelocity, rackMaxAcceleration);
+
+        MotionFilter clawProfile = MotionFilter.trapezoidalProfileFilter(clawShape, initClaw);
+        MotionFilter rackProfile = MotionFilter.trapezoidalProfileFilter(rackShape, initRack);
+
         Sequence<MotionTriplet> clawSequence = new Sequence<>();
         Sequence<MotionTriplet> rackSequence = new Sequence<>();
-        clawSequence.addStep(step1.a);
-        rackSequence.addStep(step1.b);
+        clawSequence.addStep(clawProfile);
+        rackSequence.addStep(rackProfile);
 
         return new Pair<>(clawSequence, rackSequence);
+    }
+
+    /* assumes that rack is touching ground and claw is touching the hab */
+    private static Pair<MotionFilter> syncHabClimbProfiles(double initClaw, double endClaw, double initRack, double endRack) {
+        // generate profiles
+        TrapezoidShape clawShape = TrapezoidalFunctions.generateTrapezoidShape(initClaw, endClaw, clawMaxVelocity, clawMaxAcceleration);
+        TrapezoidShape rackShape = TrapezoidalFunctions.generateTrapezoidShape(initRack, endRack, rackMaxVelocity, rackMaxAcceleration);
+
+        MotionFilter clawProfile, rackProfile;
+        double give = 15.0 / 180.0 * Math.PI;
+
+        if (clawShape.totalTime() <= rackShape.totalTime()) {
+            System.out.println("Solve with fixed rack heights");
+            
+            FilterOutputModifier<MotionTriplet> filter = (dt, endTime, triplet) -> {
+                double angle = PhysicsWorld.getInstance().solveClimberClawAngleForHeight(rackShape.getIntegralForTime(dt), endRack) - (dt / endTime) * give;
+                return new MotionTriplet(angle, 0.0, 0.0);
+            };
+
+            rackProfile = MotionFilter.trapezoidalProfileFilter(rackShape, initRack);
+            clawProfile = new MotionFilter(filter, () -> rackShape.totalTime());
+        }
+        else {
+            FilterOutputModifier<MotionTriplet> filter = (dt, endTime, triplet) -> {
+                double height = PhysicsWorld.getInstance().solveClimberRackHeightForAngle(clawShape.getIntegralForTime(dt), endRack) - (dt / endTime) * give;
+                return new MotionTriplet(height, 0.0, 0.0);
+            };
+            // solve based on claw
+            System.out.println("Solve with fixed claw angles");
+            clawProfile = MotionFilter.trapezoidalProfileFilter(clawShape, initClaw);
+            rackProfile = new MotionFilter(filter, () -> clawShape.totalTime());
+        }
+
+        return new Pair<>(clawProfile, rackProfile);
     }
 }

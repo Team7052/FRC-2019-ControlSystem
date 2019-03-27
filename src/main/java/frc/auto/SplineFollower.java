@@ -22,18 +22,8 @@ public class SplineFollower extends Step<Pair<Double>> {
     double prevTime = 0;
 
     @Override
-    public Pair<Double> update(double timestamp) {
-        double percentage = (timestamp - this.startTime) / this.totalRunningTime.get();
-        if (percentage >= 1.00) {
-            this.endStep();
-            return null;
-        }
-        return this.computeForPercentage(percentage);
-    }
-
-    @Override
-    public Pair<Double> getLastUpdate() {
-        return this.computeForPercentage(0.99999);
+    public Pair<Double> getUpdateForDeltaTime(double dt) {
+        return this.computeForPercentage(dt / this.totalRunningTime.get());
     }
 
     private Pair<Double> computeForPercentage(double percentage) {

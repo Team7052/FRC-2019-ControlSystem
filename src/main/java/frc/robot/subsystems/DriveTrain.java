@@ -7,6 +7,9 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.sensors.PigeonIMU;
+import com.ctre.phoenix.sensors.PigeonIMU.PigeonState;
+
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
@@ -37,8 +40,10 @@ public class DriveTrain extends Subsystem {
   private SpeedControllerGroup leftSpeedGroup;
   private SpeedControllerGroup rightSpeedGroup;
 
-  Encoder leftEncoder;
-  Encoder rightEncoder;
+  private Encoder leftEncoder;
+  private Encoder rightEncoder;
+
+  private PigeonIMU imuSensor;
 
   // private initializer so you can't initialize more than 1 drive train
   private DriveTrain() {
@@ -53,6 +58,8 @@ public class DriveTrain extends Subsystem {
 
     leftEncoder = new Encoder(2, 3, false, EncodingType.k1X);
     rightEncoder = new Encoder(0, 1, true, EncodingType.k1X);
+
+    imuSensor = new PigeonIMU(RobotMap.kPigeonSensor);
   }
 
   @Override
@@ -86,5 +93,19 @@ public class DriveTrain extends Subsystem {
   }
   public double getRightVelocity() {
     return this.rightEncoder.getRate();
+  }
+
+  public void resetAngle() {
+    this.imuSensor.setYaw(0);
+  }
+
+  public double getAngle() {
+    double[] ypr = new double[3];
+    this.imuSensor.getYawPitchRoll(ypr);
+    return ypr[0] / 180.0 * Math.PI;
+  }
+
+  public boolean imuSensorIsConnectedAndCalibrated() {
+    return this.imuSensor.getState() == PigeonState.Ready;
   }
 }

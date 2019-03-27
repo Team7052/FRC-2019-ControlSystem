@@ -135,7 +135,6 @@ public class RotationVictorSPX extends WPI_VictorSPX implements IRotationMotor {
         int targetPosition = degreesToPosition(degrees);
         this.pidController.setSetpoint(targetPosition);
         double value = (this.sensorPhase ? -1 : 1) * this.pidController.calculatePIDOutput(this.encoder.get());
-
         this.set(ControlMode.PercentOutput, value);
     }
 
@@ -202,7 +201,6 @@ public class RotationVictorSPX extends WPI_VictorSPX implements IRotationMotor {
             if (this.getPosition() >= maxPosition) value = 0.0;
             if (this.getPosition() <= minPosition) value = 0.0;
         }
-        
         super.set(mode, value);
     }
 }

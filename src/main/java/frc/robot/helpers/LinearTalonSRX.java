@@ -9,7 +9,6 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 public class LinearTalonSRX extends WPI_TalonSRX implements ILinearMotor {
     private double k_p, k_i, k_d;
 
-
     /* 1 revolution to x meters */
     private double conversionFactorRate;
 
@@ -145,7 +144,6 @@ public class LinearTalonSRX extends WPI_TalonSRX implements ILinearMotor {
     public void setIntegralValue(double value) {
         this.setIntegralAccumulator(value);
     }
-
     
     @Override
     public double positionToLinear(int position) {

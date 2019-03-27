@@ -1,13 +1,17 @@
 package frc.robot;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.commands.ClawCommand;
+import frc.robot.commands.FollowSplineCommand;
 import frc.robot.commands.RackCommand;
 import frc.robot.commands.TankDriveCommand;
 import frc.robot.commands.arm.ArmControllerCommand;
+import frc.robot.motionProfiling.Point;
 import frc.robot.networking.Network;
 import frc.robot.states.substates.ArmState;
-import frc.robot.states.substates.ClimberState;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ArmSubsystem.Motor;
 import frc.robot.subsystems.Climber;
@@ -25,6 +29,7 @@ public class LoopsManager {
     RackCommand rackCommand;
     ClawCommand clawCommand;
     LiftCommand liftCommand;
+    FollowSplineCommand autoCommand;
     
     public LoopsManager() {
         arm = ArmSubsystem.getInstance();
@@ -34,19 +39,25 @@ public class LoopsManager {
         rackCommand = new RackCommand();
         clawCommand = new ClawCommand();
         liftCommand = new LiftCommand();
+        
+        Point[] path = {
+            new Point (0, 0), new Point (27,56.5), new Point (45, 81.5), new Point (60, 89.5)
+        };
+        autoCommand = new FollowSplineCommand(new ArrayList<>(Arrays.asList(path)), 3.5);
 
         climber.getSuperState().setClawDelegate(clawCommand);
         climber.getSuperState().setRackDelegate(rackCommand);
     }
+
     public Loop hardwareLoop = new Loop() {
         @Override
         public synchronized void onUpdate() {
-             armCommand.execute();
-             driveCommand.execute();
-             //rackCommand.execute();
-             //clawCommand.execute();
-             //liftCommand.execute();
-             //System.out.println(Climber.getInstance().getClaw().getDegrees() + " " + Climber.getInstance().getClaw().getPosition());
+            armCommand.execute();
+            driveCommand.execute();
+            //rackCommand.execute();
+            //clawCommand.execute();
+            //liftCommand.execute();
+            //System.out.println(Climber.getInstance().getClaw().getDegrees() + " " + Climber.getInstance().getClaw().getPosition());
         }
     };
 
@@ -81,7 +92,7 @@ public class LoopsManager {
                 arm.getSuperState().setState(ArmState.raiseArm);
             }
 
-            if (Robot.oi.button_L1()) {
+            /*if (Robot.oi.button_L1()) {
                 climber.getSuperState().setState(ClimberState.hab2Climb);
             }
             else if (Robot.oi.dPad_LEFT()) {
@@ -89,25 +100,7 @@ public class LoopsManager {
             }
             else if (Robot.oi.dPad_RIGHT()) {
                 climber.getSuperState().setState(ClimberState.hab3Climb);
-            }
-            /*
-            if (Robot.oi.button_L1() && !motionProfilesRunning()) {
-                currentProfile = "Pull out";
-                if (this.controlByLengthAndHeight) {
-                    current_h -= 1.5;
-                    this.setDistances(current_l, current_h);
-                    wristCommand.disableWrist();
-                }
-            }
-            else if (Robot.oi.button_L2() && !currentProfile.equals("Flip")) {
-                currentProfile = "Flip";
-                if (this.controlByLengthAndHeight) {
-                    current_h -= 1.5;
-                    this.setAngles(radians(235), radians(180), radians(330));
-                    wristCommand.enableWrist();
-                }
-            }
-            */
+            }*/
 
             arm.getSuperState().update();
             climber.getSuperState().update();
@@ -131,16 +124,15 @@ public class LoopsManager {
 
     public Loop autoLoop = new Loop() {
         double prev = 0;
-        double timestamp = 0;
         @Override
         public void onStart() {
-            
         }
         @Override
         public void onUpdate() {
             if (prev == 0) prev = Timer.getFPGATimestamp();
-                timestamp = Timer.getFPGATimestamp();
-                System.out.println("Update");
+            double timestamp = Timer.getFPGATimestamp();
+            autoCommand.execute();
+
             if (timestamp - prev > 1.5) {
                 arm.getSuperState().setState(ArmState.highRocketHatch);
             }

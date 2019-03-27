@@ -26,7 +26,7 @@ public class RackCommand implements ClimberSuperStateDelegate {
         if (sequence.isRunning() && triplet != null) {
             // a = position
             double position = triplet.a;
-            System.out.println(position + " " + climber.getRack().getLinearPosition() + " " + climber.getRack().getPercentOutput() + " " + (timestamp - prev) + " " + climber.getRack().getCurrent());
+            //System.out.println(position + " " + climber.getRack().getLinearPosition() + " " + climber.getRack().getPercentOutput() + " " + (timestamp - prev) + " " + climber.getRack().getCurrent());
             
             climber.getRack().setTargetDisplacement(position);
         }
