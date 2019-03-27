@@ -6,7 +6,7 @@ import frc.robot.motionProfiling.MotionTriplet;
 import frc.robot.motionProfiling.FilterOutputModifier;
 import frc.robot.motionProfiling.TrapezoidShape;
 import frc.robot.motionProfiling.TrapezoidalFunctions;
-import frc.robot.motionProfiling.MotionFilter;
+import frc.robot.motionProfiling.FilterStep;
 import frc.robot.sequencing.Sequence;
 import frc.robot.states.substates.ClimberState;
 import frc.robot.subsystems.Climber;
@@ -111,10 +111,10 @@ class HabClimbSequences {
 
         TrapezoidShape clawShape = TrapezoidalFunctions.generateTrapezoidShape(initClaw, endClaw, clawMaxVelocity, clawMaxAcceleration);
         TrapezoidShape rackShape = TrapezoidalFunctions.generateTrapezoidShape(initRack, endRack, rackMaxVelocity, rackMaxAcceleration);
-        MotionFilter clawProfileStep1 = MotionFilter.trapezoidalProfileFilter(clawShape, initClaw);
-        MotionFilter rackProfileStep1 = MotionFilter.trapezoidalProfileFilter(rackShape, initRack);
+        FilterStep<MotionTriplet> clawProfileStep1 = FilterStep.trapezoidalProfileFilter(clawShape, initClaw);
+        FilterStep<MotionTriplet> rackProfileStep1 = FilterStep.trapezoidalProfileFilter(rackShape, initRack);
 
-        Pair<MotionFilter> step2 = syncHabClimbProfiles(midClaw, endClaw, midRack, endRack);
+        Pair<FilterStep<MotionTriplet>> step2 = syncHabClimbProfiles(midClaw, endClaw, midRack, endRack);
         Sequence<MotionTriplet> clawSequence = new Sequence<>();
         Sequence<MotionTriplet> rackSequence = new Sequence<>();
 
@@ -137,8 +137,8 @@ class HabClimbSequences {
         TrapezoidShape clawShape = TrapezoidalFunctions.generateTrapezoidShape(initClaw, endClaw, clawMaxVelocity, clawMaxAcceleration);
         TrapezoidShape rackShape = TrapezoidalFunctions.generateTrapezoidShape(initRack, endRack, rackMaxVelocity, rackMaxAcceleration);
 
-        MotionFilter clawProfile = MotionFilter.trapezoidalProfileFilter(clawShape, initClaw);
-        MotionFilter rackProfile = MotionFilter.trapezoidalProfileFilter(rackShape, initRack);
+        FilterStep<MotionTriplet> clawProfile = FilterStep.trapezoidalProfileFilter(clawShape, initClaw);
+        FilterStep<MotionTriplet> rackProfile = FilterStep.trapezoidalProfileFilter(rackShape, initRack);
 
         Sequence<MotionTriplet> clawSequence = new Sequence<>();
         Sequence<MotionTriplet> rackSequence = new Sequence<>();
@@ -149,12 +149,12 @@ class HabClimbSequences {
     }
 
     /* assumes that rack is touching ground and claw is touching the hab */
-    private static Pair<MotionFilter> syncHabClimbProfiles(double initClaw, double endClaw, double initRack, double endRack) {
+    private static Pair<FilterStep<MotionTriplet>> syncHabClimbProfiles(double initClaw, double endClaw, double initRack, double endRack) {
         // generate profiles
         TrapezoidShape clawShape = TrapezoidalFunctions.generateTrapezoidShape(initClaw, endClaw, clawMaxVelocity, clawMaxAcceleration);
         TrapezoidShape rackShape = TrapezoidalFunctions.generateTrapezoidShape(initRack, endRack, rackMaxVelocity, rackMaxAcceleration);
 
-        MotionFilter clawProfile, rackProfile;
+        FilterStep<MotionTriplet> clawProfile, rackProfile;
         double give = 15.0 / 180.0 * Math.PI;
 
         if (clawShape.totalTime() <= rackShape.totalTime()) {
@@ -165,8 +165,8 @@ class HabClimbSequences {
                 return new MotionTriplet(angle, 0.0, 0.0);
             };
 
-            rackProfile = MotionFilter.trapezoidalProfileFilter(rackShape, initRack);
-            clawProfile = new MotionFilter(filter, () -> rackShape.totalTime());
+            rackProfile = FilterStep.trapezoidalProfileFilter(rackShape, initRack);
+            clawProfile = new FilterStep<MotionTriplet>(filter, () -> rackShape.totalTime());
         }
         else {
             FilterOutputModifier<MotionTriplet> filter = (dt, endTime, triplet) -> {
@@ -175,8 +175,8 @@ class HabClimbSequences {
             };
             // solve based on claw
             System.out.println("Solve with fixed claw angles");
-            clawProfile = MotionFilter.trapezoidalProfileFilter(clawShape, initClaw);
-            rackProfile = new MotionFilter(filter, () -> clawShape.totalTime());
+            clawProfile = FilterStep.trapezoidalProfileFilter(clawShape, initClaw);
+            rackProfile = new FilterStep<MotionTriplet>(filter, () -> clawShape.totalTime());
         }
 
         return new Pair<>(clawProfile, rackProfile);

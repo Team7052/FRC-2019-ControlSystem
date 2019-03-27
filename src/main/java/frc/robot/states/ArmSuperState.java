@@ -3,7 +3,7 @@ package frc.robot.states;
 import frc.robot.helpers.Pair;
 import frc.robot.helpers.Triplet;
 import frc.robot.motionProfiling.FilterOutputModifier;
-import frc.robot.motionProfiling.MotionFilter;
+import frc.robot.motionProfiling.FilterStep;
 import frc.robot.motionProfiling.MotionTriplet;
 import frc.robot.motionProfiling.TrapezoidShape;
 import frc.robot.motionProfiling.TrapezoidalFunctions;
@@ -196,7 +196,7 @@ class ArmSequences {
         return sequence;
     }
 
-    private static Triplet<MotionFilter> generateProfiles(double shoulderAngle, double elbowAngle, double wristAngle) {
+    private static Triplet<FilterStep<MotionTriplet>> generateProfiles(double shoulderAngle, double elbowAngle, double wristAngle) {
         double initShoulder = ArmSubsystem.getInstance().getDegrees(Motor.SHOULDER_JOINT) / 180 * Math.PI;
         double endShoulder = shoulderAngle;
         double initElbow = ArmSubsystem.getInstance().getAbsoluteDegrees(Motor.ELBOW_JOINT) / 180 * Math.PI;
@@ -206,20 +206,20 @@ class ArmSequences {
 
         return generateProfiles(initShoulder, initElbow, initWrist, endShoulder, endElbow, endWrist);
     }
-    private static Triplet<MotionFilter> generateProfiles(double initShoulder, double initElbow, double initWrist, double endShoulder, double endElbow, double endWrist) {
+    private static Triplet<FilterStep<MotionTriplet>> generateProfiles(double initShoulder, double initElbow, double initWrist, double endShoulder, double endElbow, double endWrist) {
         // trapezoidal motion profiling.
         TrapezoidShape initShoulderShape = TrapezoidalFunctions.generateTrapezoidShape(initShoulder, endShoulder, shoulderMaxVelocity, shoulderMaxAcceleration);
         TrapezoidShape initElbowShape = TrapezoidalFunctions.generateTrapezoidShape(initElbow, endElbow, elbowMaxVelocity, elbowMaxAcceleration);
         Pair<TrapezoidShape> newShapes = TrapezoidalFunctions.syncTrapezoidShapes(initShoulderShape, initElbowShape);
         // generate nonsensical elbow shape at beginning
-        MotionFilter shoulderProfile = MotionFilter.trapezoidalProfileFilter(newShapes.a, initShoulder);
+        FilterStep<MotionTriplet> shoulderProfile = FilterStep.trapezoidalProfileFilter(newShapes.a, initShoulder);
 
         FilterOutputModifier<MotionTriplet> elbowFilter = (dt, endTime, triplet) -> {
             double absoluteShoulderPosition = shoulderProfile.getUpdateForDeltaTime(dt).getPosition();
             double relativeElbow = radiansElbowRelativeToShoulder(triplet.getPosition(), absoluteShoulderPosition);
             return new MotionTriplet(relativeElbow, triplet.getVelocity(), triplet.getAcceleration());
         };
-        MotionFilter elbowProfile = MotionFilter.trapezoidalProfileFilter(newShapes.b, initElbow);
+        FilterStep<MotionTriplet> elbowProfile = FilterStep.trapezoidalProfileFilter(newShapes.b, initElbow);
         elbowProfile.addFilter(elbowFilter);
         // interpolate wrist points
         FilterOutputModifier<MotionTriplet> wristFilter = (dt, endTime, triplet) -> {

@@ -8,7 +8,8 @@ import frc.auto.Spline;
 import frc.auto.SplineFollower;
 import frc.auto.TurnToAngleStep;
 import frc.robot.helpers.Pair;
-import frc.robot.motionProfiling.MotionFilter;
+import frc.robot.motionProfiling.FilterStep;
+import frc.robot.motionProfiling.MotionTriplet;
 import frc.robot.motionProfiling.Point;
 import frc.robot.motionProfiling.TrapezoidShape;
 import frc.robot.motionProfiling.TrapezoidalFunctions;
@@ -36,7 +37,8 @@ public class FollowSplineCommand {
             driveTrain.resetAngle();
             double initAngle = driveTrain.getAngle();
             TrapezoidShape turnVelocityShape = TrapezoidalFunctions.generateTrapezoidShape(initAngle, spline.getInitialTurnAngle(), Math.PI / 2, Math.PI / 2);
-            MotionFilter turningFilter = MotionFilter.trapezoidalProfileFilter(turnVelocityShape, initAngle);
+            FilterStep<MotionTriplet> turningFilter = FilterStep.trapezoidalProfileFilter(turnVelocityShape, initAngle);
+            
         }
         else {
             TurnToAngleStep angleTurner = new TurnToAngleStep(spline.getInitialTurnAngle(), false);
