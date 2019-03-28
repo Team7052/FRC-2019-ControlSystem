@@ -179,7 +179,7 @@ class ArmSequences {
         return toSequence(setDistances(normalized_l, normalized_h - 2, radians(180)));
     }
 
-    private static Triplet<MotionFilter> setDistances(double l, double h, double wristRadians) {
+    private static Triplet<FilterStep<MotionTriplet>> setDistances(double l, double h, double wristRadians) {
         Pair<Double> angles = PhysicsWorld.getInstance().armInverseKinematics(l + PhysicsConstants.backToArm + PhysicsConstants.thickness / 2 - PhysicsConstants.hand, PhysicsConstants.armHeight + PhysicsConstants.baseHeight - h);
         return generateProfiles(angles.a, angles.b, wristRadians);
     }
@@ -188,7 +188,7 @@ class ArmSequences {
         return degrees / 180.0 * Math.PI;
     }
 
-    private static Triplet<Sequence<MotionTriplet>> toSequence(Triplet<MotionFilter> triplet) {
+    private static Triplet<Sequence<MotionTriplet>> toSequence(Triplet<FilterStep<MotionTriplet>> triplet) {
         Triplet<Sequence<MotionTriplet>> sequence = new Triplet<>(new Sequence<>(), new Sequence<>(), new Sequence<>());
         sequence.a.addStep(triplet.a);
         sequence.b.addStep(triplet.b);
@@ -232,7 +232,7 @@ class ArmSequences {
             return new MotionTriplet(relativeWristPosition, 0.0, 0.0);
         };
         // take elbow absolute angles and transform the wrist to match those angles
-        MotionFilter wristProfile = new MotionFilter(wristFilter, () -> newShapes.a.totalTime());
+        FilterStep<MotionTriplet> wristProfile = new FilterStep<MotionTriplet>(wristFilter, () -> newShapes.a.totalTime());
 
         return new Triplet<>(shoulderProfile, elbowProfile, wristProfile);
     }
