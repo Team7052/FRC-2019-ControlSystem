@@ -44,11 +44,7 @@ public class FollowSplineCommand {
         driveTrainSequence.start(Timer.getFPGATimestamp());
         Pair<Double> velocities = driveTrainSequence.update(Timer.getFPGATimestamp());
         if (velocities == null) velocities = new Pair<Double>(0.0, 0.0);
-
-        double leftSpeed = (velocities.a) + (leftDifference * kp);
-        double rightSpeed = (velocities.b) + (rightDifference * kp);
-
-  	    driveTrain.setLeftGroupSpeed(leftSpeed);
-        driveTrain.setRightGroupSpeed(rightSpeed);
+  	    driveTrain.setLeftGroupSpeed(velocities.a);
+        driveTrain.setRightGroupSpeed(velocities.b);
     }
 }

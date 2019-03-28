@@ -62,7 +62,7 @@ public class Spline {
 
     private ArrayList<Point> calcFinalPoints(double[] xs, double[] ys, ArrayList<Point> tangents) {
         ArrayList<Point> finalPoints = new ArrayList<>();
-        double delta = 0.1;
+        double delta = 0.3;
         for (int i = 0; i < tangents.size(); i++) {
             double yLow;
             double yHigh;

@@ -26,9 +26,6 @@ public class TurnToAngleStep extends Step<Pair<Double>> {
             this.endStep();
             return null;
         }
-        /* if(percentage>0.5){
-            percentage = 1- percentage;
-        } */
         if (theta > 0) return new Pair<>(0.3, -0.3);
         return new Pair<>(-0.3, 0.3);
     }
