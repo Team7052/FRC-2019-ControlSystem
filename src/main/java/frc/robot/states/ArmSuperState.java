@@ -144,11 +144,11 @@ class ArmSequences {
         return toSequence(setDistances(14, 52, radians(180)));
     }
     public static Triplet<Sequence<MotionTriplet>> highRocketHatchSequence() {
-        return toSequence(setDistances(2, 78, radians(180)));
+        return toSequence(setDistances(5, 77, radians(180)));
     }
 
     public static Triplet<Sequence<MotionTriplet>> intakeCargoSequence() {
-        return toSequence(generateProfiles(radians(40),  radians(160), radians(90)));
+        return toSequence(generateProfiles(radians(40),  radians(160), radians(150)));
     }
     public static Triplet<Sequence<MotionTriplet>> lowRocketCargoSequence() {
         return toSequence(generateProfiles(radians(60), radians(70), radians(90)));

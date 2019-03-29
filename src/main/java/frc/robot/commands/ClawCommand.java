@@ -24,7 +24,7 @@ public class ClawCommand implements ClimberSuperStateDelegate {
             // a = position
             double position = triplet.a;
             climber.getClaw().setDegrees(position / Math.PI * 180);
-            //System.out.println(position / Math.PI * 180 + " " + climber.getClaw().getDegrees() + " " + climber.getClaw().getPercentOutput());
+            System.out.println(position / Math.PI * 180 + " " + climber.getClaw().getDegrees() + " " + climber.getClaw().getPercentOutput());
         }
         if (sequence.isFinished(timestamp)) {
             MotionTriplet lastTriplet = sequence.getLastUpdate();

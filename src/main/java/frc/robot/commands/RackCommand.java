@@ -28,13 +28,13 @@ public class RackCommand implements ClimberSuperStateDelegate {
             double position = triplet.a;
             //System.out.println(position + " " + climber.getRack().getLinearPosition() + " " + climber.getRack().getPercentOutput() + " " + (timestamp - prev) + " " + climber.getRack().getCurrent());
             
-            climber.getRack().setTargetDisplacement(position);
+            //climber.getRack().setTargetDisplacement(position);
         }
         if (sequence.isFinished(timestamp)) {
             MotionTriplet lastTriplet = sequence.getLastUpdate();
             if (lastTriplet != null) {
                 double position = lastTriplet.a;
-                climber.getRack().setTargetDisplacement(position);
+                //climber.getRack().setTargetDisplacement(position);
                 //System.out.println(position + " " + climber.getLeg().getLinearPosition() + " " + climber.getLeg().getPercentOutput());
             }
         }

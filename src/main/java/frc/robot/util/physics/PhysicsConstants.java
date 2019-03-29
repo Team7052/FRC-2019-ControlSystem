@@ -19,8 +19,10 @@ public class PhysicsConstants {
 
     public static final double climberLegToBack = 10.5;
     public static final double climberLegLength = 20;
-    public static final double climberClawWidth = 8.25;
-    public static final double climberClawLength = 10;
+    //public static final double climberClawWidth = 8.25;
+    //public static final double climberClawLength = 10;
+    public static final double climberClawWidth = 9.60;
+    public static final double climberClawLength = 11.693;
     public static final double climberClawBaseXOffset = 3.875;
     public static final double climberClawBaseYOffset = 4;
     public static final double climberLegMaxWheelsGroundOffset = 0.25;

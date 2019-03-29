@@ -109,8 +109,10 @@ class HabClimbSequences {
         double endClaw = 90 / 180 * Math.PI;
         double endRack = habHeight + midRack;
 
-        TrapezoidShape clawShape = TrapezoidalFunctions.generateTrapezoidShape(initClaw, endClaw, clawMaxVelocity, clawMaxAcceleration);
-        TrapezoidShape rackShape = TrapezoidalFunctions.generateTrapezoidShape(initRack, endRack, rackMaxVelocity, rackMaxAcceleration);
+        System.out.println("Climb: " + habHeight);
+
+        TrapezoidShape clawShape = TrapezoidalFunctions.generateTrapezoidShape(initClaw, midClaw, clawMaxVelocity, clawMaxAcceleration);
+        TrapezoidShape rackShape = TrapezoidalFunctions.generateTrapezoidShape(initRack, midRack, rackMaxVelocity, rackMaxAcceleration);
         FilterStep<MotionTriplet> clawProfileStep1 = FilterStep.trapezoidalProfileFilter(clawShape, initClaw);
         FilterStep<MotionTriplet> rackProfileStep1 = FilterStep.trapezoidalProfileFilter(rackShape, initRack);
 
@@ -161,6 +163,7 @@ class HabClimbSequences {
             System.out.println("Solve with fixed rack heights");
             
             FilterOutputModifier<MotionTriplet> filter = (dt, endTime, triplet) -> {
+                System.out.println(rackShape.getIntegralForTime(dt));
                 double angle = PhysicsWorld.getInstance().solveClimberClawAngleForHeight(rackShape.getIntegralForTime(dt), endRack) - (dt / endTime) * give;
                 return new MotionTriplet(angle, 0.0, 0.0);
             };

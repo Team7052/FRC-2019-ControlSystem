@@ -89,7 +89,7 @@ public class ArmSubsystem extends Subsystem {
     wristMotor.setSensorPhase(false);
     wristMotor.setInvertedPosition(true);
 
-    wristMotor.setHomeDegrees(150);
+    wristMotor.setHomeDegrees(160);
     wristMotor.setDegreesLimits(0, 360);
 
     superState = new ArmSuperState();

@@ -34,8 +34,8 @@ public class Climber extends Subsystem {
         clawMotor.configPeakOutputForward(0.9, clawMotor.slotIdx);
         clawMotor.configPeakOutputReverse(-0.9, clawMotor.slotIdx);
         clawMotor.setInvertedPosition(true);
-        clawMotor.setHomeDegrees(180);
-        clawMotor.setDegreesLimits(60, 200);
+        clawMotor.setHomeDegrees(210);
+        clawMotor.setDegreesLimits(60, 220);
 
         clawMotor.set_kp(0.015);
         clawMotor.set_ki(0.0);
@@ -48,7 +48,9 @@ public class Climber extends Subsystem {
         rackMotor.configPeakOutputReverse(-1.0, rackMotor.slotIdx);
         rackMotor.setSensorPhase(true);
         this.rackMotor.setHomeLinearPosition(-PhysicsConstants.climberLegMaxWheelsGroundOffset);
-        this.rackMotor.setDisplacementLimits(-PhysicsConstants.climberLegMaxWheelsGroundOffset, 19.5);
+        //this.rackMotor.setDisplacementLimits(-PhysicsConstants.climberLegMaxWheelsGroundOffset, 19.5);
+        this.rackMotor.setDisplacementLimits(-20, 19.5);
+
         rackMotor.set_kp(2.0);
         rackMotor.set_ki(0.0);
         rackMotor.set_kd(0.0);

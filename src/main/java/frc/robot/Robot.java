@@ -17,6 +17,7 @@ import frc.robot.util.loops.Looper;
 public class Robot extends TimedRobot {
 
     public static OI oi;
+    public static OI oi2;
 
     Looper globalLooper;
     Looper teleopLooper;
@@ -29,7 +30,8 @@ public class Robot extends TimedRobot {
         teleopLooper = new Looper();
         autoLooper = new Looper();
         globalLooper = new Looper();
-        oi = new Logitech(0);
+        oi = new XBoxOne(0);
+        oi2 = new XBoxOne(1);
 
         loopsManager = new LoopsManager();
 

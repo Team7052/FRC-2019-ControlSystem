@@ -28,7 +28,7 @@ public class TankDriveCommand {
 		double difference = 0;
 		double theta = 0;
 
-		double multiplier = 0.4;
+		double multiplier = 0.55;
 
 		if (Robot.oi.button_L2()) multiplier = 0.85;
 		if (Math.abs(y) < deadBand) y = 0;

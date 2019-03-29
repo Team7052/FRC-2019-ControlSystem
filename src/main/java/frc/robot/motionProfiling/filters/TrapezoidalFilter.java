@@ -14,6 +14,7 @@ public class TrapezoidalFilter implements FilterOutputModifier<MotionTriplet> {
         double velocity = shape.getVelocityForTime(dt);
         double position = shape.getIntegralForTime(dt);
         double acceleration = shape.getDerivativeForTime(dt);
-        return  new MotionTriplet(position + currentValue.getPosition(), velocity, acceleration);
+        if (currentValue != null) return new MotionTriplet(position + currentValue.getPosition(), velocity, acceleration);
+        return new MotionTriplet(position, velocity, acceleration);
     }
 }

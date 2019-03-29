@@ -12,6 +12,7 @@ import frc.robot.commands.arm.ArmControllerCommand;
 import frc.robot.motionProfiling.Point;
 import frc.robot.networking.Network;
 import frc.robot.states.substates.ArmState;
+import frc.robot.states.substates.ClimberState;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ArmSubsystem.Motor;
 import frc.robot.subsystems.Climber;
@@ -54,10 +55,9 @@ public class LoopsManager {
         public synchronized void onUpdate() {
             armCommand.execute();
             driveCommand.execute();
-            //rackCommand.execute();
-            //clawCommand.execute();
+            rackCommand.execute();
+            clawCommand.execute();
             //liftCommand.execute();
-            //System.out.println(Climber.getInstance().getClaw().getDegrees() + " " + Climber.getInstance().getClaw().getPosition());
         }
     };
 
@@ -92,15 +92,19 @@ public class LoopsManager {
                 arm.getSuperState().setState(ArmState.raiseArm);
             }
 
-            /*if (Robot.oi.button_L1()) {
-                climber.getSuperState().setState(ClimberState.hab2Climb);
+            if (Robot.oi2 != null) {
+                /*if (Robot.oi2.button_X()) {
+                    climber.getSuperState().setState(ClimberState.hab2Climb);
+                }
+                else if (Robot.oi2.button_A()) {
+                    climber.getSuperState().setState(ClimberState.home);
+                }
+                else if (Robot.oi.button_Y()) {
+                    climber.getSuperState().setState(ClimberState.hab3Climb);
+                }*/
             }
-            else if (Robot.oi.dPad_LEFT()) {
-                climber.getSuperState().setState(ClimberState.home);
-            }
-            else if (Robot.oi.dPad_RIGHT()) {
-                climber.getSuperState().setState(ClimberState.hab3Climb);
-            }*/
+
+            
 
             arm.getSuperState().update();
             climber.getSuperState().update();

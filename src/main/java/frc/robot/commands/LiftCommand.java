@@ -10,12 +10,12 @@ public class LiftCommand {
     }
 
     public void execute() {
-        if (Robot.oi.dPad_RIGHT()) {
+        if (Robot.oi2.dPad_RIGHT()) {
             // up
             climber.getRack().setPercentOutput(0.3);
             System.out.println(climber.getRack().getLinearPosition() + " " + climber.getRack().getLinearVelocity());
         }
-        else if (Robot.oi.dPad_LEFT()) {
+        else if (Robot.oi2.dPad_LEFT()) {
             climber.getRack().setPercentOutput(-0.3);
             System.out.println(climber.getRack().getLinearPosition() + " " + climber.getRack().getLinearVelocity());
         }

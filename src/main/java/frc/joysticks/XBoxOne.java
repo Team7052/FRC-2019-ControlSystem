@@ -18,7 +18,7 @@ public class XBoxOne extends OI {
     @Override public boolean button_A() { return this.getButton(1); }
     @Override public boolean button_B() { return this.getButton(2); }
     @Override public boolean button_L1() { return this.getButton(5); }
-    @Override public boolean button_L2() { return Math.abs(this.axisTrigger_R2()) > 0.1; }
+    @Override public boolean button_L2() { return Math.abs(this.axisTrigger_L2()) > 0.1; }
     @Override public boolean button_L3() { return this.getButton(9); }
     @Override public boolean button_R1() { return this.getButton(6); }
     @Override public boolean button_R2() { return Math.abs(this.axisTrigger_R2()) > 0.1; }
@@ -26,12 +26,12 @@ public class XBoxOne extends OI {
     @Override public boolean button_back() { return this.getButton(7); }
     @Override public boolean button_start() { return this.getButton(8); }
 
-    @Override public boolean dPad_UP() { return false; }
-    @Override public boolean dPad_RIGHT() { return false; }
-    @Override public boolean dPad_DOWN() { return false; }
-    @Override public boolean dPad_LEFT() { return false; }
-    @Override public boolean dPad_UP_RIGHT() { return false; }
-    @Override public boolean dPad_UP_LEFT() { return false; }
-    @Override public boolean dPad_DOWN_RIGHT() { return false; }
-    @Override public boolean dPad_DOWN_LEFT() { return false; }
+    @Override public boolean dPad_UP() { return this.getDPad(DPadType.NORTH); }
+    @Override public boolean dPad_RIGHT() { return this.getDPad(DPadType.EAST); }
+    @Override public boolean dPad_DOWN() { return this.getDPad(DPadType.SOUTH); }
+    @Override public boolean dPad_LEFT() { return this.getDPad(DPadType.WEST); }
+    @Override public boolean dPad_UP_RIGHT() { return this.getDPad(DPadType.NORTHEAST); }
+    @Override public boolean dPad_UP_LEFT() { return this.getDPad(DPadType.NORTHWEST); }
+    @Override public boolean dPad_DOWN_RIGHT() { return this.getDPad(DPadType.SOUTHEAST); }
+    @Override public boolean dPad_DOWN_LEFT() { return this.getDPad(DPadType.SOUTHWEST); }
 }

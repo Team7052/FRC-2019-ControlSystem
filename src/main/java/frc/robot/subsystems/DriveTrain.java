@@ -59,7 +59,7 @@ public class DriveTrain extends Subsystem {
     leftEncoder = new Encoder(2, 3, false, EncodingType.k1X);
     rightEncoder = new Encoder(0, 1, true, EncodingType.k1X);
 
-    imuSensor = new PigeonIMU(RobotMap.kPigeonSensor);
+    //imuSensor = new PigeonIMU(RobotMap.kPigeonSensor);
   }
 
   @Override
