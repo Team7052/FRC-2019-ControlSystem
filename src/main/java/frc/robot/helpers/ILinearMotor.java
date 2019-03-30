@@ -7,6 +7,7 @@ public interface ILinearMotor extends IMotor {
     public double getMinLinearPosition();
     public double getMaxLinearPosition();
     public double getLinearVelocity();
+    public int getTarget();
 
     public void setRotationToDistanceRatio(double ratio);
     public void setTargetDisplacement(double displacement);
@@ -15,4 +16,5 @@ public interface ILinearMotor extends IMotor {
 
     public double positionToLinear(int position);
     public int linearToPosition(double linearPosition);
+
 }

@@ -11,20 +11,38 @@ public class LinearTalonSRX extends WPI_TalonSRX implements ILinearMotor {
 
     /* 1 revolution to x meters */
     private double conversionFactorRate;
+    private final int homeAbsolutePosition = 3200;
 
     private double homeLinearPosition, minLinearPosition, maxLinearPosition;
 
     private boolean positionInverted = false;
     private boolean sensorPhase = false;
 
-    private double currentTargetQuadraturePosition;
+    private int currentTargetQuadraturePosition;
 
     public final int slotIdx = 0;
     public final int timeoutMs = 20;
 
+    private boolean usingAbsolutePositioning;
+
     public LinearTalonSRX(int canID, double conversionRate) {
         super(canID);
         this.conversionFactorRate = conversionRate;
+    }
+
+    public void setUsingAbsolutePositioning(boolean useAbsolute) {
+        this.usingAbsolutePositioning = useAbsolute;
+        if (useAbsolute) {
+            // find difference from home position
+            int diff = this.getPosition() - this.homeAbsolutePosition;
+            double diffLinear = positionToLinear(diff);
+
+            this.setHomeLinearPosition(diffLinear);
+        }
+    }
+
+    public boolean isUsingAbsolutePosition() {
+        return this.usingAbsolutePositioning;
     }
 
     @Override
@@ -90,6 +108,11 @@ public class LinearTalonSRX extends WPI_TalonSRX implements ILinearMotor {
     @Override
     public boolean getInvertedPosition() {
         return this.positionInverted;
+    }
+
+    @Override
+    public int getTarget() {
+        return this.currentTargetQuadraturePosition;
     }
 
     @Override

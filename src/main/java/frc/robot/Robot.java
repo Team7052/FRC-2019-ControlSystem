@@ -7,10 +7,13 @@
 
 package frc.robot;
 
+import edu.wpi.cscore.UsbCamera;
+import edu.wpi.cscore.VideoSource;
+import edu.wpi.cscore.CvSink;
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.TimedRobot;
 import frc.joysticks.*;
 import frc.robot.commands.FollowSplineCommand;
-
 import frc.robot.util.loops.Looper;
 
 
@@ -22,6 +25,7 @@ public class Robot extends TimedRobot {
     Looper globalLooper;
     Looper teleopLooper;
     Looper autoLooper;
+    Looper cameraLooper;
     LoopsManager loopsManager;
     FollowSplineCommand autoCommand;
     @Override
@@ -30,6 +34,7 @@ public class Robot extends TimedRobot {
         teleopLooper = new Looper();
         autoLooper = new Looper();
         globalLooper = new Looper();
+        cameraLooper = new Looper();
         oi = new XBoxOne(0);
         oi2 = new XBoxOne(1);
 
@@ -42,8 +47,9 @@ public class Robot extends TimedRobot {
         globalLooper.register(loopsManager.physicsWorldLoop);
 
         autoLooper.register(loopsManager.autoLoop);
-
+        cameraLooper.register(loopsManager.cameraLoop);
         globalLooper.start();
+        cameraLooper.start();
     }
     @Override
     public void robotPeriodic() {
@@ -63,12 +69,13 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
-        autoLooper.start();
+        //autoLooper.start();
+        this.teleopLooper.start();
     }
 
     @Override
     public void autonomousPeriodic() {
-        autoLooper.start();
+        //autoLooper.start();
     }
 
     @Override

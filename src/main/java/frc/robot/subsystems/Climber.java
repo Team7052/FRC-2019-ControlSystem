@@ -34,8 +34,8 @@ public class Climber extends Subsystem {
         clawMotor.configPeakOutputForward(0.9, clawMotor.slotIdx);
         clawMotor.configPeakOutputReverse(-0.9, clawMotor.slotIdx);
         clawMotor.setInvertedPosition(true);
-        clawMotor.setHomeDegrees(210);
-        clawMotor.setDegreesLimits(60, 220);
+        clawMotor.setHomeDegrees(205);
+        clawMotor.setDegreesLimits(60, 210);
 
         clawMotor.set_kp(0.015);
         clawMotor.set_ki(0.0);
@@ -60,7 +60,7 @@ public class Climber extends Subsystem {
 
         this.superState = new ClimberSuperState();
 
-        //System.out.println("absolute position: " + this.rackMotor.getSensorCollection().getPulseWidthPosition());
+        System.out.println(rackMotor.getSensorCollection().getPulseWidthPosition());
     }
 
     public ClimberSuperState getSuperState() {

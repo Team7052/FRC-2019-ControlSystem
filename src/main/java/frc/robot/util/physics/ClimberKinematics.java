@@ -16,6 +16,7 @@ public class ClimberKinematics {
         double w = PhysicsConstants.climberClawWidth;
 
         double h2 = initHabHeight - height - PhysicsConstants.baseHeight - PhysicsConstants.climberClawBaseYOffset;
+        System.out.println("h2: " + h2 + " height: " + height + " " + Math.sqrt(l*l + w*w));
         return Math.asin(h2 / Math.sqrt(l*l + w*w)) + Math.atan(w / l) + Math.PI / 2;
     }
 }

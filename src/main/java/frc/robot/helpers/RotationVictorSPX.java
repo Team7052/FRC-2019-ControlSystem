@@ -198,8 +198,8 @@ public class RotationVictorSPX extends WPI_VictorSPX implements IRotationMotor {
             if (value < minPosition) value = minPosition;
         }
         else if (mode == ControlMode.PercentOutput) {
-            if (this.getPosition() >= maxPosition) value = 0.0;
-            if (this.getPosition() <= minPosition) value = 0.0;
+            //if (this.getPosition() >= maxPosition) value = 0.0;
+            //if (this.getPosition() <= minPosition) value = 0.0;
         }
         super.set(mode, value);
     }

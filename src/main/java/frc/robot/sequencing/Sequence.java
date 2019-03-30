@@ -37,7 +37,7 @@ public class Sequence<T> extends Step<T> {
     public T getUpdateForDeltaTime(double dt) {
         double runningTotalTimeSum = 0.0;
         for (Step<T> step: this.steps) {
-            if (step.totalRunningTime.get() >= dt) {
+            if (step.totalRunningTime.get() >= dt - runningTotalTimeSum) {
                 return step.getUpdateForDeltaTime(dt - runningTotalTimeSum);
             }
             runningTotalTimeSum += step.totalRunningTime.get();

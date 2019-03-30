@@ -42,7 +42,7 @@ public class ClimberSuperState extends SuperState<ClimberState> {
     @Override
     public void setState(ClimberState state) {
         if (state == this.systemState) return;
-        if (this.systemState == ClimberState.safelyStowed) {
+        if (this.systemState == ClimberState.home || this.systemState == ClimberState.safelyStowed) {
             this.systemState = state;
             this.deployState = ClimberDeployState.shouldDeploy;
         }
@@ -106,7 +106,7 @@ class HabClimbSequences {
         double midClaw = PhysicsWorld.getInstance().solveClimberClawAngleForHeight(0, habHeight);
         double midRack = 0;
 
-        double endClaw = 90 / 180 * Math.PI;
+        double endClaw = 90.0 / 180.0 * Math.PI;
         double endRack = habHeight + midRack;
 
         System.out.println("Climb: " + habHeight);
@@ -133,9 +133,8 @@ class HabClimbSequences {
     public static Pair<Sequence<MotionTriplet>> homeSequence() {
         double initClaw = climber.getClaw().getDegrees() / 180.0 * Math.PI;
         double initRack = climber.getRack().getLinearPosition();
-        double endClaw = 180 / 180 * Math.PI;
+        double endClaw = 200.0 / 180.0 * Math.PI;
         double endRack = climber.getRack().getHomeLinearPosition();
-
         TrapezoidShape clawShape = TrapezoidalFunctions.generateTrapezoidShape(initClaw, endClaw, clawMaxVelocity, clawMaxAcceleration);
         TrapezoidShape rackShape = TrapezoidalFunctions.generateTrapezoidShape(initRack, endRack, rackMaxVelocity, rackMaxAcceleration);
 
@@ -157,13 +156,13 @@ class HabClimbSequences {
         TrapezoidShape rackShape = TrapezoidalFunctions.generateTrapezoidShape(initRack, endRack, rackMaxVelocity, rackMaxAcceleration);
 
         FilterStep<MotionTriplet> clawProfile, rackProfile;
-        double give = 15.0 / 180.0 * Math.PI;
+        double give = 10.0 / 180.0 * Math.PI;
 
         if (clawShape.totalTime() <= rackShape.totalTime()) {
             System.out.println("Solve with fixed rack heights");
             
             FilterOutputModifier<MotionTriplet> filter = (dt, endTime, triplet) -> {
-                System.out.println(rackShape.getIntegralForTime(dt));
+                System.out.println(rackShape.getIntegralForTime(dt)+ initRack + " " + dt + " " + endTime + " " + rackShape.totalTime());
                 double angle = PhysicsWorld.getInstance().solveClimberClawAngleForHeight(rackShape.getIntegralForTime(dt), endRack) - (dt / endTime) * give;
                 return new MotionTriplet(angle, 0.0, 0.0);
             };

@@ -3,7 +3,12 @@ package frc.robot;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import edu.wpi.first.wpilibj.Timer;
+import org.opencv.core.Mat;
+
+import edu.wpi.cscore.CvSink;
+import edu.wpi.cscore.CvSource;
+import edu.wpi.cscore.UsbCamera;
+import edu.wpi.first.cameraserver.CameraServer;
 import frc.robot.commands.ClawCommand;
 import frc.robot.commands.FollowSplineCommand;
 import frc.robot.commands.RackCommand;
@@ -66,6 +71,7 @@ public class LoopsManager {
         public synchronized void onUpdate() {
             if (Robot.oi.button_A()) {
                 arm.getSuperState().setState(ArmState.home);
+                climber.getSuperState().setState(ClimberState.home);
             }
             else if (Robot.oi.button_R2()) {
                 arm.getSuperState().setState(ArmState.intakeHatch);
@@ -91,20 +97,21 @@ public class LoopsManager {
             else if (Robot.oi.dPad_UP()) {
                 arm.getSuperState().setState(ArmState.raiseArm);
             }
+            else if (Robot.oi.button_L1()) {
+                arm.getSuperState().setState(ArmState.pullOutSequence);
+            }
 
-            if (Robot.oi2 != null) {
-                /*if (Robot.oi2.button_X()) {
+            if (Robot.oi2 != null && Robot.oi2.button_L2()) {
+                if (Robot.oi2.button_X()) {
                     climber.getSuperState().setState(ClimberState.hab2Climb);
                 }
                 else if (Robot.oi2.button_A()) {
                     climber.getSuperState().setState(ClimberState.home);
                 }
-                else if (Robot.oi.button_Y()) {
+                else if (Robot.oi2.button_Y()) {
                     climber.getSuperState().setState(ClimberState.hab3Climb);
-                }*/
+                }
             }
-
-            
 
             arm.getSuperState().update();
             climber.getSuperState().update();
@@ -133,7 +140,7 @@ public class LoopsManager {
         }
         @Override
         public void onUpdate() {
-            if (prev == 0) prev = Timer.getFPGATimestamp();
+            /*if (prev == 0) prev = Timer.getFPGATimestamp();
             double timestamp = Timer.getFPGATimestamp();
             autoCommand.execute();
 
@@ -141,7 +148,46 @@ public class LoopsManager {
                 arm.getSuperState().setState(ArmState.highRocketHatch);
             }
             armCommand.execute();
-            arm.getSuperState().update();
+            arm.getSuperState().update();*/
+            //driveCommand.execute();
+            //armCommand.execute();
+        }
+    };
+
+    public Loop cameraLoop = new Loop() {
+        CameraServer cameraServer;
+        CvSink topCameraSink;
+        CvSink midCameraSink;
+        CvSource mainSource;
+
+        public boolean usingTopCamera = true;
+        public boolean prevToggleState = false;
+        
+        int width = 160, height = 120;
+        @Override
+        public void onStart() {
+            cameraServer = CameraServer.getInstance();
+            UsbCamera usbCameraTop = new UsbCamera("cameraTop", 0);
+            usbCameraTop.setResolution(width, height);
+            UsbCamera usbCameraMid = new UsbCamera("cameraMid", 1);
+            usbCameraMid.setResolution(width, height);
+            topCameraSink = cameraServer.getVideo(usbCameraTop);
+            midCameraSink = cameraServer.getVideo(usbCameraMid);
+            mainSource = CameraServer.getInstance().putVideo("Main Output", width, height);
+        }
+        @Override
+        public void onUpdate() {
+            Mat frame = new Mat(width, height, 0);
+            if (Robot.oi.button_R1() && prevToggleState == false) {
+                this.usingTopCamera = !this.usingTopCamera;
+            }
+            if (usingTopCamera) topCameraSink.grabFrame(frame);
+            else midCameraSink.grabFrame(frame);
+            
+            if (frame != null) {
+                mainSource.putFrame(frame);
+            }
+            prevToggleState = Robot.oi.button_R1();
         }
     };
 }

@@ -7,6 +7,7 @@ import frc.robot.motionProfiling.FilterStep;
 import frc.robot.motionProfiling.MotionTriplet;
 import frc.robot.motionProfiling.TrapezoidShape;
 import frc.robot.motionProfiling.TrapezoidalFunctions;
+import frc.robot.sequencing.DelayStep;
 import frc.robot.sequencing.Sequence;
 import frc.robot.states.substates.ArmState;
 import frc.robot.subsystems.ArmSubsystem;
@@ -45,7 +46,13 @@ public class ArmSuperState extends SuperState<ArmState> {
     @Override
     public void setState(ArmState newState) {
         if (this.systemState == newState) return;
-        this.systemState = newState;
+        /*if (this.systemState == ArmState.autonomousHome  && newState == ArmState.home) return;
+        if (this.systemState == ArmState.disabled && newState == ArmState.home) {
+            this.systemState = ArmState.autonomousHome;
+        }
+        else {*/
+            this.systemState = newState;
+        //}
         this.armMotionState = MotionState.waitingForMotion;
     }
 
@@ -72,6 +79,9 @@ public class ArmSuperState extends SuperState<ArmState> {
                 if (this.systemState == ArmState.lowerArm || this.systemState == ArmState.raiseArm) {
                     this.systemState = ArmState.adjustedPosition;
                 }
+                if (this.systemState == ArmState.autonomousHome) {
+                    this.systemState = ArmState.home;
+                }
             }
         }
 
@@ -95,6 +105,8 @@ public class ArmSuperState extends SuperState<ArmState> {
         switch (this.systemState) {
             case home:
                 return ArmSequences.homeSequence();
+            case autonomousHome:
+                return ArmSequences.autonomousHomeSequence();
             case intakeHatch:
                 return ArmSequences.intakeHatchSequence();
             case pullOutSequence:
@@ -134,6 +146,25 @@ class ArmSequences {
     public static Triplet<Sequence<MotionTriplet>> homeSequence() {
         return toSequence(generateProfiles(radians(25), radians(180), radians(180)));
     }
+    public static Triplet<Sequence<MotionTriplet>> autonomousHomeSequence() {
+        ArmSubsystem arm = ArmSubsystem.getInstance();
+        double initShoulder = arm.getAbsoluteDegrees(Motor.SHOULDER_JOINT);
+        double initElbow = arm.getAbsoluteDegrees(Motor.ELBOW_JOINT);
+        Triplet<FilterStep<MotionTriplet>> sequences = generateProfiles(initShoulder, initElbow, radians(180));
+        Triplet<FilterStep<MotionTriplet>> newSequences = generateProfiles(initShoulder, initElbow, radians(180), radians(25), radians(180), radians(180));
+        Sequence<MotionTriplet> shoulderSeq = new Sequence<>();
+        Sequence<MotionTriplet> elbowSeq = new Sequence<>();
+        Sequence<MotionTriplet> wristSeq = new Sequence<>();
+
+        shoulderSeq.addStep(sequences.a);
+        shoulderSeq.addStep(newSequences.a);
+        elbowSeq.addStep(sequences.b);
+        elbowSeq.addStep(newSequences.b);
+        wristSeq.addStep(sequences.c);
+        wristSeq.addStep(newSequences.c);
+
+        return new Triplet<>(shoulderSeq, elbowSeq, wristSeq);
+    }
     public static Triplet<Sequence<MotionTriplet>> intakeHatchSequence() {
         return toSequence(setDistances(16, 20, radians(180)));
     }
@@ -162,7 +193,7 @@ class ArmSequences {
         Pair<Double> currentDisplacements = PhysicsWorld.getInstance().solveArmKinematics();
         double normalized_l = currentDisplacements.a - PhysicsConstants.backToArm - PhysicsConstants.thickness / 2 + PhysicsConstants.hand;
         double normalized_h = PhysicsConstants.armHeight + PhysicsConstants.baseHeight - currentDisplacements.b;
-        return toSequence(setDistances(normalized_l, normalized_h + 3, radians(180)));
+        return toSequence(setDistances(normalized_l, normalized_h + 3, radians(190)));
     }
     public static Triplet<Sequence<MotionTriplet>> lowerArmSequence() {
         // get current displacements
@@ -206,6 +237,7 @@ class ArmSequences {
 
         return generateProfiles(initShoulder, initElbow, initWrist, endShoulder, endElbow, endWrist);
     }
+
     private static Triplet<FilterStep<MotionTriplet>> generateProfiles(double initShoulder, double initElbow, double initWrist, double endShoulder, double endElbow, double endWrist) {
         // trapezoidal motion profiling.
         TrapezoidShape initShoulderShape = TrapezoidalFunctions.generateTrapezoidShape(initShoulder, endShoulder, shoulderMaxVelocity, shoulderMaxAcceleration);
