@@ -19,53 +19,53 @@ public class TrapezoidShape {
     }
 
     public boolean isValidShape() {
-        if (p1.x < p2.x && p2.x <= p3.x && p3.x < p4.x) {
-            if (p1.x == 0 && p1.y == 0 && p4.y == 0 && p2.y == p3.y) return true;
+        if (p1.getX() < p2.getX() && p2.getX() <= p3.getX() && p3.getX() < p4.getX()) {
+            if (p1.getX() == 0 && p1.getY() == 0 && p4.getY() == 0 && p2.getY() == p3.getY()) return true;
         }
         return false;
     }
     public boolean isTriangle() {
-        return this.p2.x == p3.x && p2.y == p3.y;
+        return this.p2.getX() == p3.getX() && p2.getY() == p3.getY();
     }
 
     public double totalTime() {
-        return this.p4.x;
+        return this.p4.getX();
     }
 
     public double getVelocityForTime(double x) {
-        if (x < p1.x) return 0;
+        if (x < p1.getX()) return 0;
         if (!isValidShape()) return 0;
-        if (x <= p2.x) {
-            return p1.y + (p2.y - p1.y) * (x - p1.x) / (p2.x - p1.x);
+        if (x <= p2.getX()) {
+            return p1.getY() + (p2.getY() - p1.getY()) * (x - p1.getX()) / (p2.getX() - p1.getX());
         }
-        else if (x <= p3.x) {
-            return p2.y + (p3.y - p2.y) * (x - p2.x) / (p3.x - p2.x);
+        else if (x <= p3.getX()) {
+            return p2.getY() + (p3.getY() - p2.getY()) * (x - p2.getX()) / (p3.getX() - p2.getX());
         }
-        else if (x <= p4.x) {
-            return p3.y + (p4.y - p3.y) * (x - p3.x) / (p4.x - p3.x);
+        else if (x <= p4.getX()) {
+            return p3.getY() + (p4.getY() - p3.getY()) * (x - p3.getX()) / (p4.getX() - p3.getX());
         }
         return 0.0;
     }
 
     public double getIntegralForTime(double x) {
-        if (x < p1.x) return 0;
+        if (x < p1.getX()) return 0;
         if (!isValidShape()) return 0;
         double velocity = getVelocityForTime(x);
-        if (x <= p3.x) {
+        if (x <= p3.getX()) {
             double base = x;
-            double top = (x <= p2.x) ? 0 : x - p2.x;
+            double top = (x <= p2.getX()) ? 0 : x - p2.getX();
             return (base + top) * velocity / 2;
         }
-        if (x > p4.x) x = p4.x;
-        double p3Area = (2 * p3.x - p2.x) * p3.y / 2;
-        return p3Area + (p3.y + velocity) * (x - p3.x) / 2;
+        if (x > p4.getX()) x = p4.getX();
+        double p3Area = (2 * p3.getX() - p2.getX()) * p3.getY() / 2;
+        return p3Area + (p3.getY() + velocity) * (x - p3.getX()) / 2;
     }
 
     public double getDerivativeForTime(double x) {
-        if (x < p1.x) return 0.0;
-        if (x <= p2.x) return (p2.y - p1.y) / (p2.x - p1.x);
-        if (x <= p3.x) return 0.0;
-        if (x <= p4.x) return (p4.y - p3.y) / (p4.x - p3.x);
+        if (x < p1.getX()) return 0.0;
+        if (x <= p2.getX()) return (p2.getY() - p1.getY()) / (p2.getX() - p1.getX());
+        if (x <= p3.getX()) return 0.0;
+        if (x <= p4.getX()) return (p4.getY() - p3.getY()) / (p4.getX() - p3.getX());
         return 0.0;
     }
 

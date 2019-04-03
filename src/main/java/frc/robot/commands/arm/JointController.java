@@ -33,15 +33,15 @@ public class JointController implements ArmSuperStateDelegate {
             return;
         }
 
-        if (jointSequence.isRunning() && triplet != null) {
+        if (jointSequence.isRunning(timestamp) && triplet != null) {
             // a = position
-            double position = triplet.a;
+            double position = triplet.getPosition();
             arm.setDegrees(motor, position / Math.PI * 180);
         }
         if (jointSequence.isFinished(timestamp)) {
             MotionTriplet lastTriplet = jointSequence.getLastUpdate();
             if (lastTriplet != null) {
-                double position = lastTriplet.a;
+                double position = lastTriplet.getPosition();
                 arm.setDegrees(motor, position / Math.PI * 180);
             }
         }

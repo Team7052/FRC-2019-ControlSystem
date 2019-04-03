@@ -31,7 +31,7 @@ public class SplineFollower extends Step<Pair<Double>> {
         int desiredPoint = (int) (percentage * spline.getCubicSpline().size());
         //closest entered point to desired point
 
-        int i = this.closest(spline.get_xs(), spline.getCubicSpline().get(desiredPoint).x);
+        int i = this.closest(spline.get_xs(), spline.getCubicSpline().get(desiredPoint).getX());
         boolean concaveUp = this.concaveUp(spline.get_xs(), i, spline.get_ys(), spline.getTangents());
         double leftTheo = this.getLeftSum(desiredPoint, spline.getCubicSpline());
         double rightTheo = this.getRightSum(desiredPoint, spline.getCubicSpline());
@@ -47,21 +47,21 @@ public class SplineFollower extends Step<Pair<Double>> {
         double h = SplineMethods.calch(xs, i);
         if (i == 0) {
             yLow = ys[i];
-            mLow = tangents.get(i).y;
+            mLow = tangents.get(i).getY();
         } else {
             yLow = ys[i];
-            mLow = tangents.get(i).y;
+            mLow = tangents.get(i).getY();
         }
 
         if (i == ys.length - 1) {
             yHigh = ys[i];
-            mHigh = tangents.get(i).y;
+            mHigh = tangents.get(i).getY();
         } else if (i == ys.length - 2) {
             yHigh = ys[i + 1];
-            mHigh = tangents.get(i + 1).y;
+            mHigh = tangents.get(i + 1).getY();
         } else {
             yHigh = ys[i + 1];
-            mHigh = tangents.get(i + 1).y;
+            mHigh = tangents.get(i + 1).getY();
         }
         double const1 = yLow;
         double const2 = h * mLow;
@@ -100,12 +100,12 @@ public class SplineFollower extends Step<Pair<Double>> {
     private double getLeftSum(double desiredPoint, ArrayList<Point> points) {
         double leftSum=0;
         for(int i=0; i<desiredPoint; i++){
-            if((points.get(i+1).x - points.get(i).x)>0){
-                double theta = Math.atan(10*(points.get(i+1).y - points.get(i).y));
-                leftSum+=Math.sin(theta)*(points.get(i+1).y - points.get(i).y);   
+            if((points.get(i+1).getX() - points.get(i).getX())>0){
+                double theta = Math.atan(10*(points.get(i+1).getY() - points.get(i).getY()));
+                leftSum+=Math.sin(theta)*(points.get(i+1).getY() - points.get(i).getY());   
             }
             else{
-                leftSum+=points.get(i+1).y - points.get(i).y;
+                leftSum+=points.get(i+1).getY() - points.get(i).getY();
             }
         }
         return leftSum*4096;
@@ -113,12 +113,12 @@ public class SplineFollower extends Step<Pair<Double>> {
     private double getRightSum(double desiredPoint, ArrayList<Point> points) {
         double rightSum = 0;
         for(int i=0; i<desiredPoint; i++){
-            if((points.get(i+1).x - points.get(i).x)<0){
-                double theta = Math.atan(10*(points.get(i+1).y - points.get(i).y));
-                rightSum+=Math.sin(theta)*points.get(i).y;
+            if((points.get(i+1).getX() - points.get(i).getX())<0){
+                double theta = Math.atan(10*(points.get(i+1).getY() - points.get(i).getY()));
+                rightSum+=Math.sin(theta)*points.get(i).getY();
             }
             else{
-                rightSum+=points.get(i+1).y-points.get(i).y;
+                rightSum+=points.get(i+1).getY()-points.get(i).getY();
             }
             
         }
@@ -130,18 +130,18 @@ public class SplineFollower extends Step<Pair<Double>> {
        double leftSlope = baseSpeed, rightSlope = baseSpeed;
         double theta;
         if (desiredPoint != points.size() - 1 && desiredPoint != points.size() - 2) {
-            double xOne = points.get(desiredPoint + 1).x - points.get(desiredPoint).x;
-            double yOne = points.get(desiredPoint + 1).y - points.get(desiredPoint).y;
+            double xOne = points.get(desiredPoint + 1).getX() - points.get(desiredPoint).getX();
+            double yOne = points.get(desiredPoint + 1).getY() - points.get(desiredPoint).getY();
             double length1 = Math.sqrt(Math.pow(xOne, 2) + Math.pow(yOne, 2));
 
             // System.out.println("Length one: " + length1);
-            double xTwo = points.get(desiredPoint + 2).x - points.get(desiredPoint + 1).x;
-            double yTwo = points.get(desiredPoint + 2).y - points.get(desiredPoint + 1).y;
+            double xTwo = points.get(desiredPoint + 2).getX() - points.get(desiredPoint + 1).getX();
+            double yTwo = points.get(desiredPoint + 2).getY() - points.get(desiredPoint + 1).getY();
             double length2 = Math.sqrt(Math.pow(xTwo, 2) + Math.pow(yTwo, 2));
 
             // System.out.println("Length two: " + length2);
-            double xThree = points.get(desiredPoint + 2).x - points.get(desiredPoint).x;
-            double yThree = points.get(desiredPoint + 2).y - points.get(desiredPoint).y;
+            double xThree = points.get(desiredPoint + 2).getX() - points.get(desiredPoint).getX();
+            double yThree = points.get(desiredPoint + 2).getY() - points.get(desiredPoint).getY();
             double length3 = Math.sqrt(Math.pow(xThree, 2) + Math.pow(yThree, 2));
 
             //  System.out.println("Length three: " + length3);

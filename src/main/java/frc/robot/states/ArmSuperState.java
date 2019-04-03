@@ -7,7 +7,6 @@ import frc.robot.motionProfiling.FilterStep;
 import frc.robot.motionProfiling.MotionTriplet;
 import frc.robot.motionProfiling.TrapezoidShape;
 import frc.robot.motionProfiling.TrapezoidalFunctions;
-import frc.robot.sequencing.DelayStep;
 import frc.robot.sequencing.Sequence;
 import frc.robot.states.substates.ArmState;
 import frc.robot.subsystems.ArmSubsystem;
@@ -63,14 +62,14 @@ public class ArmSuperState extends SuperState<ArmState> {
             if (triplet != null) {
                 this.setMotionStates(MotionState.followingMotionProfiles);
                 // add a callback to each sequence to know when it is finished
-                triplet.a.callback = () -> this.shoulderMotionState = MotionState.finishedMotion;
-                triplet.b.callback = () -> this.elbowMotionState = MotionState.finishedMotion;
-                triplet.c.callback = () -> this.wristMotionState = MotionState.finishedMotion;
+                triplet.getFirst().addCallback(() -> this.shoulderMotionState = MotionState.finishedMotion);
+                triplet.getSecond().addCallback(() -> this.elbowMotionState = MotionState.finishedMotion);
+                triplet.getThird().addCallback(() -> this.wristMotionState = MotionState.finishedMotion);
 
                 // trigger delegate to update sequence in each of the joint controllers
-                if (shoulderDelegate != null) shoulderDelegate.setSequence(triplet.a);
-                if (elbowDelegate != null) elbowDelegate.setSequence(triplet.b);
-                if (wristDelegate != null) wristDelegate.setSequence(triplet.c);
+                if (shoulderDelegate != null) shoulderDelegate.setSequence(triplet.getFirst());
+                if (elbowDelegate != null) elbowDelegate.setSequence(triplet.getSecond());
+                if (wristDelegate != null) wristDelegate.setSequence(triplet.getThird());
             }
         }
         else if (this.armMotionState == MotionState.followingMotionProfiles) {
@@ -156,12 +155,12 @@ class ArmSequences {
         Sequence<MotionTriplet> elbowSeq = new Sequence<>();
         Sequence<MotionTriplet> wristSeq = new Sequence<>();
 
-        shoulderSeq.addStep(sequences.a);
-        shoulderSeq.addStep(newSequences.a);
-        elbowSeq.addStep(sequences.b);
-        elbowSeq.addStep(newSequences.b);
-        wristSeq.addStep(sequences.c);
-        wristSeq.addStep(newSequences.c);
+        shoulderSeq.addStep(sequences.getFirst());
+        shoulderSeq.addStep(newSequences.getFirst());
+        elbowSeq.addStep(sequences.getSecond());
+        elbowSeq.addStep(newSequences.getSecond());
+        wristSeq.addStep(sequences.getThird());
+        wristSeq.addStep(newSequences.getThird());
 
         return new Triplet<>(shoulderSeq, elbowSeq, wristSeq);
     }
@@ -191,28 +190,28 @@ class ArmSequences {
     public static Triplet<Sequence<MotionTriplet>> raiseArmSequence() {
         // get current displacements
         Pair<Double> currentDisplacements = PhysicsWorld.getInstance().solveArmKinematics();
-        double normalized_l = currentDisplacements.a - PhysicsConstants.backToArm - PhysicsConstants.thickness / 2 + PhysicsConstants.hand;
-        double normalized_h = PhysicsConstants.armHeight + PhysicsConstants.baseHeight - currentDisplacements.b;
+        double normalized_l = currentDisplacements.getFirst() + PhysicsConstants.backToArm - PhysicsConstants.thickness / 2 + PhysicsConstants.hand;
+        double normalized_h = PhysicsConstants.armHeight + PhysicsConstants.baseHeight - currentDisplacements.getSecond();
         return toSequence(setDistances(normalized_l, normalized_h + 3, radians(190)));
     }
     public static Triplet<Sequence<MotionTriplet>> lowerArmSequence() {
         // get current displacements
         Pair<Double> currentDisplacements = PhysicsWorld.getInstance().solveArmKinematics();
-        double normalized_l = currentDisplacements.a - PhysicsConstants.backToArm - PhysicsConstants.thickness / 2 + PhysicsConstants.hand;
-        double normalized_h = PhysicsConstants.armHeight + PhysicsConstants.baseHeight - currentDisplacements.b;
+        double normalized_l = currentDisplacements.getFirst() - PhysicsConstants.backToArm - PhysicsConstants.thickness / 2 + PhysicsConstants.hand;
+        double normalized_h = PhysicsConstants.armHeight + PhysicsConstants.baseHeight - currentDisplacements.getSecond();
         return toSequence(setDistances(normalized_l, normalized_h - 2, radians(180)));
     }
     public static Triplet<Sequence<MotionTriplet>> pullOutSequence() {
         // get current displacements
         Pair<Double> currentDisplacements = PhysicsWorld.getInstance().solveArmKinematics();
-        double normalized_l = currentDisplacements.a - PhysicsConstants.backToArm - PhysicsConstants.thickness / 2 + PhysicsConstants.hand;
-        double normalized_h = PhysicsConstants.armHeight + PhysicsConstants.baseHeight - currentDisplacements.b;
+        double normalized_l = currentDisplacements.getFirst() - PhysicsConstants.backToArm - PhysicsConstants.thickness / 2 + PhysicsConstants.hand;
+        double normalized_h = PhysicsConstants.armHeight + PhysicsConstants.baseHeight - currentDisplacements.getSecond();
         return toSequence(setDistances(normalized_l, normalized_h - 2, radians(180)));
     }
 
     private static Triplet<FilterStep<MotionTriplet>> setDistances(double l, double h, double wristRadians) {
         Pair<Double> angles = PhysicsWorld.getInstance().armInverseKinematics(l + PhysicsConstants.backToArm + PhysicsConstants.thickness / 2 - PhysicsConstants.hand, PhysicsConstants.armHeight + PhysicsConstants.baseHeight - h);
-        return generateProfiles(angles.a, angles.b, wristRadians);
+        return generateProfiles(angles.getFirst(), angles.getSecond(), wristRadians);
     }
 
     private static double radians(double degrees) {
@@ -221,9 +220,9 @@ class ArmSequences {
 
     private static Triplet<Sequence<MotionTriplet>> toSequence(Triplet<FilterStep<MotionTriplet>> triplet) {
         Triplet<Sequence<MotionTriplet>> sequence = new Triplet<>(new Sequence<>(), new Sequence<>(), new Sequence<>());
-        sequence.a.addStep(triplet.a);
-        sequence.b.addStep(triplet.b);
-        sequence.c.addStep(triplet.c);
+        sequence.getFirst().addStep(triplet.getFirst());
+        sequence.getSecond().addStep(triplet.getSecond());
+        sequence.getThird().addStep(triplet.getThird());
         return sequence;
     }
 
@@ -244,14 +243,14 @@ class ArmSequences {
         TrapezoidShape initElbowShape = TrapezoidalFunctions.generateTrapezoidShape(initElbow, endElbow, elbowMaxVelocity, elbowMaxAcceleration);
         Pair<TrapezoidShape> newShapes = TrapezoidalFunctions.syncTrapezoidShapes(initShoulderShape, initElbowShape);
         // generate nonsensical elbow shape at beginning
-        FilterStep<MotionTriplet> shoulderProfile = FilterStep.trapezoidalProfileFilter(newShapes.a, initShoulder);
+        FilterStep<MotionTriplet> shoulderProfile = FilterStep.trapezoidalProfileFilter(newShapes.getFirst(), initShoulder);
 
         FilterOutputModifier<MotionTriplet> elbowFilter = (dt, endTime, triplet) -> {
             double absoluteShoulderPosition = shoulderProfile.getUpdateForDeltaTime(dt).getPosition();
             double relativeElbow = radiansElbowRelativeToShoulder(triplet.getPosition(), absoluteShoulderPosition);
             return new MotionTriplet(relativeElbow, triplet.getVelocity(), triplet.getAcceleration());
         };
-        FilterStep<MotionTriplet> elbowProfile = FilterStep.trapezoidalProfileFilter(newShapes.b, initElbow);
+        FilterStep<MotionTriplet> elbowProfile = FilterStep.trapezoidalProfileFilter(newShapes.getSecond(), initElbow);
         elbowProfile.addFilter(elbowFilter);
         // interpolate wrist points
         FilterOutputModifier<MotionTriplet> wristFilter = (dt, endTime, triplet) -> {
@@ -264,7 +263,7 @@ class ArmSequences {
             return new MotionTriplet(relativeWristPosition, 0.0, 0.0);
         };
         // take elbow absolute angles and transform the wrist to match those angles
-        FilterStep<MotionTriplet> wristProfile = new FilterStep<MotionTriplet>(wristFilter, () -> newShapes.a.totalTime());
+        FilterStep<MotionTriplet> wristProfile = new FilterStep<MotionTriplet>(wristFilter, () -> newShapes.getFirst().totalTime());
 
         return new Triplet<>(shoulderProfile, elbowProfile, wristProfile);
     }

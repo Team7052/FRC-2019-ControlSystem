@@ -23,9 +23,9 @@ public class RackCommand implements ClimberSuperStateDelegate {
         if (!sequence.hasBegan()) sequence.start(timestamp);
         MotionTriplet triplet = sequence.update(timestamp);
 
-        if (sequence.isRunning() && triplet != null) {
+        if (sequence.isRunning(timestamp) && triplet != null) {
             // a = position
-            double position = triplet.a;
+            double position = triplet.getPosition();
             //System.out.println(position + " " + climber.getRack().getLinearPosition() + " " + climber.getRack().getPercentOutput() + " " + (timestamp - prev) + " " + climber.getRack().getCurrent());
             
             climber.getRack().setTargetDisplacement(position);
@@ -33,7 +33,7 @@ public class RackCommand implements ClimberSuperStateDelegate {
         if (sequence.isFinished(timestamp)) {
             MotionTriplet lastTriplet = sequence.getLastUpdate();
             if (lastTriplet != null) {
-                double position = lastTriplet.a;
+                double position = lastTriplet.getPosition();
                 climber.getRack().setTargetDisplacement(position);
                 //System.out.println(position + " " + climber.getLeg().getLinearPosition() + " " + climber.getLeg().getPercentOutput());
             }

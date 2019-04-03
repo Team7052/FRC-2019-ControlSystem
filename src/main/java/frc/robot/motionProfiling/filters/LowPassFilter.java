@@ -16,6 +16,6 @@ public class LowPassFilter implements FilterOutputModifier<MotionTriplet> {
     @Override
     public MotionTriplet transform(double dt, double endTime, MotionTriplet currentValue) {
         double target = tau / (dt + tau) * currentValue.getPosition() + dt / (dt + tau) * this.targetDegrees;
-        return new MotionTriplet(target + currentValue.a, currentValue.b, currentValue.c);
+        return new MotionTriplet(target + currentValue.getPosition(), currentValue.getVelocity(), currentValue.getAcceleration());
     }
 }

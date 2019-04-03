@@ -1,13 +1,13 @@
 package frc.robot.states;
 
 import frc.robot.helpers.Pair;
-import frc.robot.motionProfiling.MotionProfileState;
 import frc.robot.motionProfiling.MotionTriplet;
 import frc.robot.motionProfiling.FilterOutputModifier;
 import frc.robot.motionProfiling.TrapezoidShape;
 import frc.robot.motionProfiling.TrapezoidalFunctions;
 import frc.robot.motionProfiling.FilterStep;
 import frc.robot.sequencing.Sequence;
+import frc.robot.sequencing.StepState;
 import frc.robot.states.substates.ClimberState;
 import frc.robot.subsystems.Climber;
 import frc.robot.util.physics.PhysicsWorld;
@@ -17,8 +17,8 @@ public class ClimberSuperState extends SuperState<ClimberState> {
         notDeployed, shouldDeploy, deploy
     }
 
-    MotionProfileState clawState = MotionProfileState.IDLE;
-    MotionProfileState rackState = MotionProfileState.IDLE;
+    StepState clawState = StepState.IDLE;
+    StepState rackState = StepState.IDLE;
 
     private ClimberDeployState deployState;
 
@@ -71,16 +71,16 @@ public class ClimberSuperState extends SuperState<ClimberState> {
             }
 
             if (sequence != null) {
-                this.clawDelegate.updateSequence(sequence.a);
-                this.rackDelegate.updateSequence(sequence.b);
-                this.clawState = MotionProfileState.RUNNING;
-                this.rackState = MotionProfileState.RUNNING;
+                this.clawDelegate.updateSequence(sequence.getFirst());
+                this.rackDelegate.updateSequence(sequence.getSecond());
+                this.clawState = StepState.RUNNING;
+                this.rackState = StepState.RUNNING;
 
-                sequence.a.callback = () -> this.clawState = MotionProfileState.FINISHED;
-                sequence.b.callback = () -> this.rackState = MotionProfileState.FINISHED;
+                sequence.getFirst().addCallback(() -> this.clawState = StepState.FINISHED);
+                sequence.getSecond().addCallback(() -> this.rackState = StepState.FINISHED);
             }
         }
-        if (this.clawState == MotionProfileState.FINISHED && this.rackState == MotionProfileState.FINISHED) {
+        if (this.clawState == StepState.FINISHED && this.rackState == StepState.FINISHED) {
             if (this.systemState == ClimberState.home) this.systemState = ClimberState.safelyStowed;
         }
     }
@@ -122,10 +122,10 @@ class HabClimbSequences {
 
 
         clawSequence.addStep(clawProfileStep1);
-        clawSequence.addStep(step2.a);
+        clawSequence.addStep(step2.getFirst());
 
         rackSequence.addStep(rackProfileStep1);
-        rackSequence.addStep(step2.b);
+        rackSequence.addStep(step2.getSecond());
 
         return new Pair<>(clawSequence, rackSequence);
     }

@@ -27,21 +27,21 @@ public class SplineMethods {
         double h = SplineMethods.calch(xs, i);
         if (i == 0) {
             yLow = ys[i];
-            mLow = tangents.get(i).y;
+            mLow = tangents.get(i).getY();
         } else {
             yLow = ys[i];
-            mLow = tangents.get(i).y;
+            mLow = tangents.get(i).getY();
         }
 
         if (i == ys.length - 1) {
             yHigh = ys[i];
-            mHigh = tangents.get(i).y;
+            mHigh = tangents.get(i).getY();
         } else if (i == ys.length - 2) {
             yHigh = ys[i + 1];
-            mHigh = tangents.get(i + 1).y;
+            mHigh = tangents.get(i + 1).getY();
         } else {
             yHigh = ys[i + 1];
-            mHigh = tangents.get(i + 1).y;
+            mHigh = tangents.get(i + 1).getY();
         }
         double const1 = yLow;
         double const2 = h * mLow;
@@ -51,7 +51,7 @@ public class SplineMethods {
         int g = 0;
 
         //System.out.println("Desired Point: (" + xs[i] + ", " + ys[i] + ")");
-        for (double j = goalPoint.x + 0.001; j <= xs[i + 1]/2; j = j + 0.01) {
+        for (double j = goalPoint.getX() + 0.001; j <= xs[i + 1]/2; j = j + 0.01) {
 
             double t = SplineMethods.calct(xs, i, j);
             double part1 = 2 * Math.pow(t, 3) - 3 * Math.pow(t, 2) + 1;
@@ -68,7 +68,7 @@ public class SplineMethods {
 
             double num = part1 + part2 + part3 + part4;
 
-            distances[g] = Math.sqrt(Math.pow(j - goalPoint.x, 2) + (Math.pow(num - goalPoint.y, 2)));
+            distances[g] = Math.sqrt(Math.pow(j - goalPoint.getX(), 2) + (Math.pow(num - goalPoint.getY(), 2)));
             points.add(new Point(j, num));
             //System.out.println("Point " + g + ": (" + j + ", " + num + ")");
             g++;
@@ -84,7 +84,7 @@ public class SplineMethods {
         double xDif = delta;
         if (!points.isEmpty()) {
             int index = closest(distances, delta);
-            xDif = Math.abs(goalPoint.x - points.get(index).x);
+            xDif = Math.abs(goalPoint.getX() - points.get(index).getX());
             //System.out.println("Closest: " + distances[index] + " at point: " + index);
             //System.out.println("x delta: " + xDif);
 

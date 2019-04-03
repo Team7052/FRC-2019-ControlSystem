@@ -15,7 +15,7 @@ public class DeltaPositionFilter implements FilterOutputModifier<MotionTriplet> 
 
     @Override
     public MotionTriplet transform(double dt, double endTime, MotionTriplet currentValue) {
-        currentValue.a += initialPosition;
-        return currentValue;
+        MotionTriplet newValue = new MotionTriplet(currentValue.getPosition() + initialPosition, currentValue.getVelocity(), currentValue.getAcceleration());
+        return newValue;
     }
 }

@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.RobotMap;
-import frc.robot.motionProfiling.MotionProfiler;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.ArmSubsystem.Motor;
@@ -48,8 +47,6 @@ public class Network {
             else if (RobotState.isTest()) entry.setString("test");
         }
     }
-
-    Map<String, MotionProfiler> motionProfilesStarted = new HashMap<>();
 
     public void sendDataToServer() {
         // send network data

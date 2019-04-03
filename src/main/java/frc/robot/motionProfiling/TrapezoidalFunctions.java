@@ -95,7 +95,7 @@ public class TrapezoidalFunctions {
 
         double ratio = newTotalTime / totalTimeOfShape(trapezoidShape);
         for (Point p: trapezoidShape) {
-            newTrapezoidShape.add(new Point(p.x * ratio, p.y / ratio));
+            newTrapezoidShape.add(new Point(p.getX() * ratio, p.getY() / ratio));
         }
         
         return newTrapezoidShape;
@@ -106,7 +106,7 @@ public class TrapezoidalFunctions {
         Point[] points = trapezoidShape.getPoints();
         Point[] newPoints = new Point[points.length];
         for (int i =0 ; i < points.length; i++) {
-            newPoints[i] = new Point(points[i].x * ratio, points[i].y / ratio);
+            newPoints[i] = new Point(points[i].getX() * ratio, points[i].getY() / ratio);
         }
         if (newPoints.length != 4) return null;
         return new TrapezoidShape(newPoints[0], newPoints[1], newPoints[2], newPoints[3]);
@@ -114,6 +114,6 @@ public class TrapezoidalFunctions {
 
     public static double totalTimeOfShape(ArrayList<Point> shape) {
         if (shape.size() == 0) return 0;
-        return shape.get(shape.size() - 1).x;
+        return shape.get(shape.size() - 1).getX();
     }
 }

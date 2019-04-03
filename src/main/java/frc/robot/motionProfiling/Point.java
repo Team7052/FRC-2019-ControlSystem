@@ -1,13 +1,21 @@
 package frc.robot.motionProfiling;
 
-public class Point {
-    public double x, y;
+import frc.robot.helpers.Pair;
+
+public class Point extends Pair<Double> {
     public Point(double x, double y) {
-        this.x = x;
-        this.y = y;
+        super(x, y);
     }
+
+    public double getX() {
+        return this.getFirst();
+    }
+    public double getY() {
+        return this.getSecond();
+    }
+
     @Override
     public String toString() {
-        return "(" + x + ", " + y +")";
+        return "(" + this.getFirst() + ", " + this.getSecond() +")";
     }
 }

@@ -21,8 +21,8 @@ public class Spline {
         if (this.path.size() < 2) return 0;
         Point initPoint = this.path.get(0);
         Point secondPoint = this.path.get(1);
-        double theta = Math.atan(Math.abs((secondPoint.y - initPoint.y) / (secondPoint.x - initPoint.x)));
-        if (secondPoint.x - initPoint.x < 0) theta += Math.PI;
+        double theta = Math.atan(Math.abs((secondPoint.getY() - initPoint.getY()) / (secondPoint.getX() - initPoint.getX())));
+        if (secondPoint.getX() - initPoint.getX() < 0) theta += Math.PI;
         return theta;
     }
     
@@ -47,8 +47,8 @@ public class Spline {
         ys = new double[path.size()];
 
         for (int i = 0; i < path.size(); i++) {
-            xs[i] = path.get(i).x;
-            ys[i] = path.get(i).y;
+            xs[i] = path.get(i).getX();
+            ys[i] = path.get(i).getY();
         }
         this.tangents = this.calcTangents(path);
         ArrayList<Point> cubic = new ArrayList<Point>();
@@ -71,21 +71,21 @@ public class Spline {
             double h = SplineMethods.calch(xs, i);
             if (i == 0) {
                 yLow = ys[i];
-                mLow = tangents.get(i).y;
+                mLow = tangents.get(i).getY();
             } else {
                 yLow = ys[i];
-                mLow = tangents.get(i).y;
+                mLow = tangents.get(i).getY();
             }
 
             if (i == ys.length - 1) {
                 yHigh = ys[i];
-                mHigh = tangents.get(i).y;
+                mHigh = tangents.get(i).getY();
             } else if (i == ys.length - 2) {
                 yHigh = ys[i + 1];
-                mHigh = tangents.get(i + 1).y;
+                mHigh = tangents.get(i + 1).getY();
             } else {
                 yHigh = ys[i + 1];
-                mHigh = tangents.get(i + 1).y;
+                mHigh = tangents.get(i + 1).getY();
             }
             double const1 = yLow;
             double const2 = h * mLow;
@@ -144,29 +144,29 @@ public class Spline {
         int i = 0;
         while (i < points.size()) {
             if (i == 0) {
-                tangents.add(new Point(i, secants.get(i).y));
+                tangents.add(new Point(i, secants.get(i).getY()));
                 run = false;
             } else if (i == points.size() - 1) {
-                tangents.add(new Point(i, secants.get(i - 1).y));
+                tangents.add(new Point(i, secants.get(i - 1).getY()));
                 run = false;
-            } else if (secants.get(i).y == 0) {
+            } else if (secants.get(i).getY() == 0) {
                 tangents.add(new Point(i, 0));
                 tangents.add(new Point(i + 1, 0));
                 doubleInc = true;
                 run = false;
-            } else if (secants.get(i).y < 0 && secants.get(i).y > 0) {
+            } else if (secants.get(i).getY() < 0 && secants.get(i).getY() > 0) {
                 tangent = 0;
-            } else if (secants.get(i).y > 0 && secants.get(i).y < 0) {
+            } else if (secants.get(i).getY() > 0 && secants.get(i).getY() < 0) {
                 tangent = 0;
             } else {
-                tangent = (secants.get(i - 1).y + secants.get(i).y) / 2;
+                tangent = (secants.get(i - 1).getY() + secants.get(i).getY()) / 2;
             }
             if (run) {
-                if (secants.get(i).y != 0) {
-                    alpha = tangent / secants.get(i).y;
+                if (secants.get(i).getY() != 0) {
+                    alpha = tangent / secants.get(i).getY();
                 }
-                if (secants.get(i - 1).y != 0) {
-                    beta = tangent / secants.get(i - 1).y;
+                if (secants.get(i - 1).getY() != 0) {
+                    beta = tangent / secants.get(i - 1).getY();
                 }
 
                 if (alpha < 0 || beta < 0) {
@@ -196,7 +196,7 @@ public class Spline {
         ArrayList<Point> secants = new ArrayList<>();
         double secant = 0;
         for (int i = 0; i < points.size() - 1; i++) {
-            secant = (points.get(i + 1).y - points.get(i).y) / (points.get(i + 1).x - points.get(i).x);
+            secant = (points.get(i + 1).getY() - points.get(i).getY()) / (points.get(i + 1).getX() - points.get(i).getX());
 
             secants.add(new Point(i, secant));
 
